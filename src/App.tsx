@@ -44,100 +44,106 @@ const MENU_ITEMS = [
 
 const HIGHLIGHTS = [
   {
-    icon: <LayoutDashboard className="w-8 h-8 text-red-500" />,
-    title: 'บาคาร่าออนไลน์ใช้งานง่าย',
-    description: 'เมนูชัดเจน เข้าถึงได้ไว ไม่ซับซ้อน'
+    icon: <Zap className="w-8 h-8 text-red-500" />,
+    title: 'ฝากถอนออโต้ 10 วิ',
+    description: 'รวดเร็ว ทันใจ ไม่ต้องรอนาน ทำรายการได้ด้วยตัวเอง'
   },
   {
     icon: <ShieldCheck className="w-8 h-8 text-amber-500" />,
-    title: 'บาคาร่าเว็บตรง',
-    description: 'โครงสร้างหน้าเว็บทันสมัย ดูเป็นระเบียบ และใช้งานสะดวก'
+    title: 'บาคาร่าเว็บตรง 100%',
+    description: 'ปลอดภัย ไม่ผ่านเอเย่นต์ มั่นคงทางการเงิน จ่ายจริงทุกยอด'
+  },
+  {
+    icon: <LayoutDashboard className="w-8 h-8 text-red-500" />,
+    title: 'เริ่มต้นเพียง 10 บาท',
+    description: 'ทุนน้อยก็เล่นได้ ไม่มีขั้นต่ำ เหมาะสำหรับทุกคน'
+  },
+  {
+    icon: <Monitor className="w-8 h-8 text-amber-500" />,
+    title: 'คาสิโนสด ภาพคมชัด',
+    description: 'สตรีมมิ่งตรงจากคาสิโนจริงระดับโลก ลื่นไหลไม่มีสะดุด'
   },
   {
     icon: <Smartphone className="w-8 h-8 text-red-500" />,
-    title: 'รองรับมือถือเต็มรูปแบบ',
-    description: 'เล่นและใช้งานได้ดีทั้งมือถือ แท็บเล็ต และเดสก์ท็อป'
+    title: 'รองรับทุกธนาคาร & วอเลท',
+    description: 'สะดวกสบาย ทุกช่องทางการเงิน บาคาร่าทรูวอเลท'
   },
   {
-    icon: <Zap className="w-8 h-8 text-amber-500" />,
-    title: 'ระบบลื่นไหล',
-    description: 'ทุกส่วนถูกออกแบบให้ใช้งานต่อเนื่องได้อย่างคล่องตัว'
-  },
-  {
-    icon: <Clock className="w-8 h-8 text-red-500" />,
-    title: 'เข้าถึงได้ตลอดเวลา',
-    description: 'ใช้งานได้สะดวกทุกช่วงเวลา'
-  },
-  {
-    icon: <Layers className="w-8 h-8 text-amber-500" />,
-    title: 'ครบในที่เดียว',
-    description: 'รวมหมวดสำคัญและโปรโมชันไว้ในแพลตฟอร์มเดียว'
+    icon: <Clock className="w-8 h-8 text-amber-500" />,
+    title: 'บริการลูกค้า 24 ชม.',
+    description: 'ทีมงานมืออาชีพพร้อมดูแลและให้คำปรึกษาตลอดเวลา'
   }
 ];
 
 const WHY_CHOOSE = [
   {
-    icon: <Crown className="w-6 h-6" />,
-    title: 'ดีไซน์แดง ทอง ดำ แบบพรีเมียม',
-    description: 'ภาพลักษณ์โดดเด่น ดูหรู และช่วยให้หน้าเว็บจดจำได้ง่าย'
+    icon: <Zap className="w-6 h-6" />,
+    title: 'ระบบเสถียร ไม่มีสะดุด',
+    description: 'เล่นบาคาร่าได้อย่างลื่นไหล แทงได้ทุกไม้ไม่มีพลาด ด้วยเซิร์ฟเวอร์คุณภาพสูง'
   },
   {
-    icon: <Gem className="w-6 h-6" />,
-    title: 'เน้นบาคาร่าออนไลน์เป็นหลัก',
-    description: 'โครงสร้างเว็บไซต์ออกแบบมาเพื่อให้เข้าถึงหมวดบาคาร่าที่สำคัญได้สะดวก'
-  },
-  {
-    icon: <Monitor className="w-6 h-6" />,
-    title: 'รองรับมือถือเต็มรูปแบบ',
-    description: 'ไม่ว่าจะใช้งานจากหน้าจอไหน หน้าเว็บยังคงดูดีและกดใช้งานง่าย'
-  },
-  {
-    icon: <LayoutDashboard className="w-6 h-6" />,
-    title: 'จัดวางเมนูเป็นระเบียบ',
-    description: 'ช่วยให้ผู้ใช้ใหม่เข้าใจหน้าเว็บได้เร็วขึ้นและใช้งานได้ทันที'
-  },
-  {
-    icon: <Gift className="w-6 h-6" />,
-    title: 'โปรโมชันอัปเดตสม่ำเสมอ',
-    description: 'เพิ่มความน่าสนใจให้หน้าเว็บด้วยส่วนข้อเสนอและสิทธิพิเศษที่ชัดเจน'
+    icon: <Layers className="w-6 h-6" />,
+    title: 'รวมค่ายบาคาร่าชั้นนำ',
+    description: 'มีให้เลือกเล่นครบทั้ง SA Gaming, Sexy Baccarat และค่ายดังอื่นๆ อีกมากมาย'
   },
   {
     icon: <TrendingUp className="w-6 h-6" />,
-    title: 'เหมาะกับการทำแลนดิ้งเพจคอนเวิร์ตสูง',
-    description: 'มี CTA เด่น ข้อความกระชับ และลำดับ section ที่ปิดการขายได้ดี'
+    title: 'ถอนได้ไม่อั้น จ่ายจริง',
+    description: 'เล่นได้หลักล้านก็จ่าย ถอนเงินได้ไม่จำกัดจำนวนครั้งต่อวัน'
+  },
+  {
+    icon: <Crown className="w-6 h-6" />,
+    title: 'สูตรบาคาร่าฟรี',
+    description: 'มีกลุ่มนำเล่นและเทคนิคการอ่านเค้าไพ่แจกฟรีสำหรับสมาชิกของเราเท่านั้น'
+  },
+  {
+    icon: <Gift className="w-6 h-6" />,
+    title: 'คืนยอดเสียทุกสัปดาห์',
+    description: 'รับโบนัสคืนยอดเสียสูงสุด นำไปต่อยอดทำกำไรได้ทันที ไม่ต้องทำเทิร์น'
+  },
+  {
+    icon: <ShieldCheck className="w-6 h-6" />,
+    title: 'ข้อมูลลูกค้าเป็นความลับ',
+    description: 'ระบบรักษาความปลอดภัยขั้นสูงสุด ข้อมูลไม่มีรั่วไหล ปลอดภัย 100%'
   }
 ];
 
 const CATEGORIES = [
   {
-    title: 'บาคาร่าออนไลน์',
-    description: 'หมวดหลักสำหรับผู้ที่ต้องการเข้าถึงประสบการณ์ใช้งานที่รวดเร็วและทันสมัย',
-    accent: 'from-red-600 to-red-900'
-  },
-  {
-    title: 'บาคาร่าเว็บตรง',
-    description: 'ออกแบบข้อความและเลย์เอาต์ให้สื่อถึงความชัดเจนและความน่าเชื่อถือ',
-    accent: 'from-amber-600 to-amber-900'
-  },
-  {
-    title: 'คาสิโนสด',
-    description: 'เสริมภาพลักษณ์ความตื่นเต้นด้วยการจัดวางแบบพรีเมียมและอ่านง่าย',
-    accent: 'from-red-600 to-red-900'
+    title: 'Sexy Baccarat',
+    description: 'ดีลเลอร์สาวสวยสุดเซ็กซี่ พร้อมแจกไพ่ให้คุณลุ้นสนุกทุกตา เพลิดเพลินไม่มีเบื่อ',
+    accent: 'from-red-600 to-red-900',
+    image: 'https://img2.pic.in.th/55-Sexy-Baccarat-Bocker168-1.png'
   },
   {
     title: 'SA Gaming',
-    description: 'ใส่เป็นหมวดหรือไฮไลต์คีย์เวิร์ด เพื่อรองรับการค้นหาที่เฉพาะเจาะจงมากขึ้น',
-    accent: 'from-zinc-700 to-zinc-900'
+    description: 'ค่ายคาสิโนระดับตำนาน มาตรฐานสากล มั่นคงที่สุด ภาพคมชัดระดับ Full HD',
+    accent: 'from-amber-600 to-amber-900',
+    image: 'https://img1.pic.in.th/images/SA-Gaming-Bocker168.webp'
   },
   {
-    title: 'Sexy Baccarat',
-    description: 'เหมาะสำหรับใช้เป็นคีย์เสริมใน section หมวดหมู่หรือ FAQ',
-    accent: 'from-zinc-700 to-zinc-900'
+    title: 'Dream Gaming',
+    description: 'บาคาร่าสดพร้อมฟีเจอร์แชทพูดคุยกับผู้เล่นอื่นได้ เพิ่มอรรถรสในการเดิมพัน',
+    accent: 'from-red-600 to-red-900',
+    image: 'https://img1.pic.in.th/images/Dream-Gaming-Bocker168.webp'
   },
   {
-    title: 'โปรโมชั่นสมาชิกใหม่',
-    description: 'เพิ่มแรงจูงใจด้วยข้อความสั้น ชัด และปุ่ม CTA ที่เด่น',
-    accent: 'from-amber-600 to-amber-900'
+    title: 'Pretty Gaming',
+    description: 'สัมผัสประสบการณ์วีไอพีกับดีลเลอร์สาวพริตตี้ระดับท็อป บริการระดับพรีเมียม',
+    accent: 'from-zinc-700 to-zinc-900',
+    image: 'https://img1.pic.in.th/images/Pretty-Gaming-Bocker168.webp'
+  },
+  {
+    title: 'Asia Gaming',
+    description: 'คาสิโนสดสไตล์เอเชีย รูปแบบการเล่นเข้าใจง่าย เหมาะกับนักเดิมพันทุกระดับ',
+    accent: 'from-zinc-700 to-zinc-900',
+    image: 'https://img2.pic.in.th/Asia-Gaming-Bocker168.png'
+  },
+  {
+    title: 'Evolution Gaming',
+    description: 'พรีเมียมคาสิโนจากยุโรป มุมกล้องหลากหลายสมจริง เหมือนนั่งอยู่ในคาสิโนจริง',
+    accent: 'from-amber-600 to-amber-900',
+    image: 'https://img1.pic.in.th/images/Evolution-Gaming-Bocker168.webp'
   }
 ];
 
@@ -145,65 +151,65 @@ const STEPS = [
   {
     number: '01',
     title: 'สมัครสมาชิก',
-    description: 'กรอกข้อมูลเบื้องต้นเพื่อเริ่มต้นใช้งานได้อย่างรวดเร็ว'
+    description: 'กรอกเบอร์โทรศัพท์และข้อมูลบัญชีธนาคารผ่านระบบออโต้ ใช้เวลาเพียง 1 นาที'
   },
   {
     number: '02',
-    title: 'เข้าสู่ระบบ',
-    description: 'เข้าถึงเมนูหลัก โปรโมชัน และหมวดบาคาร่าออนไลน์ได้ทันที'
+    title: 'ฝากเงินเข้าเล่น',
+    description: 'ทำรายการฝากเงิน ไม่มีขั้นต่ำ รองรับทุกธนาคารและ True Wallet'
   },
   {
     number: '03',
-    title: 'เริ่มต้นใช้งาน',
-    description: 'เลือกหมวดที่ต้องการและใช้งานได้สะดวกบนทุกอุปกรณ์'
+    title: 'เข้าโต๊ะบาคาร่า',
+    description: 'เลือกค่ายเกมที่คุณชื่นชอบ และเริ่มต้นทำกำไรจากบาคาร่าได้ทันที'
   }
 ];
 
 const PROMOTIONS = [
   {
-    badge: 'HOT',
-    title: 'โปรโมชั่นสมาชิกใหม่',
-    description: 'เริ่มต้นใช้งานกับข้อเสนอพิเศษที่ออกแบบมาเพื่อดึงดูดผู้สมัครใหม่',
+    badge: 'NEW',
+    title: 'สมาชิกใหม่รับโบนัส 100%',
+    description: 'ฝากครั้งแรกรับโบนัสเพิ่มทันที ทำเทิร์นน้อย ถอนได้ไม่อั้น คุ้มค่าที่สุด',
     cta: 'รับสิทธิ์เลย'
   },
   {
-    badge: 'DAILY',
-    title: 'โปรโมชันอัปเดตรายวัน',
-    description: 'เพิ่มความเคลื่อนไหวให้หน้าเว็บด้วยแบนเนอร์และข้อความที่สดใหม่',
+    badge: 'CASHBACK',
+    title: 'คืนยอดเสีย 5% ทุกสัปดาห์',
+    description: 'เล่นเสียไม่ต้องเศร้า เรารับประกันคืนยอดเสียให้ นำไปเป็นทุนต่อยอดได้',
     cta: 'ดูรายละเอียด'
   },
   {
-    badge: 'VIP',
-    title: 'สิทธิพิเศษสำหรับสมาชิก',
-    description: 'ช่วยให้ภาพรวมของแพลตฟอร์มดูครบและมีความคุ้มค่ามากขึ้น',
+    badge: 'COMMISSION',
+    title: 'แนะนำเพื่อนรับค่าคอม',
+    description: 'ชวนเพื่อนมาเล่นบาคาร่า รับค่าคอมมิชชั่นทุกยอดการเล่นของเพื่อน สร้างรายได้ง่ายๆ',
     cta: 'ดูโปรโมชั่นทั้งหมด'
   }
 ];
 
 const FAQS = [
   {
-    question: 'สมัครบาคาร่าอย่างไร?',
-    answer: 'สามารถกดปุ่มสมัครสมาชิกและกรอกข้อมูลตามขั้นตอนบนหน้าเว็บได้ทันที'
+    question: 'บาคาร่า คืออะไร?',
+    answer: 'บาคาร่าคือเกมไพ่คาสิโนที่แบ่งฝ่ายผู้เล่น (Player) และเจ้ามือ (Banker) ทายฝั่งไหนแต้มใกล้ 9 สุดเป็นผู้ชนะ เล่นง่าย จบไว ได้เงินเร็ว'
   },
   {
-    question: 'Bocker168 รองรับมือถือหรือไม่?',
-    answer: 'รองรับการใช้งานทั้งมือถือ แท็บเล็ต และคอมพิวเตอร์อย่างเต็มรูปแบบ'
+    question: 'Bocker168 เป็นบาคาร่าเว็บตรงหรือไม่?',
+    answer: 'ใช่ เราเป็นเว็บตรงไม่ผ่านเอเย่นต์ มีใบรับรองคาสิโนออนไลน์ถูกต้อง มั่นคงทางการเงิน 100%'
   },
   {
-    question: 'หน้าเว็บนี้เน้นบาคาร่าเว็บตรงหรือไม่?',
-    answer: 'ใช่ หน้าเว็บถูกออกแบบให้สื่อสารเรื่องบาคาร่าออนไลน์และบาคาร่าเว็บตรงอย่างชัดเจน'
+    question: 'ฝากถอนขั้นต่ำเท่าไหร่?',
+    answer: 'ระบบฝากถอนออโต้ของเราไม่มีขั้นต่ำ 1 บาทก็ฝากได้ ถอนได้สูงสุดไม่จำกัดจำนวนครั้ง'
   },
   {
-    question: 'มีหมวดคาสิโนสดหรือคีย์เสริมอย่าง SA Gaming และ Sexy Baccarat หรือไม่?',
-    answer: 'สามารถเพิ่มเป็นหมวดไฮไลต์หรือคีย์เวิร์ดเสริมในหน้าเว็บเพื่อช่วยเรื่อง SEO และการเข้าถึงคอนเทนต์ได้'
+    question: 'เล่นบนมือถือได้ไหม?',
+    answer: 'รองรับการเล่นบนสมาร์ทโฟนทุกรุ่น ทุกระบบ (iOS และ Android) โดยไม่ต้องโหลดแอปพลิเคชัน เล่นผ่านเบราว์เซอร์ได้เลย'
   },
   {
-    question: 'มีโปรโมชันอัปเดตบ่อยแค่ไหน?',
-    answer: 'สามารถออกแบบ section โปรโมชันให้เปลี่ยนข้อความหรือแบนเนอร์ได้อย่างยืดหยุ่น'
+    question: 'มีสูตรบาคาร่าให้ใช้ไหม?',
+    answer: 'เรามีกลุ่ม VIP นำเล่นและแจกสูตรบาคาร่า AI ให้สมาชิกใช้งานฟรี เพื่อเพิ่มโอกาสในการชนะ'
   },
   {
-    question: 'ผู้ใช้ใหม่ใช้งานยากไหม?',
-    answer: 'ไม่ยาก เพราะโครงสร้างหน้าเว็บเน้นเมนูชัด CTA เด่น และลำดับ section ที่เข้าใจง่าย'
+    question: 'ถอนเงินใช้เวลานานแค่ไหน?',
+    answer: 'ระบบออโต้ของเราประมวลผลการถอนเงินภายใน 10 วินาที เงินเข้าบัญชีทันที รวดเร็วทันใจ'
   }
 ];
 
@@ -253,9 +259,9 @@ const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => (
       onClick={onClick}
       className="w-full py-6 flex items-center justify-between text-left focus:outline-none group"
     >
-      <span className={`text-lg font-medium transition-colors ${isOpen ? 'text-amber-500' : 'text-white group-hover:text-red-500'}`}>
+      <h3 className={`text-lg font-medium transition-colors ${isOpen ? 'text-amber-500' : 'text-white group-hover:text-red-500'}`}>
         {faq.question}
-      </span>
+      </h3>
       {isOpen ? <ChevronUp className="text-amber-500" /> : <ChevronDown className="text-zinc-500" />}
     </button>
     <AnimatePresence>
@@ -422,6 +428,7 @@ export default function Bocker168Landing() {
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const [showCookieBanner, setShowCookieBanner] = useState(false);
   const [showCookieSettings, setShowCookieSettings] = useState(false);
+  const [countdown, setCountdown] = useState(15);
   const [cookieSettings, setCookieSettings] = useState<CookieSettings>({
     necessary: true,
     analytics: true,
@@ -441,6 +448,13 @@ export default function Bocker168Landing() {
     }
 
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 15));
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const handleAcceptAllCookies = () => {
@@ -584,10 +598,10 @@ export default function Bocker168Landing() {
                 บาคาร่าเว็บตรงอันดับ 1
               </div>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6">
-                Bocker168 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-500 to-red-600">บาคาร่าออนไลน์</span> ดีไซน์พรีเมียม ครบจบในที่เดียว
+                บาคาร่าออนไลน์ Bocker168 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-500 to-red-600">เว็บตรงไม่ผ่านเอเย่นต์</span> ฝากถอนไม่มีขั้นต่ำ
               </h1>
               <p className="text-lg text-zinc-400 mb-10 leading-relaxed max-w-xl">
-                สัมผัสประสบการณ์ บาคาร่าเว็บตรง ที่ออกแบบมาให้ใช้งานลื่นไหล รองรับมือถือเต็มรูปแบบ พร้อมโครงสร้างหน้าเว็บที่ดูน่าเชื่อถือ เข้าถึงง่าย และเหมาะกับผู้ใช้งานยุคใหม่
+                เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม
               </p>
               
               <div className="flex flex-wrap gap-4 mb-12">
@@ -605,8 +619,8 @@ export default function Bocker168Landing() {
                 {[
                   { icon: <CheckCircle2 className="w-4 h-4 text-amber-500" />, text: 'บาคาร่าออนไลน์' },
                   { icon: <CheckCircle2 className="w-4 h-4 text-amber-500" />, text: 'บาคาร่าเว็บตรง' },
-                  { icon: <CheckCircle2 className="w-4 h-4 text-amber-500" />, text: 'รองรับมือถือ' },
-                  { icon: <CheckCircle2 className="w-4 h-4 text-amber-500" />, text: 'ใช้งานได้ตลอดเวลา' },
+                  { icon: <CheckCircle2 className="w-4 h-4 text-amber-500" />, text: 'ฝากถอนออโต้' },
+                  { icon: <CheckCircle2 className="w-4 h-4 text-amber-500" />, text: 'บริการ 24 ชม.' },
                 ].map((badge, i) => (
                   <div key={i} className="flex items-center gap-2 text-zinc-500 text-sm font-medium">
                     {badge.icon}
@@ -623,37 +637,72 @@ export default function Bocker168Landing() {
               className="relative hidden lg:block"
             >
               <div className="absolute inset-0 bg-red-600/20 blur-[100px] rounded-full animate-pulse" />
-              <div className="relative bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 p-8 rounded-[2.5rem] shadow-2xl">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-4">
-                    <div className="bg-gradient-to-br from-red-600 to-red-900 p-6 rounded-3xl shadow-lg">
-                      <Crown className="text-white w-10 h-10 mb-4" />
-                      <div className="text-white font-black text-2xl">VIP CLUB</div>
-                      <div className="text-red-200 text-xs">Premium Experience</div>
-                    </div>
-                    <div className="bg-zinc-800 p-6 rounded-3xl border border-zinc-700">
-                      <TrendingUp className="text-amber-500 w-8 h-8 mb-2" />
-                      <div className="text-white font-bold">Win Rate</div>
-                      <div className="text-amber-500 text-2xl font-black">98.5%</div>
-                    </div>
+              <div className="relative bg-zinc-900/80 backdrop-blur-md border border-zinc-800 p-8 rounded-[2.5rem] shadow-2xl overflow-hidden">
+                {/* Glowing border effect */}
+                <div className="absolute inset-0 border-2 border-transparent rounded-[2.5rem] bg-gradient-to-br from-red-600/30 via-transparent to-amber-500/30 [mask-image:linear-gradient(white,white)] pointer-events-none" style={{ WebkitMaskComposite: 'destination-out', maskComposite: 'exclude' }} />
+                
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-white font-bold tracking-widest uppercase text-sm">Live Stats</span>
                   </div>
-                  <div className="space-y-4 pt-8">
-                    <div className="bg-zinc-800 p-6 rounded-3xl border border-zinc-700">
-                      <Smartphone className="text-red-500 w-8 h-8 mb-2" />
-                      <div className="text-white font-bold">Mobile App</div>
-                      <div className="text-zinc-400 text-xs">Ready for iOS & Android</div>
-                    </div>
-                    <div className="bg-gradient-to-br from-amber-500 to-amber-700 p-6 rounded-3xl shadow-lg">
-                      <Gem className="text-white w-10 h-10 mb-4" />
-                      <div className="text-white font-black text-2xl">JACKPOT</div>
-                      <div className="text-amber-100 text-xs">฿1,000,000+</div>
-                    </div>
+                  <div className="bg-zinc-800/80 px-4 py-1.5 rounded-full border border-zinc-700 flex items-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                    <Clock className="w-4 h-4 text-amber-500" />
+                    <span className="text-amber-500 font-mono font-bold">00:{countdown.toString().padStart(2, '0')}</span>
+                  </div>
+                </div>
+
+                {/* Win Rates */}
+                <div className="mb-8">
+                  <div className="flex justify-between text-sm font-bold mb-2">
+                    <span className="text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">PLAYER 45%</span>
+                    <span className="text-green-500 drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]">TIE 10%</span>
+                    <span className="text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]">BANKER 45%</span>
+                  </div>
+                  <div className="h-3 w-full bg-zinc-800 rounded-full overflow-hidden flex shadow-inner">
+                    <div className="h-full bg-blue-500 w-[45%] shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                    <div className="h-full bg-green-500 w-[10%] shadow-[0_0_10px_rgba(34,197,94,0.8)]" />
+                    <div className="h-full bg-red-500 w-[45%] shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
+                  </div>
+                </div>
+
+                {/* Recent Outcomes */}
+                <div className="mb-8">
+                  <div className="text-zinc-400 text-xs font-bold uppercase tracking-wider mb-3">Recent Outcomes</div>
+                  <div className="flex gap-2 justify-between">
+                    {['B', 'P', 'B', 'B', 'T', 'P', 'B', 'P', 'P', 'B'].map((outcome, i) => (
+                      <div 
+                        key={i} 
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-lg
+                          ${outcome === 'B' ? 'bg-gradient-to-br from-red-500 to-red-700 text-white shadow-[0_0_10px_rgba(220,38,38,0.6)]' : 
+                            outcome === 'P' ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-[0_0_10px_rgba(37,99,235,0.6)]' : 
+                            'bg-gradient-to-br from-green-500 to-green-700 text-white shadow-[0_0_10px_rgba(22,163,74,0.6)]'}`}
+                      >
+                        {outcome}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Feature Highlights */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-zinc-800/50 p-4 rounded-2xl border border-zinc-700/50 hover:border-amber-500/50 transition-colors group relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Crown className="text-amber-500 w-6 h-6 mb-2 group-hover:scale-110 transition-transform drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                    <div className="text-white font-bold text-sm relative z-10">VIP Tables</div>
+                    <div className="text-zinc-500 text-xs relative z-10">High limits available</div>
+                  </div>
+                  <div className="bg-zinc-800/50 p-4 rounded-2xl border border-zinc-700/50 hover:border-red-500/50 transition-colors group relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <TrendingUp className="text-red-500 w-6 h-6 mb-2 group-hover:scale-110 transition-transform drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                    <div className="text-white font-bold text-sm relative z-10">Fast Payouts</div>
+                    <div className="text-zinc-500 text-xs relative z-10">Under 10 seconds</div>
                   </div>
                 </div>
                 
                 {/* Decorative Elements */}
-                <div className="absolute -top-4 -right-4 w-24 h-24 bg-red-600/20 rounded-full blur-xl" />
-                <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-amber-500/10 rounded-full blur-xl" />
+                <div className="absolute -top-10 -right-10 w-32 h-32 bg-red-600/20 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
               </div>
             </motion.div>
           </div>
@@ -688,8 +737,8 @@ export default function Bocker168Landing() {
       <section id="features" className="py-24 relative overflow-hidden">
         <div className="container mx-auto px-4">
           <SectionTitle 
-            title="ทำไมหลายคนเลือกใช้งานบาคาร่าออนไลน์กับ Bocker168"
-            subtitle="Bocker168 ออกแบบหน้าเว็บโดยเน้นประสบการณ์ใช้งานจริง ทั้งความสวยงาม ความเร็ว และความสะดวกในการเข้าถึงหมวด บาคาร่าออนไลน์ บนทุกอุปกรณ์"
+            title="ทำไมต้องเลือกเล่นบาคาร่ากับ Bocker168"
+            subtitle="เว็บตรง มั่นคง ปลอดภัย พร้อมให้บริการระดับพรีเมียม ตอบโจทย์ทุกการเดิมพัน"
           />
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -722,8 +771,8 @@ export default function Bocker168Landing() {
       <section id="categories" className="py-24 bg-zinc-950 relative">
         <div className="container mx-auto px-4">
           <SectionTitle 
-            title="ครบทุกไฮไลต์ของบาคาร่าออนไลน์ในหน้าเดียว"
-            subtitle="คัดหมวดสำคัญที่เกี่ยวกับบาคาร่าเพื่อให้ผู้ใช้เข้าถึงคอนเทนต์หลักได้ง่ายและตัดสินใจได้เร็วขึ้น"
+            title="รวมค่ายบาคาร่าออนไลน์ชั้นนำระดับโลก"
+            subtitle="เลือกเล่นคาสิโนสดจากค่ายดัง ภาพคมชัดระดับ Full HD ส่งตรงจากคาสิโนจริง"
           />
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -734,10 +783,19 @@ export default function Bocker168Landing() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="relative overflow-hidden rounded-3xl group cursor-pointer"
+                className="relative overflow-hidden rounded-3xl group cursor-pointer bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 transition-colors flex flex-col"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${cat.accent} opacity-20 group-hover:opacity-40 transition-opacity`} />
-                <div className="relative p-8 border border-zinc-800 h-full flex flex-col justify-between">
+                <div className="relative h-64 overflow-hidden pt-6 px-4 flex items-end justify-center">
+                  <div className={`absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/20 to-transparent z-10`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${cat.accent} opacity-20 group-hover:opacity-40 transition-opacity z-10`} />
+                  <img 
+                    src={cat.image} 
+                    alt={cat.title} 
+                    className="w-full h-full object-contain object-bottom group-hover:scale-110 transition-transform duration-500 relative z-0"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="relative p-8 pt-0 flex-1 flex flex-col justify-between z-20">
                   <div>
                     <h3 className="text-2xl font-black text-white mb-4 group-hover:text-amber-500 transition-colors">{cat.title}</h3>
                     <p className="text-zinc-400 text-sm leading-relaxed mb-8">
@@ -758,7 +816,8 @@ export default function Bocker168Landing() {
       <section className="py-24 bg-black">
         <div className="container mx-auto px-4">
           <SectionTitle 
-            title="เริ่มต้นใช้งานบาคาร่าออนไลน์กับ Bocker168 ใน 3 ขั้นตอน"
+            title="เริ่มต้นเล่นบาคาร่าง่ายๆ ใน 3 ขั้นตอน"
+            subtitle="สมัคร ฝาก เล่น ทำกำไรได้ทันที ไม่ต้องรอนานด้วยระบบออโต้"
           />
 
           <div className="grid md:grid-cols-3 gap-12 relative">
@@ -793,7 +852,8 @@ export default function Bocker168Landing() {
       <section id="promotions" className="py-24 relative">
         <div className="container mx-auto px-4">
           <SectionTitle 
-            title="โปรโมชั่นที่ช่วยเพิ่มความน่าสนใจให้หน้าเว็บบาคาร่าออนไลน์"
+            title="โปรโมชั่นบาคาร่าสุดคุ้ม"
+            subtitle="ข้อเสนอพิเศษสำหรับสมาชิก Bocker168 เท่านั้น รับโบนัสจัดเต็มทุกวัน"
           />
 
           <div className="grid lg:grid-cols-3 gap-8">
@@ -871,17 +931,17 @@ export default function Bocker168Landing() {
 
             <div className="relative z-10">
               <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-8 leading-tight">
-                พร้อมเริ่มต้นกับ Bocker168 บาคาร่าออนไลน์ <br className="hidden md:block" /> ที่ดูพรีเมียมกว่าและใช้งานง่ายกว่า
+                พร้อมที่จะทำกำไรจาก <br className="hidden md:block" /> บาคาร่าออนไลน์ หรือยัง?
               </h2>
               <p className="text-red-100 text-lg md:text-xl mb-12 max-w-3xl mx-auto leading-relaxed">
-                ยกระดับแลนดิ้งเพจของคุณด้วยดีไซน์แดง ทอง ดำ ที่โดดเด่น พร้อมข้อความขายที่เน้น บาคาร่าออนไลน์, บาคาร่าเว็บตรง และคีย์เวิร์ดสำคัญอย่างเป็นธรรมชาติ
+                สมัครสมาชิกวันนี้ รับโบนัสฟรี 100% ฝากถอนไม่มีขั้นต่ำด้วยระบบออโต้ 10 วินาที เล่นง่าย จ่ายจริง มั่นคง 100%
               </p>
               <div className="flex flex-wrap justify-center gap-6">
                 <button className="px-10 py-5 bg-white text-red-600 font-black text-xl rounded-2xl shadow-xl hover:scale-105 transition-transform active:scale-95">
                   สมัครสมาชิกตอนนี้
                 </button>
                 <button className="px-10 py-5 bg-black/20 backdrop-blur-sm border border-white/30 text-white font-black text-xl rounded-2xl hover:bg-black/30 transition-all active:scale-95">
-                  ดูรายละเอียดเพิ่มเติม
+                  เข้าสู่ระบบ
                 </button>
               </div>
             </div>
@@ -906,7 +966,7 @@ export default function Bocker168Landing() {
                 </span>
               </a>
               <p className="text-zinc-400 text-sm leading-relaxed font-medium">
-                แพลตฟอร์มหน้าเว็บสไตล์พรีเมียมที่ออกแบบมาเพื่อเน้น บาคาร่าออนไลน์ ให้ดูโดดเด่น ใช้งานง่าย และปิดการขายได้ชัดเจนยิ่งขึ้น
+                เว็บตรงบาคาร่าออนไลน์อันดับ 1 มั่นคง ปลอดภัย ให้บริการคาสิโนสดจากค่ายชั้นนำระดับโลก พร้อมระบบฝากถอนออโต้ 24 ชั่วโมง
               </p>
               <div className="flex gap-4">
                 {[
@@ -947,8 +1007,8 @@ export default function Bocker168Landing() {
               <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">คีย์เวิร์ดยอดนิยม</h4>
               <div className="flex flex-wrap gap-3">
                 {[
-                  'บาคาร่า', 'บาคาร่าออนไลน์', 'บาคาร่าเว็บตรง', 'สมัครบาคาร่า', 
-                  'ฝากถอนออโต้', 'ไม่มีขั้นต่ำ', 'คาสิโนสด', 'SA Gaming', 'Sexy Baccarat'
+                  'บาคาร่าออนไลน์', 'บาคาร่าเว็บตรง', 'สมัครบาคาร่า', 'บาคาร่าทรูวอเลท', 
+                  'สูตรบาคาร่า', 'ทดลองเล่นบาคาร่า', 'เว็บบาคาร่าอันดับ1', 'คาสิโนสด', 'SA Gaming', 'Sexy Baccarat'
                 ].map((tag) => (
                   <span key={tag} className="px-4 py-2 bg-zinc-900/50 text-zinc-400 text-xs font-bold rounded-xl border border-zinc-800 hover:border-red-600/50 hover:text-white transition-all cursor-default">
                     {tag}
