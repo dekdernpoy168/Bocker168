@@ -511,12 +511,12 @@ export default function Bocker168Landing() {
       >
         <div className="container mx-auto px-4 flex items-center justify-between">
           <a href="#home" onClick={(e) => scrollToSection(e, '#home')} className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-amber-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-900/20 group-hover:scale-110 transition-transform">
-              <Crown className="text-white w-6 h-6" />
-            </div>
-            <span className="text-2xl font-black tracking-tighter text-white">
-              BOCKER<span className="text-red-600">168</span>
-            </span>
+            <img 
+              src="https://img2.pic.in.th/A2-Logo-Bocker-168.png" 
+              alt="Bocker168 Logo" 
+              className="h-16 md:h-20 w-auto group-hover:scale-105 transition-transform"
+              referrerPolicy="no-referrer"
+            />
           </a>
 
           {/* Desktop Nav */}
@@ -958,12 +958,12 @@ export default function Bocker168Landing() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
             <div className="space-y-8">
               <a href="#home" className="flex items-center gap-3 group">
-                <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-amber-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/20 group-hover:scale-110 transition-transform">
-                  <Crown className="text-white w-7 h-7" />
-                </div>
-                <span className="text-2xl font-black tracking-tighter text-white">
-                  BOCKER<span className="text-red-600">168</span>
-                </span>
+                <img 
+                  src="https://img2.pic.in.th/A2-Logo-Bocker-168.png" 
+                  alt="Bocker168 Logo" 
+                  className="h-24 md:h-32 w-auto group-hover:scale-105 transition-transform"
+                  referrerPolicy="no-referrer"
+                />
               </a>
               <p className="text-zinc-400 text-sm leading-relaxed font-medium">
                 เว็บตรงบาคาร่าออนไลน์อันดับ 1 มั่นคง ปลอดภัย ให้บริการคาสิโนสดจากค่ายชั้นนำระดับโลก พร้อมระบบฝากถอนออโต้ 24 ชั่วโมง
