@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // กำหนดโดเมนเนมของเว็บไซต์ (เปลี่ยนเป็นโดเมนจริงของคุณ)
-const DOMAIN = 'https://www.bocker168.com';
+const DOMAIN = 'https://hongkonglex.com';
 
 // อ่านข้อมูลบทความจากไฟล์ JSON
 const articlesPath = path.join(__dirname, '../src/data/articles.json');
