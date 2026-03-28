@@ -151,7 +151,8 @@ const STEPS = [
   {
     number: '01',
     title: 'สมัครสมาชิก',
-    description: 'กรอกเบอร์โทรศัพท์และข้อมูลบัญชีธนาคารผ่านระบบออโต้ ใช้เวลาเพียง 1 นาที'
+    description: 'กรอกเบอร์โทรศัพท์และข้อมูลบัญชีธนาคารผ่านระบบออโต้ ใช้เวลาเพียง 1 นาที',
+    image: 'https://img1.pic.in.th/images/Signing-up-is-easy-and-takes-only-1-minute00f0dc8f5451ffe2.png'
   },
   {
     number: '02',
@@ -832,8 +833,8 @@ export default function Bocker168Landing() {
           />
 
           <div className="grid md:grid-cols-3 gap-12 relative">
-            {/* Connector Line */}
-            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-zinc-800 to-transparent -translate-y-1/2 z-0" />
+            {/* Connector Line - Adjusted to align with circles */}
+            <div className="hidden md:block absolute top-[160px] left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-zinc-800 to-transparent z-0" />
             
             {STEPS.map((step, i) => (
               <motion.div 
@@ -842,14 +843,30 @@ export default function Bocker168Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.2 }}
-                className="relative z-10 flex flex-col items-center text-center"
+                className="relative z-10 flex flex-col items-center text-center group"
               >
-                <div className="w-20 h-20 bg-zinc-900 border-4 border-zinc-800 rounded-full flex items-center justify-center mb-8 shadow-xl group-hover:border-red-600 transition-all">
-                  <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-red-500 to-amber-500">
-                    {step.number}
-                  </span>
+                <div className="flex flex-col items-center min-h-[200px] justify-end mb-8">
+                  {step.image ? (
+                    <div className="mb-6 rounded-2xl overflow-hidden border border-zinc-800 shadow-lg max-w-[280px] group-hover:border-red-500/50 transition-colors">
+                      <img 
+                        src={step.image} 
+                        alt={step.title} 
+                        className="w-full h-auto object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  ) : (
+                    <div className="mb-6 h-[120px] flex items-center justify-center">
+                      {/* Placeholder or just empty space to keep circles aligned */}
+                    </div>
+                  )}
+                  <div className="w-20 h-20 bg-zinc-900 border-4 border-zinc-800 rounded-full flex items-center justify-center shadow-xl group-hover:border-red-600 transition-all">
+                    <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-red-500 to-amber-500">
+                      {step.number}
+                    </span>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4">{step.title}</h3>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-amber-500 transition-colors">{step.title}</h3>
                 <p className="text-zinc-500 max-w-xs">
                   {step.description}
                 </p>
