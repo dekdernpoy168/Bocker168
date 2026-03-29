@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { 
   Menu, 
   X, 
@@ -28,19 +29,23 @@ import {
   TrendingUp,
   Gem,
   Crown,
-  Monitor
+  Monitor,
+  BookOpen,
+  ArrowRight,
+  Calendar
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 // --- Constants & Data ---
 
 const MENU_ITEMS = [
-  { label: 'หน้าแรก', href: '#home' },
-  { label: 'จุดเด่น', href: '#features' },
-  { label: 'บาคาร่าออนไลน์', href: '#categories' },
-  { label: 'โปรโมชั่น', href: '#promotions' },
-  { label: 'คำถามที่พบบ่อย', href: '#faq' },
-  { label: 'ติดต่อเรา', href: '#footer' },
+  { label: 'หน้าแรก', path: '/' },
+  { label: 'จุดเด่น', path: '/features' },
+  { label: 'บาคาร่าออนไลน์', path: '/baccarat' },
+  { label: 'โปรโมชั่น', path: '/promotions' },
+  { label: 'บทความ', path: '/articles' },
+  { label: 'คำถามที่พบบ่อย', path: '/faq' },
+  { label: 'ติดต่อเรา', path: '/contact' },
 ];
 
 const HIGHLIGHTS = [
@@ -188,6 +193,30 @@ const PROMOTIONS = [
     description: 'ชวนเพื่อนมาเล่นบาคาร่า รับค่าคอมมิชชั่นทุกยอดการเล่นของเพื่อน สร้างรายได้ง่ายๆ',
     details: 'รับค่าคอมมิชชั่น 0.8% จากทุกยอดการเดิมพันของเพื่อนที่คุณแนะนำ ยิ่งเพื่อนเล่นมาก คุณยิ่งได้มาก ถอนเป็นเงินสดได้ทุกวัน ไม่จำกัดจำนวนเพื่อน',
     cta: 'ดูโปรโมชั่นทั้งหมด'
+  }
+];
+
+const ARTICLES = [
+  {
+    title: 'สูตรบาคาร่า 2026 อ่านเค้าไพ่ยังไงให้ได้กำไรทุกวัน',
+    description: 'เจาะลึกเทคนิคการอ่านเค้าไพ่บาคาร่าที่แม่นยำที่สุดในปี 2026 พร้อมวิธีเดินเงินให้ได้กำไรชัวร์ๆ',
+    image: 'https://images.unsplash.com/photo-1605870445919-838d190e8e1b?auto=format&fit=crop&q=80&w=800',
+    date: '29 มี.ค. 2026',
+    category: 'สูตรบาคาร่า'
+  },
+  {
+    title: 'บาคาร่าเว็บตรง vs เว็บเอเย่นต์ ต่างกันอย่างไร?',
+    description: 'ทำไมถึงควรเล่นบาคาร่ากับเว็บตรงไม่ผ่านเอเย่นต์ ข้อดีและข้อเสียที่คุณต้องรู้ก่อนตัดสินใจลงทุน',
+    image: 'https://images.unsplash.com/photo-1596838132731-3301c3fd4317?auto=format&fit=crop&q=80&w=800',
+    date: '28 มี.ค. 2026',
+    category: 'ความรู้ทั่วไป'
+  },
+  {
+    title: 'วิธีจัดการเงินทุน (Bankroll Management) สำหรับมือใหม่',
+    description: 'เทคนิคการบริหารเงินทุนในการเล่นคาสิโนออนไลน์ เล่นอย่างไรไม่ให้หมดตัวและมีกำไรยั่งยืน',
+    image: 'https://images.unsplash.com/photo-1518183214770-9c67425b7061?auto=format&fit=crop&q=80&w=800',
+    date: '27 มี.ค. 2026',
+    category: 'เทคนิคการเล่น'
   }
 ];
 
@@ -487,7 +516,16 @@ const PromotionModal = ({
   </AnimatePresence>
 );
 
-export default function Bocker168Landing() {
+export default function App() {
+  return (
+    <Router>
+      <Bocker168Landing />
+    </Router>
+  );
+}
+
+function Bocker168Landing() {
+  const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
@@ -523,6 +561,10 @@ export default function Bocker168Landing() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   const handleAcceptAllCookies = () => {
     localStorage.setItem('cookie-consent', JSON.stringify({
       necessary: true,
@@ -542,23 +584,13 @@ export default function Bocker168Landing() {
     setShowCookieBanner(false);
   };
 
-  const scrollToSection = (e, href) => {
-    e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      const offset = 80;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
-    setMobileMenuOpen(false);
-  };
+  const isHome = location.pathname === '/';
+  const isFeatures = location.pathname === '/features';
+  const isBaccarat = location.pathname === '/baccarat';
+  const isPromotions = location.pathname === '/promotions';
+  const isArticles = location.pathname === '/articles';
+  const isFaq = location.pathname === '/faq';
+  const isContact = location.pathname === '/contact';
 
   return (
     <div className="min-h-screen bg-black text-zinc-100 font-sans selection:bg-red-600 selection:text-white overflow-x-hidden">
@@ -576,26 +608,25 @@ export default function Bocker168Landing() {
         }`}
       >
         <div className="container mx-auto px-4 flex items-center justify-between">
-          <a href="#home" onClick={(e) => scrollToSection(e, '#home')} className="flex items-center gap-2 group">
+          <Link to="/" className="flex items-center gap-2 group">
             <img 
               src="https://img2.pic.in.th/A2-Logo-Bocker-168.png" 
               alt="Bocker168 Logo" 
               className="h-16 md:h-20 w-auto group-hover:scale-105 transition-transform"
               referrerPolicy="no-referrer"
             />
-          </a>
+          </Link>
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-8">
             {MENU_ITEMS.map((item) => (
-              <a 
+              <Link 
                 key={item.label} 
-                href={item.href}
-                onClick={(e) => scrollToSection(e, item.href)}
+                to={item.path}
                 className="text-sm font-medium text-zinc-300 hover:text-amber-500 transition-colors"
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -628,14 +659,14 @@ export default function Bocker168Landing() {
               className="fixed inset-0 top-[60px] bg-black z-40 lg:hidden p-6 flex flex-col gap-6"
             >
               {MENU_ITEMS.map((item) => (
-                <a 
+                <Link 
                   key={item.label} 
-                  href={item.href}
-                  onClick={(e) => scrollToSection(e, item.href)}
+                  to={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
                   className="text-xl font-bold text-white border-b border-zinc-800 pb-4"
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
               <div className="flex flex-col gap-4 mt-4">
                 <button className="w-full py-4 bg-zinc-900 text-white font-bold rounded-xl border border-zinc-800">
@@ -650,8 +681,11 @@ export default function Bocker168Landing() {
         </AnimatePresence>
       </header>
 
+      <main className={!isHome ? "pt-24" : ""}>
       {/* --- Hero Section --- */}
-      <section id="home" className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+      {isHome && (
+        <>
+          <section id="home" className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -809,8 +843,11 @@ export default function Bocker168Landing() {
           </div>
         </div>
       </section>
+      </>
+      )}
 
       {/* --- Why Choose Section --- */}
+      {(isHome || isFeatures) && (
       <section id="features" className="py-32 relative overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="mb-20">
@@ -849,8 +886,11 @@ export default function Bocker168Landing() {
           </div>
         </div>
       </section>
+      )}
 
       {/* --- Baccarat Categories --- */}
+      {(isHome || isBaccarat) && (
+      <>
       <section id="categories" className="py-24 bg-zinc-950 relative">
         <div className="container mx-auto px-4">
           <SectionTitle 
@@ -946,8 +986,12 @@ export default function Bocker168Landing() {
           </div>
         </div>
       </section>
+      </>
+      )}
 
       {/* --- Promotions Section --- */}
+      {(isHome || isPromotions) && (
+      <>
       <section id="promotions" className="py-24 relative">
         <div className="container mx-auto px-4">
           <SectionTitle 
@@ -1014,8 +1058,78 @@ export default function Bocker168Landing() {
         promo={selectedPromo} 
         onClose={() => setSelectedPromo(null)} 
       />
+      </>
+      )}
+
+      {/* --- Articles Section --- */}
+      {(isHome || isArticles) && (
+      <section id="articles" className="py-24 relative bg-[#050505]">
+        <div className="container mx-auto px-4">
+          <SectionTitle 
+            title="บทความและเทคนิคบาคาร่า"
+            subtitle="อัปเดตความรู้ เทคนิค และสูตรบาคาร่าใหม่ๆ เพื่อเพิ่มโอกาสชนะของคุณ"
+            centered={true}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
+            {ARTICLES.map((article, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden hover:border-red-600/30 transition-all duration-500 flex flex-col"
+              >
+                <div className="h-56 overflow-hidden relative">
+                  <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
+                    {article.category}
+                  </div>
+                  <img 
+                    src={article.image} 
+                    alt={article.title} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-80" />
+                </div>
+                
+                <div className="p-6 md:p-8 flex flex-col flex-grow">
+                  <div className="flex items-center gap-2 text-zinc-400 text-sm mb-4">
+                    <Calendar className="w-4 h-4" />
+                    <span>{article.date}</span>
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors line-clamp-2">
+                    {article.title}
+                  </h3>
+                  
+                  <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
+                    {article.description}
+                  </p>
+                  
+                  <button className="flex items-center gap-2 text-red-500 font-bold text-sm group/btn mt-auto w-fit">
+                    อ่านเพิ่มเติม
+                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          
+          <div className="mt-16 text-center">
+            <button className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-600/50 text-white font-bold rounded-2xl transition-all flex items-center gap-3 mx-auto group">
+              <BookOpen className="w-5 h-5 text-red-500" />
+              ดูบทความทั้งหมด
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </section>
+      )}
 
       {/* --- FAQ Section --- */}
+      {(isHome || isFaq) && (
       <section id="faq" className="py-24 bg-zinc-950">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
@@ -1036,8 +1150,10 @@ export default function Bocker168Landing() {
           </div>
         </div>
       </section>
+      )}
 
       {/* --- Final CTA Section --- */}
+      {(isHome || isContact) && (
       <section className="py-24 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <motion.div 
@@ -1070,6 +1186,8 @@ export default function Bocker168Landing() {
           </motion.div>
         </div>
       </section>
+      )}
+      </main>
 
       {/* --- Footer --- */}
       <footer id="footer" className="bg-[#050505] pt-24 pb-12 relative z-10 overflow-hidden">
@@ -1077,56 +1195,20 @@ export default function Bocker168Landing() {
         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
         
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
-            <div className="space-y-8">
-              <a href="#home" className="flex items-center gap-3 group">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-20">
+            <div className="space-y-8 lg:col-span-4">
+              <Link to="/" className="flex items-center gap-3 group">
                 <img 
                   src="https://img2.pic.in.th/A2-Logo-Bocker-168.png" 
                   alt="Bocker168 Logo" 
                   className="h-24 md:h-32 w-auto group-hover:scale-105 transition-transform"
                   referrerPolicy="no-referrer"
                 />
-              </a>
+              </Link>
               <p className="text-zinc-400 text-sm leading-relaxed font-medium">
                 เว็บตรงบาคาร่าออนไลน์อันดับ 1 มั่นคง ปลอดภัย ให้บริการคาสิโนสดจากค่ายชั้นนำระดับโลก พร้อมระบบฝากถอนออโต้ 24 ชั่วโมง
               </p>
-              <div className="flex gap-4">
-                {[
-                  { icon: <MessageCircle className="w-5 h-5" />, href: "#" },
-                  { icon: <Send className="w-5 h-5" />, href: "#" },
-                  { icon: <Mail className="w-5 h-5" />, href: "#" }
-                ].map((social, i) => (
-                  <a 
-                    key={i} 
-                    href={social.href} 
-                    className="w-12 h-12 bg-zinc-900/50 border border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-400 hover:text-amber-500 hover:border-amber-500/50 hover:bg-zinc-900 transition-all"
-                  >
-                    {social.icon}
-                  </a>
-                ))}
-              </div>
-            </div>
 
-            <div>
-              <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">ลิงก์ด่วน</h4>
-              <ul className="space-y-5">
-                {MENU_ITEMS.map((item) => (
-                  <li key={item.label}>
-                    <a 
-                      href={item.href} 
-                      onClick={(e) => scrollToSection(e, item.href)}
-                      className="text-zinc-500 hover:text-red-500 transition-all text-sm font-semibold flex items-center gap-2 group"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">คีย์เวิร์ดยอดนิยม</h4>
               <div className="flex flex-wrap gap-3">
                 {[
                   'บาคาร่าออนไลน์', 'บาคาร่าเว็บตรง', 'สมัครบาคาร่า', 'บาคาร่าทรูวอเลท', 
@@ -1139,7 +1221,74 @@ export default function Bocker168Landing() {
               </div>
             </div>
 
-            <div>
+            <div className="lg:col-span-2">
+              <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">เกี่ยวกับเรา</h4>
+              <ul className="space-y-5">
+                {[
+                  { label: 'หน้าแรก', path: '/' },
+                  { label: 'จุดเด่น', path: '/features' },
+                  { label: 'บาคาร่าออนไลน์', path: '/baccarat' },
+                  { label: 'โปรโมชั่น', path: '/promotions' },
+                  { label: 'บทความ', path: '/articles' },
+                ].map((item) => (
+                  <li key={item.label}>
+                    <Link 
+                      to={item.path} 
+                      className="text-zinc-500 hover:text-red-500 transition-all text-sm font-semibold flex items-center gap-2 group"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="lg:col-span-2">
+              <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">ช่วยเหลือ</h4>
+              <ul className="space-y-5">
+                {[
+                  { label: 'คำถามที่พบบ่อย', path: '/faq' },
+                  { label: 'ติดต่อเรา', path: '/contact' },
+                  { label: 'วิธีสมัครสมาชิก', path: '#' },
+                  { label: 'วิธีฝาก-ถอน', path: '#' },
+                ].map((item) => (
+                  <li key={item.label}>
+                    <Link 
+                      to={item.path} 
+                      className="text-zinc-500 hover:text-red-500 transition-all text-sm font-semibold flex items-center gap-2 group"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="lg:col-span-2">
+              <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">ข้อกำหนด</h4>
+              <ul className="space-y-5">
+                {[
+                  { label: 'ข้อตกลงและเงื่อนไข', path: '#' },
+                  { label: 'นโยบายความเป็นส่วนตัว', path: '#' },
+                  { label: 'นโยบายคุกกี้', path: '#' },
+                  { label: 'ความรับผิดชอบต่อสังคม', path: '#' },
+                ].map((item) => (
+                  <li key={item.label}>
+                    <Link 
+                      to={item.path} 
+                      className="text-zinc-500 hover:text-red-500 transition-all text-sm font-semibold flex items-center gap-2 group"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="lg:col-span-2">
               <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">ติดต่อเรา</h4>
               <ul className="space-y-6">
                 <li className="flex items-center gap-4 text-zinc-400 text-sm font-medium group cursor-pointer">
