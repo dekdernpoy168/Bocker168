@@ -198,23 +198,77 @@ const PROMOTIONS = [
 
 const ARTICLES = [
   {
+    slug: 'baccarat-formula-2026',
     title: 'สูตรบาคาร่า 2026 อ่านเค้าไพ่ยังไงให้ได้กำไรทุกวัน',
     description: 'เจาะลึกเทคนิคการอ่านเค้าไพ่บาคาร่าที่แม่นยำที่สุดในปี 2026 พร้อมวิธีเดินเงินให้ได้กำไรชัวร์ๆ',
+    content: `
+      <h2>สูตรบาคาร่า 2026: เจาะลึกเทคนิคการอ่านเค้าไพ่</h2>
+      <p>การเล่นบาคาร่าให้ได้กำไรอย่างยั่งยืน ไม่ใช่เรื่องของการพึ่งพาดวงเพียงอย่างเดียว แต่ต้องอาศัยการอ่าน "เค้าไพ่" และการบริหารเงินทุนที่ดี ในปี 2026 นี้ มีเทคนิคใหม่ๆ ที่ได้รับการพิสูจน์แล้วว่าสามารถเพิ่มโอกาสชนะได้อย่างมาก</p>
+      
+      <h3>1. เค้าไพ่มังกร (Dragon)</h3>
+      <p>เค้าไพ่มังกรคือการที่ผลลัพธ์ออกฝั่งใดฝั่งหนึ่งติดต่อกันยาวๆ (เช่น แดง แดง แดง แดง) เมื่อเจอเค้าไพ่นี้ ให้ตามไปเรื่อยๆ จนกว่าไพ่จะเปลี่ยนฝั่ง อย่าเพิ่งรีบสวนเด็ดขาด</p>
+      
+      <h3>2. เค้าไพ่ปิงปอง (Ping Pong)</h3>
+      <p>เค้าไพ่ปิงปองคือการที่ผลลัพธ์สลับกันไปมา (เช่น แดง น้ำเงิน แดง น้ำเงิน) หากสังเกตเห็นรูปแบบนี้ ให้แทงสลับตามไปเรื่อยๆ เป็นอีกหนึ่งเค้าไพ่ที่ทำกำไรได้ดี</p>
+      
+      <h3>3. การเดินเงินแบบ Martingale</h3>
+      <p>เทคนิคการเดินเงินแบบทบยอดเมื่อเสีย (เช่น 100, 200, 400, 800) วิธีนี้จะช่วยให้คุณได้ทุนคืนและกำไร 1 หน่วยเสมอเมื่อชนะ แต่ต้องระวังเรื่องลิมิตโต๊ะและทุนที่มีจำกัด</p>
+      
+      <p><strong>ข้อควรระวัง:</strong> ไม่มีสูตรใดในโลกที่การันตีผล 100% การเล่นอย่างมีสติและรู้จังหวะเลิกคือหัวใจสำคัญที่สุดในการทำกำไรจากบาคาร่าออนไลน์</p>
+    `,
     image: 'https://images.unsplash.com/photo-1605870445919-838d190e8e1b?auto=format&fit=crop&q=80&w=800',
     date: '29 มี.ค. 2026',
     category: 'สูตรบาคาร่า'
   },
   {
+    slug: 'direct-web-vs-agent',
     title: 'บาคาร่าเว็บตรง vs เว็บเอเย่นต์ ต่างกันอย่างไร?',
     description: 'ทำไมถึงควรเล่นบาคาร่ากับเว็บตรงไม่ผ่านเอเย่นต์ ข้อดีและข้อเสียที่คุณต้องรู้ก่อนตัดสินใจลงทุน',
+    content: `
+      <h2>บาคาร่าเว็บตรง vs เว็บเอเย่นต์: เลือกเล่นแบบไหนดีกว่ากัน?</h2>
+      <p>ในวงการคาสิโนออนไลน์ คำว่า "เว็บตรง" และ "เว็บเอเย่นต์" เป็นคำที่ได้ยินบ่อยมาก แต่หลายคนอาจยังไม่เข้าใจถึงความแตกต่างที่แท้จริง บทความนี้จะมาไขข้อข้องใจให้คุณ</p>
+      
+      <h3>เว็บตรง (Direct Website)</h3>
+      <p>เว็บตรงคือเว็บไซต์ที่ให้บริการโดยตรงจากบริษัทแม่หรือค่ายเกม ไม่ผ่านตัวแทนใดๆ</p>
+      <ul>
+        <li><strong>ข้อดี:</strong> มีความมั่นคงทางการเงินสูงมาก จ่ายจริงทุกยอด ไม่มีการอั้นถอน ระบบฝาก-ถอนมักจะเป็นระบบออโต้ที่รวดเร็ว และมีโปรโมชั่นที่คุ้มค่ากว่า</li>
+        <li><strong>ข้อเสีย:</strong> อาจมีเงื่อนไขการสมัครหรือการยืนยันตัวตนที่เข้มงวดกว่าเล็กน้อยเพื่อความปลอดภัย</li>
+      </ul>
+      
+      <h3>เว็บเอเย่นต์ (Agent Website)</h3>
+      <p>เว็บเอเย่นต์คือเว็บไซต์ที่เปิดโดยบุคคลที่สามที่ไปรับสิทธิ์ (Franchise) มาจากเว็บใหญ่อีกที</p>
+      <ul>
+        <li><strong>ข้อดี:</strong> สมัครง่าย บางครั้งอาจมีโปรโมชั่นดึงดูดใจในช่วงแรก</li>
+        <li><strong>ข้อเสีย:</strong> มีความเสี่ยงสูงที่จะถูกโกงหรือปิดเว็บหนี หากเล่นได้ยอดใหญ่ๆ อาจโดนอั้นถอน หรือถอนไม่ได้เลย ระบบฝาก-ถอนมักจะช้าเพราะต้องทำผ่านคนกลาง</li>
+      </ul>
+      
+      <p><strong>สรุป:</strong> การเลือกเล่นกับ "เว็บตรง" อย่าง Bocker168 เป็นทางเลือกที่ปลอดภัยและคุ้มค่าที่สุดในระยะยาว เพื่อให้คุณมั่นใจได้ว่าทุกการเดิมพันของคุณจะได้รับผลตอบแทนอย่างแน่นอน</p>
+    `,
     image: 'https://images.unsplash.com/photo-1596838132731-3301c3fd4317?auto=format&fit=crop&q=80&w=800',
     date: '28 มี.ค. 2026',
     category: 'ความรู้ทั่วไป'
   },
   {
+    slug: 'bankroll-management',
     title: 'วิธีจัดการเงินทุน (Bankroll Management) สำหรับมือใหม่',
     description: 'เทคนิคการบริหารเงินทุนในการเล่นคาสิโนออนไลน์ เล่นอย่างไรไม่ให้หมดตัวและมีกำไรยั่งยืน',
-    image: 'https://images.unsplash.com/photo-1518183214770-9c67425b7061?auto=format&fit=crop&q=80&w=800',
+    content: `
+      <h2>การจัดการเงินทุน (Bankroll Management): กุญแจสู่ความสำเร็จในบาคาร่า</h2>
+      <p>หลายคนมักจะโฟกัสไปที่สูตรหรือเทคนิคการเล่น แต่ลืมไปว่า "การจัดการเงินทุน" คือสิ่งที่สำคัญที่สุดที่จะทำให้คุณอยู่รอดและทำกำไรในระยะยาวได้</p>
+      
+      <h3>1. กำหนดงบประมาณ (Bankroll)</h3>
+      <p>ก่อนเริ่มเล่น คุณต้องกำหนดจำนวนเงินที่คุณสามารถเสียได้โดยไม่เดือดร้อน (เช่น 5,000 บาท) เงินก้อนนี้คือ Bankroll ของคุณ ห้ามนำเงินร้อนหรือเงินที่ต้องใช้จ่ายในชีวิตประจำวันมาเล่นเด็ดขาด</p>
+      
+      <h3>2. แบ่งเงินเดิมพันเป็นหน่วย (Units)</h3>
+      <p>ไม่ควรเดิมพันเงินทั้งหมดในตาเดียว แนะนำให้แบ่ง Bankroll ออกเป็นหน่วยย่อยๆ เช่น 1% - 5% ของทุนทั้งหมด (หากทุน 5,000 บาท 1 หน่วย = 50 บาท) การทำเช่นนี้จะช่วยลดความเสี่ยงในการหมดตัวอย่างรวดเร็ว</p>
+      
+      <h3>3. ตั้งเป้าหมายกำไรและจุดตัดขาดทุน (Stop Loss / Take Profit)</h3>
+      <p>ก่อนเล่นทุกครั้ง ต้องตั้งเป้าหมายให้ชัดเจน เช่น วันนี้ต้องการกำไร 20% ของทุน (1,000 บาท) หากเล่นได้ถึงเป้าแล้วให้หยุดทันที ในขณะเดียวกัน ก็ต้องตั้งจุดตัดขาดทุนไว้ด้วย เช่น ยอมเสียได้สูงสุด 30% ของทุน หากเสียถึงจุดนี้ก็ต้องหยุดเช่นกัน</p>
+      
+      <h3>4. อย่าหัวร้อน (Don't Tilt)</h3>
+      <p>เมื่อเสียเงินติดต่อกัน หลายคนมักจะขาดสติและเพิ่มเงินเดิมพันเพื่อหวังจะได้ทุนคืนอย่างรวดเร็ว ซึ่งเป็นวิธีที่ผิดและมักจะนำไปสู่การหมดตัว ให้ยึดมั่นในแผนการเดินเงินของคุณอย่างเคร่งครัด</p>
+    `,
+    image: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800',
     date: '27 มี.ค. 2026',
     category: 'เทคนิคการเล่น'
   }
@@ -591,6 +645,10 @@ function Bocker168Landing() {
   const isArticles = location.pathname === '/articles';
   const isFaq = location.pathname === '/faq';
   const isContact = location.pathname === '/contact';
+  
+  const isArticleDetail = location.pathname.startsWith('/article/');
+  const articleSlug = isArticleDetail ? decodeURIComponent(location.pathname.split('/article/')[1]) : null;
+  const currentArticle = articleSlug ? ARTICLES.find(a => (a.slug || a.title.replace(/\s+/g, '-').toLowerCase()) === articleSlug) : null;
 
   return (
     <div className="min-h-screen bg-black text-zinc-100 font-sans selection:bg-red-600 selection:text-white overflow-x-hidden">
@@ -682,6 +740,59 @@ function Bocker168Landing() {
       </header>
 
       <main className={!isHome ? "pt-24" : ""}>
+      
+      {/* --- Article Detail Section --- */}
+      {isArticleDetail && (
+        <section className="py-24 relative bg-[#050505] min-h-screen">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <Link to="/articles" className="inline-flex items-center gap-2 text-zinc-400 hover:text-amber-500 transition-colors mb-8 font-medium">
+                <ArrowRight className="w-4 h-4 rotate-180" />
+                กลับไปหน้าบทความ
+              </Link>
+              
+              {currentArticle ? (
+                <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden">
+                  <div className="h-64 md:h-96 overflow-hidden relative">
+                    <div className="absolute top-6 left-6 z-10 px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-full">
+                      {currentArticle.category}
+                    </div>
+                    <img 
+                      src={currentArticle.image} 
+                      alt={currentArticle.title} 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-80" />
+                  </div>
+                  
+                  <div className="p-8 md:p-12">
+                    <div className="flex items-center gap-2 text-zinc-400 text-sm mb-6">
+                      <Calendar className="w-5 h-5" />
+                      <span>{currentArticle.date}</span>
+                    </div>
+                    
+                    <h1 className="text-3xl md:text-4xl font-black text-white mb-8 leading-tight">
+                      {currentArticle.title}
+                    </h1>
+                    
+                    <div 
+                      className="max-w-none [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-white [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-white [&>h3]:mt-6 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-white"
+                      dangerouslySetInnerHTML={{ __html: currentArticle.content || currentArticle.description }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-20 bg-zinc-900/40 border border-zinc-800/50 rounded-3xl">
+                  <h2 className="text-2xl font-bold text-white mb-4">ไม่พบบทความที่คุณค้นหา</h2>
+                  <p className="text-zinc-400">บทความนี้อาจถูกลบไปแล้ว หรือ URL ไม่ถูกต้อง</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* --- Hero Section --- */}
       {isHome && (
         <>
@@ -1046,9 +1157,9 @@ function Bocker168Landing() {
           </div>
           
           <div className="mt-12 text-center">
-            <button className="text-amber-500 font-bold hover:underline underline-offset-8">
+            <Link to="/promotions" className="text-amber-500 font-bold hover:underline underline-offset-8">
               ดูโปรโมชั่นทั้งหมด
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -1081,48 +1192,50 @@ function Bocker168Landing() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden hover:border-red-600/30 transition-all duration-500 flex flex-col"
               >
-                <div className="h-56 overflow-hidden relative">
-                  <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
-                    {article.category}
-                  </div>
-                  <img 
-                    src={article.image} 
-                    alt={article.title} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-80" />
-                </div>
-                
-                <div className="p-6 md:p-8 flex flex-col flex-grow">
-                  <div className="flex items-center gap-2 text-zinc-400 text-sm mb-4">
-                    <Calendar className="w-4 h-4" />
-                    <span>{article.date}</span>
+                <Link to={`/article/${article.slug || article.title.replace(/\s+/g, '-').toLowerCase()}`} className="flex flex-col h-full">
+                  <div className="h-56 overflow-hidden relative">
+                    <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
+                      {article.category}
+                    </div>
+                    <img 
+                      src={article.image} 
+                      alt={article.title} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-80" />
                   </div>
                   
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors line-clamp-2">
-                    {article.title}
-                  </h3>
-                  
-                  <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
-                    {article.description}
-                  </p>
-                  
-                  <button className="flex items-center gap-2 text-red-500 font-bold text-sm group/btn mt-auto w-fit">
-                    อ่านเพิ่มเติม
-                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                  </button>
-                </div>
+                  <div className="p-6 md:p-8 flex flex-col flex-grow">
+                    <div className="flex items-center gap-2 text-zinc-400 text-sm mb-4">
+                      <Calendar className="w-4 h-4" />
+                      <span>{article.date}</span>
+                    </div>
+                    
+                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors line-clamp-2">
+                      {article.title}
+                    </h3>
+                    
+                    <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
+                      {article.description}
+                    </p>
+                    
+                    <div className="flex items-center gap-2 text-red-500 font-bold text-sm group/btn mt-auto w-fit">
+                      อ่านเพิ่มเติม
+                      <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </Link>
               </motion.div>
             ))}
           </div>
           
           <div className="mt-16 text-center">
-            <button className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-600/50 text-white font-bold rounded-2xl transition-all flex items-center gap-3 mx-auto group">
+            <Link to="/articles" className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-600/50 text-white font-bold rounded-2xl transition-all flex items-center gap-3 mx-auto group w-fit">
               <BookOpen className="w-5 h-5 text-red-500" />
               ดูบทความทั้งหมด
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+            </Link>
           </div>
         </div>
       </section>
