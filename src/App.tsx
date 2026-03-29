@@ -556,12 +556,6 @@ const PromotionModal = ({
               <button className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-2xl shadow-lg shadow-red-900/40 transition-all active:scale-95 flex items-center justify-center gap-2">
                 {promo.cta} <Zap className="w-4 h-4 fill-current" />
               </button>
-              <button 
-                onClick={onClose}
-                className="w-full py-4 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-2xl transition-all"
-              >
-                ปิดหน้าต่าง
-              </button>
             </div>
           </div>
         </motion.div>
@@ -1141,14 +1135,11 @@ function Bocker168Landing() {
                     {promo.description}
                   </p>
                   <div className="flex flex-col gap-3">
-                    <button className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-900/40 transition-all active:scale-95 flex items-center justify-center gap-2">
-                      {promo.cta} <Zap className="w-4 h-4 fill-current" />
-                    </button>
                     <button 
                       onClick={() => setSelectedPromo(promo)}
-                      className="w-full py-3 text-zinc-400 hover:text-white font-bold flex items-center justify-center gap-2 transition-colors"
+                      className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-900/40 transition-all active:scale-95 flex items-center justify-center gap-2"
                     >
-                      Learn More <ChevronRight className="w-4 h-4" />
+                      {promo.cta} <Zap className="w-4 h-4 fill-current" />
                     </button>
                   </div>
                 </div>
