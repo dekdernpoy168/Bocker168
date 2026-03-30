@@ -41,6 +41,36 @@
           ]
         },
         {
+          "@type": "Service",
+          "@id": "https://hongkonglex.com/#baccarat",
+          "name": "Baccarat",
+          "description": "Premium online baccarat experience with live dealers and fast payouts.",
+          "url": "https://hongkonglex.com/baccarat",
+          "provider": {
+            "@id": "https://hongkonglex.com/#organization"
+          }
+        },
+        {
+          "@type": "Service",
+          "@id": "https://hongkonglex.com/#online-casino",
+          "name": "Online Casino",
+          "description": "A wide variety of online casino games including slots, roulette, and card games.",
+          "url": "https://hongkonglex.com/",
+          "provider": {
+            "@id": "https://hongkonglex.com/#organization"
+          }
+        },
+        {
+          "@type": "Service",
+          "@id": "https://hongkonglex.com/#live-dealer",
+          "name": "Live Dealer Games",
+          "description": "Real-time live dealer games streaming directly from world-class casinos.",
+          "url": "https://hongkonglex.com/",
+          "provider": {
+            "@id": "https://hongkonglex.com/#organization"
+          }
+        },
+        {
           "@type": "FAQPage",
           "mainEntity": [
             {
@@ -70,8 +100,14 @@
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      
+      // Default consent mode setup
+      gtag('consent', 'default', {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied'
+      });
+      
       gtag('js', new Date());
-
       gtag('config', 'G-XV3WMT4RED');
     </script>
   </head>
