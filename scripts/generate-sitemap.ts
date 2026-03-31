@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { ARTICLES } from '../src/data/articles';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -8,27 +9,30 @@ const __dirname = path.dirname(__filename);
 // กำหนดโดเมนเนมของเว็บไซต์ (เปลี่ยนเป็นโดเมนจริงของคุณ)
 const DOMAIN = 'https://hongkonglex.com';
 
-// อ่านข้อมูลบทความจากไฟล์ JSON
-const articlesPath = path.join(__dirname, '../src/data/articles.json');
-let articles = [];
-if (fs.existsSync(articlesPath)) {
-  const rawData = fs.readFileSync(articlesPath, 'utf-8');
-  articles = JSON.parse(rawData);
-}
-
 const today = new Date().toISOString().split('T')[0];
 
 // กำหนดหน้า Static ของเว็บไซต์
 const routes = [
   { url: '/', lastmod: today, priority: '1.0' },
-  // สามารถเพิ่มหน้าอื่นๆ ได้ที่นี่ เช่น { url: '/promotion', lastmod: today, priority: '0.9' }
+  { url: '/features', lastmod: today, priority: '0.9' },
+  { url: '/baccarat', lastmod: today, priority: '0.9' },
+  { url: '/promotions', lastmod: today, priority: '0.9' },
+  { url: '/articles', lastmod: today, priority: '0.9' },
+  { url: '/faq', lastmod: today, priority: '0.8' },
+  { url: '/contact', lastmod: today, priority: '0.8' },
+  { url: '/register-guide', lastmod: today, priority: '0.8' },
+  { url: '/deposit-withdraw-guide', lastmod: today, priority: '0.8' },
+  { url: '/terms', lastmod: today, priority: '0.7' },
+  { url: '/privacy', lastmod: today, priority: '0.7' },
+  { url: '/cookies', lastmod: today, priority: '0.7' },
+  { url: '/responsible-gambling', lastmod: today, priority: '0.7' },
 ];
 
 // เพิ่มหน้าบทความแบบ Dynamic ลงใน Sitemap
-articles.forEach(article => {
+ARTICLES.forEach(article => {
   routes.push({
     url: `/article/${article.slug}`,
-    lastmod: article.updatedAt || today,
+    lastmod: today, // Using today as fallback since date format in ARTICLES is Thai
     priority: '0.8'
   });
 });

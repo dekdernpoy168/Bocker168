@@ -35,6 +35,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { ARTICLES } from './data/articles';
 
 // --- Constants & Data ---
 
@@ -196,84 +197,6 @@ const PROMOTIONS = [
   }
 ];
 
-const ARTICLES = [
-  {
-    slug: 'baccarat-formula-2026',
-    title: 'สูตรบาคาร่า 2026 อ่านเค้าไพ่ยังไงให้ได้กำไรทุกวัน',
-    description: 'เจาะลึกเทคนิคการอ่านเค้าไพ่บาคาร่าที่แม่นยำที่สุดในปี 2026 พร้อมวิธีเดินเงินให้ได้กำไรชัวร์ๆ',
-    content: `
-      <h2>สูตรบาคาร่า 2026: เจาะลึกเทคนิคการอ่านเค้าไพ่</h2>
-      <p>การเล่นบาคาร่าให้ได้กำไรอย่างยั่งยืน ไม่ใช่เรื่องของการพึ่งพาดวงเพียงอย่างเดียว แต่ต้องอาศัยการอ่าน "เค้าไพ่" และการบริหารเงินทุนที่ดี ในปี 2026 นี้ มีเทคนิคใหม่ๆ ที่ได้รับการพิสูจน์แล้วว่าสามารถเพิ่มโอกาสชนะได้อย่างมาก</p>
-      
-      <h3>1. เค้าไพ่มังกร (Dragon)</h3>
-      <p>เค้าไพ่มังกรคือการที่ผลลัพธ์ออกฝั่งใดฝั่งหนึ่งติดต่อกันยาวๆ (เช่น แดง แดง แดง แดง) เมื่อเจอเค้าไพ่นี้ ให้ตามไปเรื่อยๆ จนกว่าไพ่จะเปลี่ยนฝั่ง อย่าเพิ่งรีบสวนเด็ดขาด</p>
-      
-      <h3>2. เค้าไพ่ปิงปอง (Ping Pong)</h3>
-      <p>เค้าไพ่ปิงปองคือการที่ผลลัพธ์สลับกันไปมา (เช่น แดง น้ำเงิน แดง น้ำเงิน) หากสังเกตเห็นรูปแบบนี้ ให้แทงสลับตามไปเรื่อยๆ เป็นอีกหนึ่งเค้าไพ่ที่ทำกำไรได้ดี</p>
-      
-      <h3>3. การเดินเงินแบบ Martingale</h3>
-      <p>เทคนิคการเดินเงินแบบทบยอดเมื่อเสีย (เช่น 100, 200, 400, 800) วิธีนี้จะช่วยให้คุณได้ทุนคืนและกำไร 1 หน่วยเสมอเมื่อชนะ แต่ต้องระวังเรื่องลิมิตโต๊ะและทุนที่มีจำกัด</p>
-      
-      <p><strong>ข้อควรระวัง:</strong> ไม่มีสูตรใดในโลกที่การันตีผล 100% การเล่นอย่างมีสติและรู้จังหวะเลิกคือหัวใจสำคัญที่สุดในการทำกำไรจากบาคาร่าออนไลน์</p>
-    `,
-    image: 'https://images.unsplash.com/photo-1605870445919-838d190e8e1b?auto=format&fit=crop&q=80&w=800',
-    date: '29 มี.ค. 2026',
-    category: 'สูตรบาคาร่า'
-  },
-  {
-    slug: 'direct-web-vs-agent',
-    title: 'บาคาร่าเว็บตรง vs เว็บเอเย่นต์ ต่างกันอย่างไร?',
-    description: 'ทำไมถึงควรเล่นบาคาร่ากับเว็บตรงไม่ผ่านเอเย่นต์ ข้อดีและข้อเสียที่คุณต้องรู้ก่อนตัดสินใจลงทุน',
-    content: `
-      <h2>บาคาร่าเว็บตรง vs เว็บเอเย่นต์: เลือกเล่นแบบไหนดีกว่ากัน?</h2>
-      <p>ในวงการคาสิโนออนไลน์ คำว่า "เว็บตรง" และ "เว็บเอเย่นต์" เป็นคำที่ได้ยินบ่อยมาก แต่หลายคนอาจยังไม่เข้าใจถึงความแตกต่างที่แท้จริง บทความนี้จะมาไขข้อข้องใจให้คุณ</p>
-      
-      <h3>เว็บตรง (Direct Website)</h3>
-      <p>เว็บตรงคือเว็บไซต์ที่ให้บริการโดยตรงจากบริษัทแม่หรือค่ายเกม ไม่ผ่านตัวแทนใดๆ</p>
-      <ul>
-        <li><strong>ข้อดี:</strong> มีความมั่นคงทางการเงินสูงมาก จ่ายจริงทุกยอด ไม่มีการอั้นถอน ระบบฝาก-ถอนมักจะเป็นระบบออโต้ที่รวดเร็ว และมีโปรโมชั่นที่คุ้มค่ากว่า</li>
-        <li><strong>ข้อเสีย:</strong> อาจมีเงื่อนไขการสมัครหรือการยืนยันตัวตนที่เข้มงวดกว่าเล็กน้อยเพื่อความปลอดภัย</li>
-      </ul>
-      
-      <h3>เว็บเอเย่นต์ (Agent Website)</h3>
-      <p>เว็บเอเย่นต์คือเว็บไซต์ที่เปิดโดยบุคคลที่สามที่ไปรับสิทธิ์ (Franchise) มาจากเว็บใหญ่อีกที</p>
-      <ul>
-        <li><strong>ข้อดี:</strong> สมัครง่าย บางครั้งอาจมีโปรโมชั่นดึงดูดใจในช่วงแรก</li>
-        <li><strong>ข้อเสีย:</strong> มีความเสี่ยงสูงที่จะถูกโกงหรือปิดเว็บหนี หากเล่นได้ยอดใหญ่ๆ อาจโดนอั้นถอน หรือถอนไม่ได้เลย ระบบฝาก-ถอนมักจะช้าเพราะต้องทำผ่านคนกลาง</li>
-      </ul>
-      
-      <p><strong>สรุป:</strong> การเลือกเล่นกับ "เว็บตรง" อย่าง Bocker168 เป็นทางเลือกที่ปลอดภัยและคุ้มค่าที่สุดในระยะยาว เพื่อให้คุณมั่นใจได้ว่าทุกการเดิมพันของคุณจะได้รับผลตอบแทนอย่างแน่นอน</p>
-    `,
-    image: 'https://images.unsplash.com/photo-1596838132731-3301c3fd4317?auto=format&fit=crop&q=80&w=800',
-    date: '28 มี.ค. 2026',
-    category: 'ความรู้ทั่วไป'
-  },
-  {
-    slug: 'bankroll-management',
-    title: 'วิธีจัดการเงินทุน (Bankroll Management) สำหรับมือใหม่',
-    description: 'เทคนิคการบริหารเงินทุนในการเล่นคาสิโนออนไลน์ เล่นอย่างไรไม่ให้หมดตัวและมีกำไรยั่งยืน',
-    content: `
-      <h2>การจัดการเงินทุน (Bankroll Management): กุญแจสู่ความสำเร็จในบาคาร่า</h2>
-      <p>หลายคนมักจะโฟกัสไปที่สูตรหรือเทคนิคการเล่น แต่ลืมไปว่า "การจัดการเงินทุน" คือสิ่งที่สำคัญที่สุดที่จะทำให้คุณอยู่รอดและทำกำไรในระยะยาวได้</p>
-      
-      <h3>1. กำหนดงบประมาณ (Bankroll)</h3>
-      <p>ก่อนเริ่มเล่น คุณต้องกำหนดจำนวนเงินที่คุณสามารถเสียได้โดยไม่เดือดร้อน (เช่น 5,000 บาท) เงินก้อนนี้คือ Bankroll ของคุณ ห้ามนำเงินร้อนหรือเงินที่ต้องใช้จ่ายในชีวิตประจำวันมาเล่นเด็ดขาด</p>
-      
-      <h3>2. แบ่งเงินเดิมพันเป็นหน่วย (Units)</h3>
-      <p>ไม่ควรเดิมพันเงินทั้งหมดในตาเดียว แนะนำให้แบ่ง Bankroll ออกเป็นหน่วยย่อยๆ เช่น 1% - 5% ของทุนทั้งหมด (หากทุน 5,000 บาท 1 หน่วย = 50 บาท) การทำเช่นนี้จะช่วยลดความเสี่ยงในการหมดตัวอย่างรวดเร็ว</p>
-      
-      <h3>3. ตั้งเป้าหมายกำไรและจุดตัดขาดทุน (Stop Loss / Take Profit)</h3>
-      <p>ก่อนเล่นทุกครั้ง ต้องตั้งเป้าหมายให้ชัดเจน เช่น วันนี้ต้องการกำไร 20% ของทุน (1,000 บาท) หากเล่นได้ถึงเป้าแล้วให้หยุดทันที ในขณะเดียวกัน ก็ต้องตั้งจุดตัดขาดทุนไว้ด้วย เช่น ยอมเสียได้สูงสุด 30% ของทุน หากเสียถึงจุดนี้ก็ต้องหยุดเช่นกัน</p>
-      
-      <h3>4. อย่าหัวร้อน (Don't Tilt)</h3>
-      <p>เมื่อเสียเงินติดต่อกัน หลายคนมักจะขาดสติและเพิ่มเงินเดิมพันเพื่อหวังจะได้ทุนคืนอย่างรวดเร็ว ซึ่งเป็นวิธีที่ผิดและมักจะนำไปสู่การหมดตัว ให้ยึดมั่นในแผนการเดินเงินของคุณอย่างเคร่งครัด</p>
-    `,
-    image: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800',
-    date: '27 มี.ค. 2026',
-    category: 'เทคนิคการเล่น'
-  }
-];
-
 const FAQS = [
   {
     question: 'บาคาร่า คืออะไร?',
@@ -341,20 +264,33 @@ interface FAQItemProps {
   key?: React.Key;
 }
 
-const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => (
+const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => {
+  const faqId = faq.question
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\p{L}\p{N}-]/gu, '')
+    .replace(/(^-|-$)/g, '');
+    
+  return (
   <div className="border-b border-zinc-800 last:border-0">
     <button 
       onClick={onClick}
+      aria-expanded={isOpen}
+      aria-controls={`faq-answer-${faqId}`}
+      id={`faq-question-${faqId}`}
       className="w-full py-6 flex items-center justify-between text-left focus:outline-none group"
     >
       <h3 className={`text-lg font-medium transition-colors ${isOpen ? 'text-amber-500' : 'text-white group-hover:text-red-500'}`}>
         {faq.question}
       </h3>
-      {isOpen ? <ChevronUp className="text-amber-500" /> : <ChevronDown className="text-zinc-500" />}
+      {isOpen ? <ChevronUp className="text-amber-500" aria-hidden="true" /> : <ChevronDown className="text-zinc-500" aria-hidden="true" />}
     </button>
     <AnimatePresence>
       {isOpen && (
         <motion.div 
+          id={`faq-answer-${faqId}`}
+          role="region"
+          aria-labelledby={`faq-question-${faqId}`}
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
@@ -368,7 +304,7 @@ const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => (
       )}
     </AnimatePresence>
   </div>
-);
+)};
 
 interface CookieSettings {
   necessary: boolean;
@@ -456,18 +392,21 @@ const CookieSettingsModal = ({
             <div className="space-y-6 mb-10">
               <div className="flex items-center justify-between p-4 bg-zinc-800/50 rounded-2xl border border-zinc-800">
                 <div>
-                  <h4 className="text-white font-bold mb-1">คุกกี้ที่จำเป็น</h4>
-                  <p className="text-zinc-500 text-xs">จำเป็นสำหรับการทำงานของเว็บไซต์</p>
+                  <h4 className="text-white font-bold mb-1">คุกกี้ที่จำเป็น (Necessary)</h4>
+                  <p className="text-zinc-400 text-xs max-w-[250px]">คุกกี้พื้นฐานที่จำเป็นสำหรับการทำงานของเว็บไซต์ เช่น การรักษาความปลอดภัยและการเข้าสู่ระบบ ไม่สามารถปิดการใช้งานได้</p>
                 </div>
-                <div className="w-12 h-6 bg-red-600 rounded-full relative opacity-50 cursor-not-allowed">
-                  <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full" />
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-zinc-500 font-medium">เปิดใช้งานเสมอ</span>
+                  <div className="w-12 h-6 bg-red-600 rounded-full relative opacity-50 cursor-not-allowed">
+                    <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full" />
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-center justify-between p-4 bg-zinc-800/50 rounded-2xl border border-zinc-800">
                 <div>
-                  <h4 className="text-white font-bold mb-1">คุกกี้เพื่อการวิเคราะห์</h4>
-                  <p className="text-zinc-500 text-xs">ช่วยให้เราเข้าใจการใช้งานเว็บไซต์</p>
+                  <h4 className="text-white font-bold mb-1">คุกกี้เพื่อการวิเคราะห์ (Analytics)</h4>
+                  <p className="text-zinc-400 text-xs max-w-[250px]">ช่วยให้เราเก็บสถิติและเข้าใจพฤติกรรมการใช้งานเว็บไซต์ เพื่อนำไปพัฒนาประสบการณ์การใช้งานให้ดียิ่งขึ้น</p>
                 </div>
                 <button 
                   onClick={() => setSettings(s => ({ ...s, analytics: !s.analytics }))}
@@ -482,8 +421,8 @@ const CookieSettingsModal = ({
 
               <div className="flex items-center justify-between p-4 bg-zinc-800/50 rounded-2xl border border-zinc-800">
                 <div>
-                  <h4 className="text-white font-bold mb-1">คุกกี้เพื่อการตลาด</h4>
-                  <p className="text-zinc-500 text-xs">เพื่อนำเสนอโปรโมชันที่ตรงใจคุณ</p>
+                  <h4 className="text-white font-bold mb-1">คุกกี้เพื่อการตลาด (Marketing)</h4>
+                  <p className="text-zinc-400 text-xs max-w-[250px]">ช่วยให้เรานำเสนอเนื้อหาและโปรโมชันที่ตรงกับความสนใจของคุณ รวมถึงการแสดงโฆษณาที่เกี่ยวข้อง</p>
                 </div>
                 <button 
                   onClick={() => setSettings(s => ({ ...s, marketing: !s.marketing }))}
@@ -583,8 +522,8 @@ function Bocker168Landing() {
   const [selectedPromo, setSelectedPromo] = useState<null | typeof PROMOTIONS[0]>(null);
   const [cookieSettings, setCookieSettings] = useState<CookieSettings>({
     necessary: true,
-    analytics: true,
-    marketing: true
+    analytics: false,
+    marketing: false
   });
 
   useEffect(() => {
@@ -597,6 +536,19 @@ function Bocker168Landing() {
     const consent = localStorage.getItem('cookie-consent');
     if (!consent) {
       setTimeout(() => setShowCookieBanner(true), 2000);
+    } else {
+      try {
+        const parsedConsent = JSON.parse(consent);
+        setCookieSettings(parsedConsent);
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+          (window as any).gtag('consent', 'update', {
+            'analytics_storage': parsedConsent.analytics ? 'granted' : 'denied',
+            'ad_storage': parsedConsent.marketing ? 'granted' : 'denied'
+          });
+        }
+      } catch (e) {
+        console.error('Failed to parse cookie consent', e);
+      }
     }
 
     return () => window.removeEventListener('scroll', handleScroll);
@@ -614,12 +566,20 @@ function Bocker168Landing() {
   }, [location.pathname]);
 
   const handleAcceptAllCookies = () => {
-    localStorage.setItem('cookie-consent', JSON.stringify({
+    const newSettings = {
       necessary: true,
       analytics: true,
       marketing: true,
       timestamp: new Date().toISOString()
-    }));
+    };
+    localStorage.setItem('cookie-consent', JSON.stringify(newSettings));
+    setCookieSettings(newSettings);
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('consent', 'update', {
+        'analytics_storage': 'granted',
+        'ad_storage': 'granted'
+      });
+    }
     setShowCookieBanner(false);
   };
 
@@ -628,6 +588,12 @@ function Bocker168Landing() {
       ...cookieSettings,
       timestamp: new Date().toISOString()
     }));
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('consent', 'update', {
+        'analytics_storage': cookieSettings.analytics ? 'granted' : 'denied',
+        'ad_storage': cookieSettings.marketing ? 'granted' : 'denied'
+      });
+    }
     setShowCookieSettings(false);
     setShowCookieBanner(false);
   };
@@ -639,6 +605,12 @@ function Bocker168Landing() {
   const isArticles = location.pathname === '/articles';
   const isFaq = location.pathname === '/faq';
   const isContact = location.pathname === '/contact';
+  const isRegisterGuide = location.pathname === '/register-guide';
+  const isDepositWithdrawGuide = location.pathname === '/deposit-withdraw-guide';
+  const isTerms = location.pathname === '/terms';
+  const isPrivacy = location.pathname === '/privacy';
+  const isCookies = location.pathname === '/cookies';
+  const isResponsibleGambling = location.pathname === '/responsible-gambling';
   
   const isArticleDetail = location.pathname.startsWith('/article/');
   const articleSlug = isArticleDetail ? decodeURIComponent(location.pathname.split('/article/')[1]) : null;
@@ -787,16 +759,173 @@ function Bocker168Landing() {
         </section>
       )}
 
+      {/* --- Register Guide Section --- */}
+      {isRegisterGuide && (
+        <section className="py-24 bg-zinc-950 min-h-[60vh]">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <SectionTitle title="วิธีสมัครสมาชิก Bocker168" centered={false} />
+              <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-300 leading-relaxed space-y-8">
+                <div className="flex gap-6 items-start">
+                  <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-black text-xl shrink-0">1</div>
+                  <div>
+                    <h3 className="text-white text-2xl font-bold mb-4">คลิกปุ่มสมัครสมาชิก</h3>
+                    <p>กดที่ปุ่ม "สมัครสมาชิก" บนหน้าเว็บไซต์ Bocker168 เพื่อเข้าสู่ระบบการสมัครอัตโนมัติ</p>
+                  </div>
+                </div>
+                <div className="flex gap-6 items-start">
+                  <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-black text-xl shrink-0">2</div>
+                  <div>
+                    <h3 className="text-white text-2xl font-bold mb-4">กรอกข้อมูลส่วนตัว</h3>
+                    <p>ระบุเบอร์โทรศัพท์มือถือที่ใช้งานจริง และข้อมูลบัญชีธนาคาร (ชื่อ-นามสกุล ต้องตรงกับชื่อบัญชีธนาคารเพื่อความรวดเร็วในการฝาก-ถอน)</p>
+                  </div>
+                </div>
+                <div className="flex gap-6 items-start">
+                  <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-black text-xl shrink-0">3</div>
+                  <div>
+                    <h3 className="text-white text-2xl font-bold mb-4">ยืนยันและรับยูสเซอร์</h3>
+                    <p>ตรวจสอบความถูกต้องของข้อมูลแล้วกดยืนยัน ระบบจะส่ง Username และ Password ให้คุณทันที สามารถเข้าเล่นได้เลย!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* --- Deposit Withdraw Guide Section --- */}
+      {isDepositWithdrawGuide && (
+        <section className="py-24 bg-zinc-950 min-h-[60vh]">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <SectionTitle title="วิธีฝาก-ถอนเงิน ระบบออโต้" centered={false} />
+              <div className="mt-12 grid md:grid-cols-2 gap-8">
+                <div className="bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8">
+                  <h3 className="text-red-500 text-2xl font-bold mb-6 flex items-center gap-3">
+                    <LogIn className="w-6 h-6" /> วิธีการฝากเงิน
+                  </h3>
+                  <ul className="space-y-4 text-zinc-400">
+                    <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" /> เข้าสู่ระบบด้วยยูสเซอร์ของคุณ</li>
+                    <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" /> เลือกเมนู "ฝากเงิน"</li>
+                    <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" /> คัดลอกเลขบัญชีของทางเว็บ</li>
+                    <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" /> โอนเงินผ่านแอปธนาคารของคุณ (ต้องใช้บัญชีที่สมัครเท่านั้น)</li>
+                    <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" /> รอระบบอัปเดตยอดเงินภายใน 10 วินาที</li>
+                  </ul>
+                </div>
+                <div className="bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8">
+                  <h3 className="text-amber-500 text-2xl font-bold mb-6 flex items-center gap-3">
+                    <Zap className="w-6 h-6" /> วิธีการถอนเงิน
+                  </h3>
+                  <ul className="space-y-4 text-zinc-400">
+                    <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" /> เลือกเมนู "ถอนเงิน"</li>
+                    <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" /> ระบุจำนวนเงินที่ต้องการถอน</li>
+                    <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" /> กดยืนยันการถอนเงิน</li>
+                    <li className="flex gap-3"><CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" /> เงินจะเข้าบัญชีธนาคารของคุณโดยอัตโนมัติ</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* --- Terms Section --- */}
+      {isTerms && (
+        <section className="py-24 bg-zinc-950 min-h-[60vh]">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <SectionTitle title="ข้อตกลงและเงื่อนไข" centered={false} />
+              <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
+                <p>ยินดีต้อนรับสู่ Bocker168 ในการใช้บริการเว็บไซต์ของเรา คุณตกลงที่จะปฏิบัติตามข้อกำหนดและเงื่อนไขดังต่อไปนี้:</p>
+                <h3 className="text-white text-xl font-bold mt-8 mb-4">1. การสมัครสมาชิก</h3>
+                <p>ผู้สมัครต้องมีอายุไม่ต่ำกว่า 18 ปีบริบูรณ์ และต้องให้ข้อมูลที่เป็นจริงเท่านั้น หากตรวจพบข้อมูลเท็จ ทางเราขอสงวนสิทธิ์ในการระงับบัญชีทันที</p>
+                <h3 className="text-white text-xl font-bold mt-8 mb-4">2. การรักษาความปลอดภัย</h3>
+                <p>สมาชิกมีหน้าที่รับผิดชอบในการรักษาความลับของรหัสผ่านและข้อมูลบัญชีของตนเอง ทางเว็บไซต์จะไม่รับผิดชอบต่อความเสียหายที่เกิดจากการละเลยของผู้ใช้</p>
+                <h3 className="text-white text-xl font-bold mt-8 mb-4">3. กฎกติกาการเล่น</h3>
+                <p>การเดิมพันทั้งหมดต้องเป็นไปตามกฎกติกาที่เว็บไซต์กำหนด หากตรวจพบการใช้โปรแกรมช่วยเล่นหรือการกระทำที่ส่อไปในทางทุจริต ทางเราจะยกเลิกยอดเงินและระงับบัญชีถาวร</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* --- Privacy Section --- */}
+      {isPrivacy && (
+        <section className="py-24 bg-zinc-950 min-h-[60vh]">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <SectionTitle title="นโยบายความเป็นส่วนตัว" centered={false} />
+              <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
+                <p>Bocker168 ให้ความสำคัญกับความเป็นส่วนตัวของสมาชิกทุกท่าน ข้อมูลของคุณจะถูกเก็บรักษาเป็นความลับสูงสุด:</p>
+                <h3 className="text-white text-xl font-bold mt-8 mb-4">1. การเก็บรวบรวมข้อมูล</h3>
+                <p>เราเก็บรวบรวมข้อมูลที่จำเป็นสำหรับการให้บริการ เช่น ชื่อ-นามสกุล, เบอร์โทรศัพท์, และข้อมูลบัญชีธนาคาร เพื่อใช้ในการทำรายการฝาก-ถอน</p>
+                <h3 className="text-white text-xl font-bold mt-8 mb-4">2. การใช้งานข้อมูล</h3>
+                <p>ข้อมูลของคุณจะถูกใช้เพื่อวัตถุประสงค์ในการให้บริการ ปรับปรุงประสบการณ์การใช้งาน และแจ้งข่าวสารโปรโมชั่นที่น่าสนใจเท่านั้น</p>
+                <h3 className="text-white text-xl font-bold mt-8 mb-4">3. การรักษาความปลอดภัย</h3>
+                <p>เราใช้ระบบเข้ารหัสข้อมูลขั้นสูง (SSL) เพื่อป้องกันการเข้าถึงข้อมูลโดยไม่ได้รับอนุญาต คุณจึงมั่นใจได้ว่าข้อมูลของคุณจะปลอดภัย 100%</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* --- Cookies Section --- */}
+      {isCookies && (
+        <section className="py-24 bg-zinc-950 min-h-[60vh]">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <SectionTitle title="นโยบายคุกกี้" centered={false} />
+              <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
+                <p>เว็บไซต์ของเรามีการใช้งานคุกกี้ (Cookies) เพื่อเพิ่มประสิทธิภาพในการใช้งานและมอบประสบการณ์ที่ดีที่สุดให้กับคุณ:</p>
+                <h3 className="text-white text-xl font-bold mt-8 mb-4">คุกกี้คืออะไร?</h3>
+                <p>คุกกี้คือไฟล์ขนาดเล็กที่ถูกเก็บไว้ในอุปกรณ์ของคุณเมื่อคุณเข้าชมเว็บไซต์ ช่วยให้เราจดจำการตั้งค่าและพฤติกรรมการใช้งานของคุณได้</p>
+                <h3 className="text-white text-xl font-bold mt-8 mb-4">เราใช้คุกกี้อย่างไร?</h3>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li>คุกกี้ที่จำเป็น: เพื่อให้เว็บไซต์ทำงานได้อย่างถูกต้อง</li>
+                  <li>คุกกี้เพื่อการวิเคราะห์: เพื่อทำความเข้าใจว่าผู้ใช้งานเข้าถึงส่วนใดของเว็บมากที่สุด</li>
+                  <li>คุกกี้เพื่อการตลาด: เพื่อนำเสนอโปรโมชั่นที่ตรงกับความสนใจของคุณ</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* --- Responsible Gambling Section --- */}
+      {isResponsibleGambling && (
+        <section className="py-24 bg-zinc-950 min-h-[60vh]">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <SectionTitle title="ความรับผิดชอบต่อสังคม" centered={false} />
+              <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
+                <p>Bocker168 สนับสนุนการเล่นพนันอย่างมีความรับผิดชอบ เพื่อให้การเดิมพันเป็นเพียงกิจกรรมสันทนาการที่สนุกสนาน:</p>
+                <h3 className="text-white text-xl font-bold mt-8 mb-4">คำแนะนำในการเล่นอย่างมีความรับผิดชอบ</h3>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li>เล่นเพื่อความสนุกสนาน ไม่ใช่เพื่อหารายได้หลัก</li>
+                  <li>กำหนดงบประมาณที่สามารถเสียได้และไม่เดือดร้อนต่อตนเองและครอบครัว</li>
+                  <li>ไม่ควรใช้เวลาในการเล่นมากเกินไปจนกระทบต่อหน้าที่การงานหรือการเรียน</li>
+                  <li>หากรู้สึกว่าการเล่นเริ่มส่งผลเสียต่อชีวิตประจำวัน ควรหยุดพักและขอคำปรึกษา</li>
+                </ul>
+                <p className="mt-8 p-6 bg-red-600/10 border border-red-600/20 rounded-2xl text-red-500 font-bold">
+                  "การพนันควรเป็นเรื่องของความบันเทิง กรุณาเล่นอย่างมีสติ"
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* --- Hero Section --- */}
       {isHome && (
         <>
           <section id="home" className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="max-w-4xl mx-auto items-center">
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              className="flex flex-col items-center text-center"
             >
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-950/30 border border-red-900/50 text-red-500 text-xs font-bold uppercase tracking-widest mb-6">
                 <Zap className="w-4 h-4 fill-current" />
@@ -806,7 +935,7 @@ function Bocker168Landing() {
                 บาคาร่าออนไลน์ Bocker168 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-500 to-red-600">เว็บตรงไม่ผ่านเอเย่นต์</span> ฝากถอนไม่มีขั้นต่ำ
               </h1>
               
-              <div className="mb-8 rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl shadow-red-900/20 max-w-xl relative group">
+              <div className="mb-8 rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl shadow-red-900/20 max-w-xl relative group mx-auto">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none" />
                 <img 
                   src="https://img1.pic.in.th/images/Online-Baccarat-Bocker168.jpg" 
@@ -816,11 +945,11 @@ function Bocker168Landing() {
                 />
               </div>
 
-              <p className="text-lg text-zinc-400 mb-10 leading-relaxed max-w-xl">
+              <p className="text-lg text-zinc-400 mb-10 leading-relaxed max-w-xl mx-auto">
                 เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม
               </p>
               
-              <div className="flex flex-wrap gap-4 mb-12">
+              <div className="flex flex-wrap justify-center gap-4 mb-12">
                 <button className="px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black rounded-2xl shadow-xl shadow-red-900/40 transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-2">
                   <UserPlus className="w-5 h-5" />
                   สมัครบาคาร่า
@@ -831,94 +960,18 @@ function Bocker168Landing() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 justify-center">
                 {[
                   { icon: <CheckCircle2 className="w-4 h-4 text-amber-500" />, text: 'บาคาร่าออนไลน์' },
                   { icon: <CheckCircle2 className="w-4 h-4 text-amber-500" />, text: 'บาคาร่าเว็บตรง' },
                   { icon: <CheckCircle2 className="w-4 h-4 text-amber-500" />, text: 'ฝากถอนออโต้' },
                   { icon: <CheckCircle2 className="w-4 h-4 text-amber-500" />, text: 'บริการ 24 ชม.' },
                 ].map((badge, i) => (
-                  <div key={i} className="flex items-center gap-2 text-zinc-500 text-sm font-medium">
+                  <div key={i} className="flex items-center justify-center gap-2 text-zinc-500 text-sm font-medium">
                     {badge.icon}
                     {badge.text}
                   </div>
                 ))}
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative hidden lg:block"
-            >
-              <div className="absolute inset-0 bg-red-600/20 blur-[100px] rounded-full animate-pulse" />
-              <div className="relative bg-zinc-900/80 backdrop-blur-md border border-zinc-800 p-8 rounded-[2.5rem] shadow-2xl overflow-hidden">
-                {/* Glowing border effect */}
-                <div className="absolute inset-0 border-2 border-transparent rounded-[2.5rem] bg-gradient-to-br from-red-600/30 via-transparent to-amber-500/30 [mask-image:linear-gradient(white,white)] pointer-events-none" style={{ WebkitMaskComposite: 'destination-out', maskComposite: 'exclude' }} />
-                
-                <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-white font-bold tracking-widest uppercase text-sm">Live Stats</span>
-                  </div>
-                  <div className="bg-zinc-800/80 px-4 py-1.5 rounded-full border border-zinc-700 flex items-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-                    <Clock className="w-4 h-4 text-amber-500" />
-                    <span className="text-amber-500 font-mono font-bold">00:{countdown.toString().padStart(2, '0')}</span>
-                  </div>
-                </div>
-
-                {/* Win Rates */}
-                <div className="mb-8">
-                  <div className="flex justify-between text-sm font-bold mb-2">
-                    <span className="text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">PLAYER 45%</span>
-                    <span className="text-green-500 drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]">TIE 10%</span>
-                    <span className="text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]">BANKER 45%</span>
-                  </div>
-                  <div className="h-3 w-full bg-zinc-800 rounded-full overflow-hidden flex shadow-inner">
-                    <div className="h-full bg-blue-500 w-[45%] shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
-                    <div className="h-full bg-green-500 w-[10%] shadow-[0_0_10px_rgba(34,197,94,0.8)]" />
-                    <div className="h-full bg-red-500 w-[45%] shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
-                  </div>
-                </div>
-
-                {/* Recent Outcomes */}
-                <div className="mb-8">
-                  <div className="text-zinc-400 text-xs font-bold uppercase tracking-wider mb-3">Recent Outcomes</div>
-                  <div className="flex gap-2 justify-between">
-                    {['B', 'P', 'B', 'B', 'T', 'P', 'B', 'P', 'P', 'B'].map((outcome, i) => (
-                      <div 
-                        key={i} 
-                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-lg
-                          ${outcome === 'B' ? 'bg-gradient-to-br from-red-500 to-red-700 text-white shadow-[0_0_10px_rgba(220,38,38,0.6)]' : 
-                            outcome === 'P' ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-[0_0_10px_rgba(37,99,235,0.6)]' : 
-                            'bg-gradient-to-br from-green-500 to-green-700 text-white shadow-[0_0_10px_rgba(22,163,74,0.6)]'}`}
-                      >
-                        {outcome}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Feature Highlights */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-zinc-800/50 p-4 rounded-2xl border border-zinc-700/50 hover:border-amber-500/50 transition-colors group relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <Crown className="text-amber-500 w-6 h-6 mb-2 group-hover:scale-110 transition-transform drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-                    <div className="text-white font-bold text-sm relative z-10">VIP Tables</div>
-                    <div className="text-zinc-500 text-xs relative z-10">High limits available</div>
-                  </div>
-                  <div className="bg-zinc-800/50 p-4 rounded-2xl border border-zinc-700/50 hover:border-red-500/50 transition-colors group relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <TrendingUp className="text-red-500 w-6 h-6 mb-2 group-hover:scale-110 transition-transform drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                    <div className="text-white font-bold text-sm relative z-10">Fast Payouts</div>
-                    <div className="text-zinc-500 text-xs relative z-10">Under 10 seconds</div>
-                  </div>
-                </div>
-                
-                {/* Decorative Elements */}
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-red-600/20 rounded-full blur-2xl pointer-events-none" />
-                <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
               </div>
             </motion.div>
           </div>
@@ -1354,8 +1407,8 @@ function Bocker168Landing() {
                 {[
                   { label: 'คำถามที่พบบ่อย', path: '/faq' },
                   { label: 'ติดต่อเรา', path: '/contact' },
-                  { label: 'วิธีสมัครสมาชิก', path: '#' },
-                  { label: 'วิธีฝาก-ถอน', path: '#' },
+                  { label: 'วิธีสมัครสมาชิก', path: '/register-guide' },
+                  { label: 'วิธีฝาก-ถอน', path: '/deposit-withdraw-guide' },
                 ].map((item) => (
                   <li key={item.label}>
                     <Link 
@@ -1374,10 +1427,10 @@ function Bocker168Landing() {
               <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">ข้อกำหนด</h4>
               <ul className="space-y-5">
                 {[
-                  { label: 'ข้อตกลงและเงื่อนไข', path: '#' },
-                  { label: 'นโยบายความเป็นส่วนตัว', path: '#' },
-                  { label: 'นโยบายคุกกี้', path: '#' },
-                  { label: 'ความรับผิดชอบต่อสังคม', path: '#' },
+                  { label: 'ข้อตกลงและเงื่อนไข', path: '/terms' },
+                  { label: 'นโยบายความเป็นส่วนตัว', path: '/privacy' },
+                  { label: 'นโยบายคุกกี้', path: '/cookies' },
+                  { label: 'ความรับผิดชอบต่อสังคม', path: '/responsible-gambling' },
                 ].map((item) => (
                   <li key={item.label}>
                     <Link 
