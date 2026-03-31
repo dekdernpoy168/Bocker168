@@ -291,10 +291,10 @@ const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => {
           id={`faq-answer-${faqId}`}
           role="region"
           aria-labelledby={`faq-question-${faqId}`}
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: 'auto', opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          initial={{ height: 0, opacity: 0, y: -10 }}
+          animate={{ height: 'auto', opacity: 1, y: 0 }}
+          exit={{ height: 0, opacity: 0, y: -10 }}
+          transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
           className="overflow-hidden"
         >
           <p className="pb-6 text-zinc-400 leading-relaxed">
