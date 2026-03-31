@@ -1,4 +1,4 @@
-name = "bocker168-landing"
+name = 'bocker168'
 main = "index.html"
 compatibility_date = "2026-03-30"
 
