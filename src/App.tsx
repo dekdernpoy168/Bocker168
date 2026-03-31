@@ -17,7 +17,9 @@ import {
   Clock, 
   LayoutDashboard, 
   Layers, 
-  Star, 
+  Star,
+  CreditCard,
+  Headset, 
   Gift, 
   UserPlus, 
   LogIn, 
@@ -538,7 +540,7 @@ const PromotionModal = ({
             
             <div className="space-y-4">
               <a 
-                href="https://solo1688.com/register?ref=zCtcwP3ZbD" 
+                href="https://inlnk.co/registerbocker168" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-2xl shadow-lg shadow-red-900/40 transition-all active:scale-95 flex items-center justify-center gap-2"
@@ -710,7 +712,7 @@ function Bocker168Landing() {
               เข้าสู่ระบบ
             </button>
             <a 
-              href="https://solo1688.com/register?ref=zCtcwP3ZbD" 
+              href="https://inlnk.co/registerbocker168" 
               target="_blank" 
               rel="noopener noreferrer"
               className="px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-sm font-bold rounded-full shadow-lg shadow-red-900/40 transition-all active:scale-95 inline-block"
@@ -752,7 +754,7 @@ function Bocker168Landing() {
                   เข้าสู่ระบบ
                 </button>
                 <a 
-                  href="https://solo1688.com/register?ref=zCtcwP3ZbD" 
+                  href="https://inlnk.co/registerbocker168" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-900/40 text-center block"
@@ -1011,7 +1013,7 @@ function Bocker168Landing() {
               
               <div className="flex flex-wrap justify-center gap-4 mb-12">
                 <a 
-                  href="https://solo1688.com/register?ref=zCtcwP3ZbD" 
+                  href="https://inlnk.co/registerbocker168" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black rounded-2xl shadow-xl shadow-red-900/40 transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-2"
@@ -1081,32 +1083,43 @@ function Bocker168Landing() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-7xl mx-auto">
-            {WHY_CHOOSE.map((feature, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -10 }}
-                className={`bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 p-12 rounded-[4rem] hover:border-amber-500/50 transition-all group flex flex-col items-center text-center ${i === 4 ? 'md:col-span-2 md:max-w-2xl md:mx-auto' : ''}`}
-              >
-                <div className="relative mb-10 group-hover:scale-105 transition-transform duration-500 w-full flex justify-center">
-                  <div className="absolute inset-0 bg-amber-500/10 blur-[100px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <img 
-                    src={feature.image} 
-                    alt={feature.title} 
-                    className="w-full max-w-[500px] h-auto aspect-square object-contain relative z-10 drop-shadow-[0_0_30px_rgba(0,0,0,0.7)]"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-                <h3 className="text-3xl font-bold text-white mb-6">{feature.title}</h3>
-                <p className="text-zinc-400 text-xl leading-relaxed max-w-md">
-                  {feature.description}
-                </p>
-              </motion.div>
-            ))}
+          <div className="max-w-7xl mx-auto">
+            <Swiper
+              modules={[Autoplay, Pagination, Navigation]}
+              spaceBetween={30}
+              slidesPerView={1}
+              breakpoints={{
+                640: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 },
+              }}
+              autoplay={{ delay: 3000, disableOnInteraction: false }}
+              pagination={{ clickable: true }}
+              navigation
+              className="py-10"
+            >
+              {WHY_CHOOSE.map((feature, i) => (
+                <SwiperSlide key={i}>
+                  <motion.div
+                    whileHover={{ y: -10 }}
+                    className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 p-8 rounded-[2rem] hover:border-amber-500/50 transition-all group flex flex-col items-center text-center h-full"
+                  >
+                    <div className="relative mb-8 group-hover:scale-105 transition-transform duration-500 w-full flex justify-center">
+                      <div className="absolute inset-0 bg-amber-500/10 blur-[50px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <img 
+                        src={feature.image} 
+                        alt={feature.title} 
+                        className="w-full max-w-[250px] h-auto aspect-square object-contain relative z-10 drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
+                    <p className="text-zinc-400 text-lg leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </motion.div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
       </section>
@@ -1214,7 +1227,7 @@ function Bocker168Landing() {
                 </div>
                 
                 <a 
-                  href="https://solo1688.com/register?ref=zCtcwP3ZbD" 
+                  href="https://inlnk.co/registerbocker168" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="mt-6 w-full py-3 bg-zinc-800 hover:bg-red-600 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 group-hover:bg-red-600"
@@ -1530,7 +1543,7 @@ function Bocker168Landing() {
               </p>
               <div className="flex flex-wrap justify-center gap-6">
                 <a 
-                  href="https://solo1688.com/register?ref=zCtcwP3ZbD" 
+                  href="https://inlnk.co/registerbocker168" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="px-10 py-5 bg-white text-red-600 font-black text-xl rounded-2xl shadow-xl hover:scale-105 transition-transform active:scale-95 inline-block"
@@ -1672,13 +1685,28 @@ function Bocker168Landing() {
             </div>
           </div>
 
-          <div className="pt-12 border-t border-zinc-900/50 flex flex-col md:flex-row items-center justify-between gap-8">
-            <p className="text-zinc-600 text-xs font-bold tracking-widest uppercase">
-              © 2026 Bocker168. All rights reserved.
-            </p>
-            <div className="flex items-center gap-3 text-zinc-500 text-xs bg-zinc-900/30 px-6 py-3 rounded-2xl border border-zinc-800/50 backdrop-blur-sm">
-              <ShieldCheck className="w-5 h-5 text-amber-500" />
-              <span className="font-bold">สำหรับผู้มีอายุ 18 ปีขึ้นไป กรุณาใช้งานอย่างมีความรับผิดชอบ</span>
+          <div className="pt-12 border-t border-zinc-900/50">
+            <div className="flex flex-wrap justify-center gap-6 mb-12">
+              {[
+                { icon: ShieldCheck, label: 'Licensed & Certified' },
+                { icon: CreditCard, label: 'Secure Payments' },
+                { icon: Zap, label: 'Fast Auto-Deposit' },
+                { icon: Headset, label: '24/7 Support' },
+              ].map((badge) => (
+                <div key={badge.label} className="flex items-center gap-3 bg-zinc-900/50 px-6 py-3 rounded-2xl border border-zinc-800">
+                  <badge.icon className="w-6 h-6 text-red-500" />
+                  <span className="text-white font-bold text-sm">{badge.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+              <p className="text-zinc-600 text-xs font-bold tracking-widest uppercase">
+                © 2026 Bocker168. All rights reserved.
+              </p>
+              <div className="flex items-center gap-3 text-zinc-500 text-xs bg-zinc-900/30 px-6 py-3 rounded-2xl border border-zinc-800/50 backdrop-blur-sm">
+                <ShieldCheck className="w-5 h-5 text-amber-500" />
+                <span className="font-bold">สำหรับผู้มีอายุ 18 ปีขึ้นไป กรุณาใช้งานอย่างมีความรับผิดชอบ</span>
+              </div>
             </div>
           </div>
         </div>
