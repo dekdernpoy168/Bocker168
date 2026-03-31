@@ -3,3 +3,19 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* Swiper Overrides for Dark Theme */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #ef4444 !important; /* Tailwind red-500 */
+}
+
+.swiper-pagination-bullet {
+  background: #52525b !important; /* Tailwind zinc-500 */
+  opacity: 0.5;
+}
+
+.swiper-pagination-bullet-active {
+  background: #ef4444 !important; /* Tailwind red-500 */
+  opacity: 1;
+}

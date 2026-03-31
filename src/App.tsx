@@ -32,10 +32,19 @@ import {
   Monitor,
   BookOpen,
   ArrowRight,
-  Calendar
+  Calendar,
+  Flame,
+  Activity,
+  Circle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 import { ARTICLES } from './data/articles';
+import LiveChat from './components/LiveChat';
 
 // --- Constants & Data ---
 
@@ -47,6 +56,36 @@ const MENU_ITEMS = [
   { label: 'บทความ', path: '/articles' },
   { label: 'คำถามที่พบบ่อย', path: '/faq' },
   { label: 'ติดต่อเรา', path: '/contact' },
+];
+
+const LIVE_STATS = [
+  {
+    provider: 'SA Gaming',
+    table: 'Table E03',
+    status: 'กำลังแจกไพ่',
+    hot: 'Banker',
+    streak: 4,
+    stats: { banker: 52, player: 38, tie: 10 },
+    history: ['B', 'B', 'B', 'B', 'P', 'B', 'T', 'P', 'B', 'B']
+  },
+  {
+    provider: 'Sexy Baccarat',
+    table: 'Room 08',
+    status: 'รอเดิมพัน',
+    hot: 'Player',
+    streak: 3,
+    stats: { banker: 40, player: 55, tie: 5 },
+    history: ['P', 'P', 'P', 'B', 'P', 'T', 'P', 'P', 'B', 'P']
+  },
+  {
+    provider: 'Dream Gaming',
+    table: 'Table 01',
+    status: 'กำลังสับไพ่',
+    hot: 'Tie',
+    streak: 1,
+    stats: { banker: 45, player: 45, tie: 10 },
+    history: ['T', 'B', 'P', 'B', 'P', 'B', 'P', 'B', 'P', 'T']
+  }
 ];
 
 const HIGHLIGHTS = [
@@ -115,37 +154,43 @@ const CATEGORIES = [
     title: 'Sexy Baccarat',
     description: 'ดีลเลอร์สาวสวยสุดเซ็กซี่ พร้อมแจกไพ่ให้คุณลุ้นสนุกทุกตา เพลิดเพลินไม่มีเบื่อ',
     accent: 'from-red-600 to-red-900',
-    image: 'https://img2.pic.in.th/55-Sexy-Baccarat-Bocker168-1.png'
+    image: 'https://img2.pic.in.th/55-Sexy-Baccarat-Bocker168-1.png',
+    logo: 'https://placehold.co/100x100?text=Sexy'
   },
   {
     title: 'SA Gaming',
     description: 'ค่ายคาสิโนระดับตำนาน มาตรฐานสากล มั่นคงที่สุด ภาพคมชัดระดับ Full HD',
     accent: 'from-amber-600 to-amber-900',
-    image: 'https://img1.pic.in.th/images/SA-Gaming-Bocker168.webp'
+    image: 'https://img1.pic.in.th/images/SA-Gaming-Bocker168.webp',
+    logo: 'https://placehold.co/100x100?text=SA'
   },
   {
     title: 'Dream Gaming',
     description: 'บาคาร่าสดพร้อมฟีเจอร์แชทพูดคุยกับผู้เล่นอื่นได้ เพิ่มอรรถรสในการเดิมพัน',
     accent: 'from-red-600 to-red-900',
-    image: 'https://img1.pic.in.th/images/Dream-Gaming-Bocker168.webp'
+    image: 'https://img1.pic.in.th/images/Dream-Gaming-Bocker168.webp',
+    logo: 'https://placehold.co/100x100?text=DG'
   },
   {
     title: 'Pretty Gaming',
     description: 'สัมผัสประสบการณ์วีไอพีกับดีลเลอร์สาวพริตตี้ระดับท็อป บริการระดับพรีเมียม',
     accent: 'from-zinc-700 to-zinc-900',
-    image: 'https://img1.pic.in.th/images/Pretty-Gaming-Bocker168.webp'
+    image: 'https://img1.pic.in.th/images/Pretty-Gaming-Bocker168.webp',
+    logo: 'https://placehold.co/100x100?text=Pretty'
   },
   {
     title: 'Asia Gaming',
     description: 'คาสิโนสดสไตล์เอเชีย รูปแบบการเล่นเข้าใจง่าย เหมาะกับนักเดิมพันทุกระดับ',
     accent: 'from-zinc-700 to-zinc-900',
-    image: 'https://img2.pic.in.th/Asia-Gaming-Bocker168.png'
+    image: 'https://img2.pic.in.th/Asia-Gaming-Bocker168.png',
+    logo: 'https://placehold.co/100x100?text=AG'
   },
   {
     title: 'Evolution Gaming',
     description: 'พรีเมียมคาสิโนจากยุโรป มุมกล้องหลากหลายสมจริง เหมือนนั่งอยู่ในคาสิโนจริง',
     accent: 'from-amber-600 to-amber-900',
-    image: 'https://img1.pic.in.th/images/Evolution-Gaming-Bocker168.webp'
+    image: 'https://img1.pic.in.th/images/Evolution-Gaming-Bocker168.webp',
+    logo: 'https://placehold.co/100x100?text=Evo'
   }
 ];
 
@@ -492,9 +537,14 @@ const PromotionModal = ({
             </p>
             
             <div className="space-y-4">
-              <button className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-2xl shadow-lg shadow-red-900/40 transition-all active:scale-95 flex items-center justify-center gap-2">
+              <a 
+                href="https://solo1688.com/register?ref=zCtcwP3ZbD" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-2xl shadow-lg shadow-red-900/40 transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
                 {promo.cta} <Zap className="w-4 h-4 fill-current" />
-              </button>
+              </a>
             </div>
           </div>
         </motion.div>
@@ -659,9 +709,14 @@ function Bocker168Landing() {
             <button className="px-6 py-2 text-sm font-bold text-white hover:text-amber-500 transition-colors">
               เข้าสู่ระบบ
             </button>
-            <button className="px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-sm font-bold rounded-full shadow-lg shadow-red-900/40 transition-all active:scale-95">
+            <a 
+              href="https://solo1688.com/register?ref=zCtcwP3ZbD" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-sm font-bold rounded-full shadow-lg shadow-red-900/40 transition-all active:scale-95 inline-block"
+            >
               สมัครสมาชิก
-            </button>
+            </a>
           </div>
 
           {/* Mobile Toggle */}
@@ -696,9 +751,14 @@ function Bocker168Landing() {
                 <button className="w-full py-4 bg-zinc-900 text-white font-bold rounded-xl border border-zinc-800">
                   เข้าสู่ระบบ
                 </button>
-                <button className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-900/40">
+                <a 
+                  href="https://solo1688.com/register?ref=zCtcwP3ZbD" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-900/40 text-center block"
+                >
                   สมัครสมาชิก
-                </button>
+                </a>
               </div>
             </motion.div>
           )}
@@ -950,10 +1010,15 @@ function Bocker168Landing() {
               </p>
               
               <div className="flex flex-wrap justify-center gap-4 mb-12">
-                <button className="px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black rounded-2xl shadow-xl shadow-red-900/40 transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-2">
+                <a 
+                  href="https://solo1688.com/register?ref=zCtcwP3ZbD" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black rounded-2xl shadow-xl shadow-red-900/40 transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-2"
+                >
                   <UserPlus className="w-5 h-5" />
                   สมัครบาคาร่า
-                </button>
+                </a>
                 <button className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-black rounded-2xl border border-zinc-800 transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-2">
                   <Gift className="w-5 h-5 text-amber-500" />
                   ดูโปรโมชั่น
@@ -1001,6 +1066,7 @@ function Bocker168Landing() {
           </div>
         </div>
       </section>
+
       </>
       )}
 
@@ -1049,6 +1115,118 @@ function Bocker168Landing() {
       {/* --- Baccarat Categories --- */}
       {(isHome || isBaccarat) && (
       <>
+      {/* --- Live Stats Section --- */}
+      <section className="py-24 bg-zinc-950 border-b border-zinc-900 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-950/50 border border-red-900/50 text-red-500 font-bold text-sm mb-6">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+              </span>
+              LIVE BACCARAT STATS
+            </div>
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
+              สถิติเค้าไพ่สด <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">เรียลไทม์</span>
+            </h2>
+            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+              อัปเดตสถานะโต๊ะบาคาร่ายอดฮิตแบบวินาทีต่อวินาที เลือกโต๊ะที่ใช่ ทำกำไรได้ทันที ไม่ต้องสุ่มเดา
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {LIVE_STATS.map((stat, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-red-500/30 transition-colors group"
+              >
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h3 className="text-white font-bold text-xl mb-1">{stat.provider}</h3>
+                    <p className="text-zinc-500 text-sm">{stat.table}</p>
+                  </div>
+                  <div className="px-3 py-1 bg-zinc-800 rounded-full text-xs font-medium text-zinc-300 flex items-center gap-2">
+                    <Activity className="w-3 h-3 text-amber-500" />
+                    {stat.status}
+                  </div>
+                </div>
+
+                <div className="mb-6 p-4 bg-zinc-950 rounded-2xl border border-zinc-800/50 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      stat.hot === 'Banker' ? 'bg-red-500/20 text-red-500' :
+                      stat.hot === 'Player' ? 'bg-blue-500/20 text-blue-500' :
+                      'bg-green-500/20 text-green-500'
+                    }`}>
+                      <Flame className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-zinc-400 text-xs mb-1">กำลังมาแรง</p>
+                      <p className={`font-bold text-sm ${
+                        stat.hot === 'Banker' ? 'text-red-500' :
+                        stat.hot === 'Player' ? 'text-blue-500' :
+                        'text-green-500'
+                      }`}>
+                        {stat.hot === 'Banker' ? 'แบงค์เกอร์ (แดง)' : stat.hot === 'Player' ? 'เพลเยอร์ (น้ำเงิน)' : 'เสมอ (เขียว)'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-white font-black text-2xl">{stat.streak}</p>
+                    <p className="text-zinc-500 text-xs">ตาติดกัน</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between text-xs font-medium">
+                    <span className="text-red-500">B {stat.stats.banker}%</span>
+                    <span className="text-green-500">T {stat.stats.tie}%</span>
+                    <span className="text-blue-500">P {stat.stats.player}%</span>
+                  </div>
+                  <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden flex">
+                    <div className="h-full bg-red-500" style={{ width: `${stat.stats.banker}%` }} />
+                    <div className="h-full bg-green-500" style={{ width: `${stat.stats.tie}%` }} />
+                    <div className="h-full bg-blue-500" style={{ width: `${stat.stats.player}%` }} />
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-zinc-500 text-xs mb-3">ผลล่าสุด (ซ้ายไปขวา)</p>
+                  <div className="flex gap-2">
+                    {stat.history.map((result, idx) => (
+                      <div 
+                        key={idx}
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm ${
+                          result === 'B' ? 'bg-red-500 shadow-red-500/20' :
+                          result === 'P' ? 'bg-blue-500 shadow-blue-500/20' :
+                          'bg-green-500 shadow-green-500/20'
+                        }`}
+                      >
+                        {result}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <a 
+                  href="https://solo1688.com/register?ref=zCtcwP3ZbD" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="mt-6 w-full py-3 bg-zinc-800 hover:bg-red-600 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 group-hover:bg-red-600"
+                >
+                  เข้าเล่นโต๊ะนี้ <ArrowRight className="w-4 h-4" />
+                </a>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="categories" className="py-24 bg-zinc-950 relative">
         <div className="container mx-auto px-4">
           <SectionTitle 
@@ -1056,40 +1234,59 @@ function Bocker168Landing() {
             subtitle="เลือกเล่นคาสิโนสดจากค่ายดัง ภาพคมชัดระดับ Full HD ส่งตรงจากคาสิโนจริง"
           />
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Swiper
+            modules={[Autoplay, Pagination, Navigation]}
+            spaceBetween={24}
+            slidesPerView={1}
+            breakpoints={{
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+            }}
+            autoplay={{ delay: 3000, disableOnInteraction: false }}
+            pagination={{ clickable: true, dynamicBullets: true }}
+            navigation
+            className="pb-16"
+          >
             {CATEGORIES.map((cat, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="relative overflow-hidden rounded-3xl group cursor-pointer bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 transition-colors flex flex-col"
-              >
-                <div className="relative h-64 overflow-hidden pt-6 px-4 flex items-end justify-center">
-                  <div className={`absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/20 to-transparent z-10`} />
-                  <div className={`absolute inset-0 bg-gradient-to-br ${cat.accent} opacity-20 group-hover:opacity-40 transition-opacity z-10`} />
-                  <img 
-                    src={cat.image} 
-                    alt={cat.title} 
-                    className="w-full h-full object-contain object-bottom group-hover:scale-110 transition-transform duration-500 relative z-0"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-                <div className="relative p-8 pt-0 flex-1 flex flex-col justify-between z-20">
-                  <div>
-                    <h3 className="text-2xl font-black text-white mb-4 group-hover:text-amber-500 transition-colors">{cat.title}</h3>
-                    <p className="text-zinc-400 text-sm leading-relaxed mb-8">
-                      {cat.description}
-                    </p>
+              <SwiperSlide key={i} className="h-auto">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="relative overflow-hidden rounded-3xl group cursor-pointer bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 transition-colors flex flex-col h-full"
+                >
+                  <div className="relative h-64 overflow-hidden pt-6 px-4 flex items-end justify-center">
+                    <div className={`absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/20 to-transparent z-10`} />
+                    <div className={`absolute inset-0 bg-gradient-to-br ${cat.accent} opacity-20 group-hover:opacity-40 transition-opacity z-10`} />
+                    <img 
+                      src={cat.image} 
+                      alt={cat.title} 
+                      className="w-full h-full object-contain object-bottom group-hover:scale-110 transition-transform duration-500 relative z-0"
+                      referrerPolicy="no-referrer"
+                    />
+                    <img 
+                      src={cat.logo} 
+                      alt={`${cat.title} logo`} 
+                      className="absolute top-4 left-4 w-12 h-12 z-20 rounded-full border border-zinc-700 bg-zinc-900 p-1"
+                      referrerPolicy="no-referrer"
+                    />
                   </div>
-                  <div className="flex items-center gap-2 text-red-500 font-bold text-sm group-hover:translate-x-2 transition-transform">
-                    ดูรายละเอียด <Zap className="w-4 h-4 fill-current" />
+                  <div className="relative p-8 pt-0 flex-1 flex flex-col justify-between z-20">
+                    <div>
+                      <h3 className="text-2xl font-black text-white mb-4 group-hover:text-amber-500 transition-colors">{cat.title}</h3>
+                      <p className="text-zinc-400 text-sm leading-relaxed mb-8">
+                        {cat.description}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 text-red-500 font-bold text-sm group-hover:translate-x-2 transition-transform">
+                      ดูรายละเอียด <Zap className="w-4 h-4 fill-current" />
+                    </div>
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </SwiperSlide>
             ))}
-          </div>
+          </Swiper>
         </div>
       </section>
 
@@ -1332,9 +1529,14 @@ function Bocker168Landing() {
                 สมัครสมาชิกวันนี้ รับโบนัสฟรี 100% ฝากถอนไม่มีขั้นต่ำด้วยระบบออโต้ 10 วินาที เล่นง่าย จ่ายจริง มั่นคง 100%
               </p>
               <div className="flex flex-wrap justify-center gap-6">
-                <button className="px-10 py-5 bg-white text-red-600 font-black text-xl rounded-2xl shadow-xl hover:scale-105 transition-transform active:scale-95">
+                <a 
+                  href="https://solo1688.com/register?ref=zCtcwP3ZbD" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-10 py-5 bg-white text-red-600 font-black text-xl rounded-2xl shadow-xl hover:scale-105 transition-transform active:scale-95 inline-block"
+                >
                   สมัครสมาชิกตอนนี้
-                </button>
+                </a>
                 <button className="px-10 py-5 bg-black/20 backdrop-blur-sm border border-white/30 text-white font-black text-xl rounded-2xl hover:bg-black/30 transition-all active:scale-95">
                   เข้าสู่ระบบ
                 </button>
@@ -1507,6 +1709,9 @@ function Bocker168Landing() {
         setSettings={setCookieSettings}
         onSave={handleSaveCookieSettings}
       />
+
+      {/* Live Chat Widget */}
+      <LiveChat />
 
     </div>
   );
