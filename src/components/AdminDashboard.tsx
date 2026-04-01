@@ -12,6 +12,11 @@ interface Article {
 }
 
 const AdminDashboard = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
   const [isEditing, setIsEditing] = useState(false);
   const [currentArticle, setCurrentArticle] = useState<Partial<Article>>({});
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft'>('all');
@@ -19,6 +24,17 @@ const AdminDashboard = () => {
   // ข้อมูลจำลอง (Mock Data)
   const articles: Article[] = []; 
   const categories = ['บาคาร่า', 'คาสิโน', 'สูตรสล็อต'];
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // รหัสผ่านจำลองสำหรับเข้าสู่ระบบ (Hardcoded)
+    if (username === 'admin' && password === 'admin168') {
+      setIsAuthenticated(true);
+      setLoginError('');
+    } else {
+      setLoginError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+    }
+  };
 
   const handleSave = async (e: React.FormEvent, status: 'published' | 'draft') => {
     e.preventDefault();
@@ -32,6 +48,60 @@ const AdminDashboard = () => {
     // TODO: ใส่โค้ดลบข้อมูลจาก Database ของคุณที่นี่
     console.log('Deleting article:', id);
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center px-4">
+        <div className="bg-gray-900 border border-yellow-500/20 p-8 rounded-3xl w-full max-w-md shadow-2xl shadow-yellow-500/10">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-black uppercase tracking-tighter text-white">
+              Admin <span className="text-yellow-500">Login</span>
+            </h1>
+            <p className="text-gray-400 mt-2">เข้าสู่ระบบเพื่อจัดการเว็บไซต์</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            {loginError && (
+              <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-xl text-sm text-center">
+                {loginError}
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <label className="text-yellow-500 text-sm font-bold">ชื่อผู้ใช้</label>
+              <input 
+                type="text" 
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                className="w-full bg-black border border-yellow-500/20 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none"
+                placeholder="กรอกชื่อผู้ใช้..."
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-yellow-500 text-sm font-bold">รหัสผ่าน</label>
+              <input 
+                type="password" 
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full bg-black border border-yellow-500/20 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none"
+                placeholder="กรอกรหัสผ่าน..."
+                required
+              />
+            </div>
+
+            <button 
+              type="submit"
+              className="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-black py-3 rounded-xl font-black hover:scale-[1.02] transition-transform"
+            >
+              เข้าสู่ระบบ
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-black min-h-screen text-white">
