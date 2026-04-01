@@ -555,10 +555,15 @@ const PromotionModal = ({
   </AnimatePresence>
 );
 
+import AdminDashboard from './components/AdminDashboard';
+
 export default function App() {
   return (
     <Router>
-      <Bocker168Landing />
+      <Routes>
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="*" element={<Bocker168Landing />} />
+      </Routes>
     </Router>
   );
 }
