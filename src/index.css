@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 html {
   scroll-behavior: smooth;
@@ -18,4 +19,61 @@ html {
 .swiper-pagination-bullet-active {
   background: #ef4444 !important; /* Tailwind red-500 */
   opacity: 1;
+}
+
+/* React Quill Overrides for Dark Theme */
+.quill-wrapper .ql-toolbar {
+  background-color: #18181b; /* zinc-900 */
+  border-color: #27272a !important; /* zinc-800 */
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.quill-wrapper .ql-container {
+  background-color: #000000;
+  border-color: #27272a !important; /* zinc-800 */
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  color: #e4e4e7; /* zinc-200 */
+  font-family: inherit;
+  font-size: 0.875rem; /* text-sm */
+}
+
+.quill-wrapper .ql-editor {
+  min-height: 300px;
+}
+
+.quill-wrapper .ql-stroke {
+  stroke: #a1a1aa !important; /* zinc-400 */
+}
+
+.quill-wrapper .ql-fill {
+  fill: #a1a1aa !important; /* zinc-400 */
+}
+
+.quill-wrapper .ql-picker {
+  color: #a1a1aa !important; /* zinc-400 */
+}
+
+.quill-wrapper .ql-picker-options {
+  background-color: #18181b !important; /* zinc-900 */
+  border-color: #27272a !important; /* zinc-800 */
+}
+
+.quill-wrapper button:hover .ql-stroke,
+.quill-wrapper .ql-picker-label:hover .ql-stroke {
+  stroke: #ef4444 !important; /* red-500 */
+}
+
+.quill-wrapper button:hover .ql-fill,
+.quill-wrapper .ql-picker-label:hover .ql-fill {
+  fill: #ef4444 !important; /* red-500 */
+}
+
+.quill-wrapper .ql-active .ql-stroke {
+  stroke: #ef4444 !important; /* red-500 */
+}
+
+.quill-wrapper .ql-active .ql-fill {
+  fill: #ef4444 !important; /* red-500 */
 }

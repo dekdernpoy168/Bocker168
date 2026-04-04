@@ -3,11 +3,13 @@ import {
   Plus, Edit, Trash2, Save, X, FileText, Target, Upload,
   Type as TypeIcon, Link as LinkIcon, Search, Folder, Tag,
   Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2,
-  LayoutTemplate
+  LayoutTemplate, Code
 } from 'lucide-react';
 import { Article } from '../types';
 import AIPromptModal from './AIPromptModal';
 import { GoogleGenAI } from '@google/genai';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 interface AdminDashboardProps {
   onClose?: () => void;
@@ -36,6 +38,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false);
   const [currentArticle, setCurrentArticle] = useState<Partial<Article>>({});
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft'>('all');
+  const [editorMode, setEditorMode] = useState<'visual' | 'text'>('visual');
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   // ข้อมูลจำลอง (Mock Data)
@@ -110,14 +114,20 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       }
       
       const ai = new GoogleGenAI({ apiKey });
+      const finalPrompt = aiPrompt + "\n\nIMPORTANT: You MUST format your response entirely in HTML. Use <p> for paragraphs, <h2> and <h3> for headings, <strong> for bold text, and <ul>/<li> for lists. Do NOT use Markdown. Do NOT wrap the response in ```html code blocks, just return the raw HTML.";
+      
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: aiPrompt,
+        contents: finalPrompt,
       });
+      
+      let newText = response.text || '';
+      // Remove markdown code blocks if AI still adds them
+      newText = newText.replace(/^```html\s*/i, '').replace(/\s*```$/i, '');
       
       setCurrentArticle(prev => ({
         ...prev,
-        content: (prev.content || '') + '\n\n' + (response.text || '')
+        content: (prev.content || '') + '\n\n' + newText
       }));
     } catch (error) {
       console.error('Error generating content:', error);
@@ -144,6 +154,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       textarea.focus();
       textarea.setSelectionRange(start + prefix.length, end + prefix.length);
     }, 0);
+  };
+
+  const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'align': [] }],
+      ['link', 'image', 'video'],
+      ['clean']
+    ],
   };
 
   const handleGenerateSlug = async () => {
@@ -795,7 +817,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
                   <Edit3 size={16} /> เนื้อหาบทความ
                 </label>
-                <div className="flex items-center gap-2 w-full md:w-auto">
+                <div className="flex items-center gap-2 w-full md:w-auto flex-wrap">
+                  <div className="flex bg-zinc-900 rounded-lg p-1 border border-zinc-800">
+                    <button
+                      type="button"
+                      onClick={() => setEditorMode('visual')}
+                      className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${editorMode === 'visual' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-zinc-200'}`}
+                    >
+                      <Eye size={14} className="inline mr-1" /> Visual
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditorMode('text')}
+                      className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${editorMode === 'text' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-zinc-200'}`}
+                    >
+                      <Code size={14} className="inline mr-1" /> Text
+                    </button>
+                  </div>
                   <button 
                     type="button" 
                     onClick={() => setIsAIPromptOpen(true)}
@@ -824,39 +862,57 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
               </div>
               
-              {/* Fake Rich Text Editor */}
+              {/* Editor */}
               <div className="border border-zinc-800 rounded-lg overflow-hidden bg-black">
-                <div className="bg-zinc-900/50 border-b border-zinc-800 p-2 flex gap-1 text-zinc-400 overflow-x-auto">
-                  <button type="button" onClick={() => insertFormatting('\n\n')} className="p-1.5 hover:bg-zinc-800 rounded text-sm transition-colors">Normal</button>
-                  <div className="w-px h-5 bg-zinc-800 mx-1 self-center"></div>
-                  <button type="button" onClick={() => insertFormatting('**', '**')} className="p-1.5 hover:bg-zinc-800 rounded font-bold transition-colors">B</button>
-                  <button type="button" onClick={() => insertFormatting('*', '*')} className="p-1.5 hover:bg-zinc-800 rounded italic transition-colors">I</button>
-                  <button type="button" onClick={() => insertFormatting('<u>', '</u>')} className="p-1.5 hover:bg-zinc-800 rounded underline transition-colors">U</button>
-                  <div className="w-px h-5 bg-zinc-800 mx-1 self-center"></div>
-                  <button type="button" onClick={() => {
-                    const url = prompt('Enter URL:');
-                    if (url) insertFormatting('[', `](${url})`);
-                  }} className="p-1.5 hover:bg-zinc-800 rounded transition-colors">🔗</button>
-                  <button type="button" onClick={() => {
-                    const url = prompt('Enter Image URL:');
-                    if (url) insertFormatting('![alt text](', `${url})`);
-                  }} className="p-1.5 hover:bg-zinc-800 rounded transition-colors">📷</button>
-                  <button type="button" onClick={() => insertFormatting('### ', '')} className="p-1.5 hover:bg-zinc-800 rounded transition-colors">📝</button>
-                </div>
-                <textarea 
-                  ref={contentTextareaRef}
-                  value={currentArticle.content || ''}
-                  onChange={e => setCurrentArticle({...currentArticle, content: e.target.value})}
-                  className="w-full bg-transparent p-4 text-zinc-200 outline-none text-sm min-h-[300px] resize-y"
-                  placeholder="พิมพ์เนื้อหาบทความที่นี่..."
-                  required
-                />
+                {editorMode === 'visual' ? (
+                  <div className="bg-white text-black quill-wrapper">
+                    <ReactQuill 
+                      theme="snow" 
+                      value={currentArticle.content || ''} 
+                      onChange={(content) => setCurrentArticle({...currentArticle, content})}
+                      modules={quillModules}
+                      className="h-[300px] mb-12"
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div className="bg-zinc-900/50 border-b border-zinc-800 p-2 flex gap-1 text-zinc-400 overflow-x-auto">
+                      <button type="button" onClick={() => insertFormatting('\n\n')} className="p-1.5 hover:bg-zinc-800 rounded text-sm transition-colors">Normal</button>
+                      <div className="w-px h-5 bg-zinc-800 mx-1 self-center"></div>
+                      <button type="button" onClick={() => insertFormatting('**', '**')} className="p-1.5 hover:bg-zinc-800 rounded font-bold transition-colors">B</button>
+                      <button type="button" onClick={() => insertFormatting('*', '*')} className="p-1.5 hover:bg-zinc-800 rounded italic transition-colors">I</button>
+                      <button type="button" onClick={() => insertFormatting('<u>', '</u>')} className="p-1.5 hover:bg-zinc-800 rounded underline transition-colors">U</button>
+                      <div className="w-px h-5 bg-zinc-800 mx-1 self-center"></div>
+                      <button type="button" onClick={() => {
+                        const url = prompt('Enter URL:');
+                        if (url) insertFormatting('[', `](${url})`);
+                      }} className="p-1.5 hover:bg-zinc-800 rounded transition-colors">🔗</button>
+                      <button type="button" onClick={() => {
+                        const url = prompt('Enter Image URL:');
+                        if (url) insertFormatting('![alt text](', `${url})`);
+                      }} className="p-1.5 hover:bg-zinc-800 rounded transition-colors">📷</button>
+                      <button type="button" onClick={() => insertFormatting('### ', '')} className="p-1.5 hover:bg-zinc-800 rounded transition-colors">📝</button>
+                    </div>
+                    <textarea 
+                      ref={contentTextareaRef}
+                      value={currentArticle.content || ''}
+                      onChange={e => setCurrentArticle({...currentArticle, content: e.target.value})}
+                      className="w-full bg-transparent p-4 text-zinc-200 outline-none text-sm min-h-[300px] resize-y font-mono"
+                      placeholder="พิมพ์เนื้อหาบทความที่นี่ (รองรับ HTML/Markdown)..."
+                      required
+                    />
+                  </>
+                )}
               </div>
             </div>
 
             {/* Footer */}
             <div className="flex flex-col md:flex-row justify-end items-center gap-4 pt-6 border-t border-zinc-800 mt-8">
-              <button type="button" className="flex items-center gap-2 text-zinc-400 hover:text-red-500 text-sm font-medium transition-colors">
+              <button 
+                type="button" 
+                onClick={() => setIsPreviewOpen(true)}
+                className="flex items-center gap-2 text-zinc-400 hover:text-red-500 text-sm font-medium transition-colors"
+              >
                 <Eye size={16} /> ดูตัวอย่าง
               </button>
               <button type="button" onClick={() => setIsEditing(false)} className="text-zinc-400 hover:text-white text-sm font-medium transition-colors px-4">
@@ -944,6 +1000,34 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {isPreviewOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-4xl rounded-lg shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+              <h2 className="text-black font-bold text-lg flex items-center gap-2">
+                <Eye size={20} className="text-red-500" /> ตัวอย่างบทความ
+              </h2>
+              <button onClick={() => setIsPreviewOpen(false)} className="text-gray-500 hover:text-black transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+            <div className="p-8 overflow-y-auto custom-scrollbar flex-1 bg-white text-black">
+              <div className="max-w-3xl mx-auto">
+                <h1 className="text-4xl font-bold mb-6">{currentArticle.title || 'ไม่มีหัวข้อ'}</h1>
+                {currentArticle.image && (
+                  <img src={currentArticle.image} alt="Cover" className="w-full h-auto rounded-xl mb-8 object-cover max-h-[400px]" />
+                )}
+                <div 
+                  className="prose prose-lg max-w-none"
+                  dangerouslySetInnerHTML={{ __html: currentArticle.content || '<p className="text-gray-500 italic">ยังไม่มีเนื้อหา</p>' }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
