@@ -560,10 +560,7 @@ import AdminDashboard from './components/AdminDashboard';
 export default function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="*" element={<Bocker168Landing />} />
-      </Routes>
+      <Bocker168Landing />
     </Router>
   );
 }
@@ -575,6 +572,7 @@ function Bocker168Landing() {
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const [showCookieBanner, setShowCookieBanner] = useState(false);
   const [showCookieSettings, setShowCookieSettings] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
   const [countdown, setCountdown] = useState(15);
   const [selectedPromo, setSelectedPromo] = useState<null | typeof PROMOTIONS[0]>(null);
   const [cookieSettings, setCookieSettings] = useState<CookieSettings>({
@@ -673,6 +671,10 @@ function Bocker168Landing() {
   const articleSlug = isArticleDetail ? decodeURIComponent(location.pathname.split('/article/')[1]) : null;
   const currentArticle = articleSlug ? ARTICLES.find(a => (a.slug || a.title.replace(/\s+/g, '-').toLowerCase()) === articleSlug) : null;
 
+  if (showAdmin) {
+    return <AdminDashboard onClose={() => setShowAdmin(false)} />;
+  }
+
   return (
     <div className="min-h-screen bg-black text-zinc-100 font-sans selection:bg-red-600 selection:text-white overflow-x-hidden">
       
@@ -713,7 +715,10 @@ function Bocker168Landing() {
 
           {/* Auth Buttons */}
           <div className="hidden lg:flex items-center gap-4">
-            <button className="px-6 py-2 text-sm font-bold text-white hover:text-amber-500 transition-colors">
+            <button 
+              onClick={() => setShowAdmin(true)}
+              className="px-6 py-2 text-sm font-bold text-white hover:text-amber-500 transition-colors"
+            >
               เข้าสู่ระบบ
             </button>
             <a 
@@ -755,7 +760,13 @@ function Bocker168Landing() {
                 </Link>
               ))}
               <div className="flex flex-col gap-4 mt-4">
-                <button className="w-full py-4 bg-zinc-900 text-white font-bold rounded-xl border border-zinc-800">
+                <button 
+                  onClick={() => {
+                    setShowAdmin(true);
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full py-4 bg-zinc-900 text-white font-bold rounded-xl border border-zinc-800"
+                >
                   เข้าสู่ระบบ
                 </button>
                 <a 
@@ -1555,7 +1566,10 @@ function Bocker168Landing() {
                 >
                   สมัครสมาชิกตอนนี้
                 </a>
-                <button className="px-10 py-5 bg-black/20 backdrop-blur-sm border border-white/30 text-white font-black text-xl rounded-2xl hover:bg-black/30 transition-all active:scale-95">
+                <button 
+                  onClick={() => setShowAdmin(true)}
+                  className="px-10 py-5 bg-black/20 backdrop-blur-sm border border-white/30 text-white font-black text-xl rounded-2xl hover:bg-black/30 transition-all active:scale-95"
+                >
                   เข้าสู่ระบบ
                 </button>
               </div>
