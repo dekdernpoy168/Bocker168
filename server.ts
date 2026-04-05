@@ -121,6 +121,7 @@ async function startServer() {
   });
 
   app.get('/api/articles', async (req, res) => {
+    console.log('GET /api/articles');
     try {
       if (!isD1Configured()) {
         const local = await getLocalArticles();
@@ -145,6 +146,7 @@ async function startServer() {
   });
 
   app.post('/api/articles', async (req, res) => {
+    console.log('POST /api/articles');
     try {
       const article = req.body;
       
@@ -259,7 +261,7 @@ async function startServer() {
     app.use(vite.middlewares);
     
     // SPA Fallback for development
-    app.use('*all', async (req, res, next) => {
+    app.get('*all', async (req, res, next) => {
       const url = req.originalUrl;
       try {
         let template = await fs.readFile(path.resolve(process.cwd(), 'index.html'), 'utf-8');
@@ -278,8 +280,12 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
+  });
+
+  server.on('error', (error: any) => {
+    console.error('Server error:', error);
   });
 }
 

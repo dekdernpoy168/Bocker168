@@ -39,6 +39,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false);
   const [currentArticle, setCurrentArticle] = useState<Partial<Article>>({});
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Article; direction: 'asc' | 'desc' }>({ key: 'date', direction: 'desc' });
   const [editorMode, setEditorMode] = useState<'visual' | 'text'>('visual');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -101,10 +103,33 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     }
   };
 
-  const filteredArticles = articles.filter(article => {
-    if (filterStatus === 'all') return true;
-    return article.status === filterStatus;
-  });
+  const handleSort = (key: keyof Article) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const filteredArticles = articles
+    .filter(article => {
+      const matchesStatus = filterStatus === 'all' || article.status === filterStatus;
+      const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            article.category.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesStatus && matchesSearch;
+    })
+    .sort((a, b) => {
+      const aValue = a[sortConfig.key] || '';
+      const bValue = b[sortConfig.key] || '';
+      
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -861,15 +886,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
                   className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm appearance-none transition-all"
                   required
                 >
-                  <option value="">+ เพิ่มหมวดหมู่ใหม่ / ระบุเอง</option>
+                  <option value="">เลือกหมวดหมู่...</option>
                   {categories.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
                 <input 
                   type="text" 
+                  value={!categories.includes(currentArticle.category || '') ? currentArticle.category || '' : ''}
+                  onChange={e => setCurrentArticle({...currentArticle, category: e.target.value})}
                   className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm mt-2 transition-all"
-                  placeholder="พิมพ์ชื่อหมวดหมู่ใหม่ที่นี่..."
+                  placeholder="หรือพิมพ์ชื่อหมวดหมู่ใหม่ที่นี่..."
                 />
               </div>
               <div className="space-y-2">
@@ -917,6 +944,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
                 </label>
                 <input 
                   type="datetime-local" 
+                  value={currentArticle.date ? (currentArticle.date.length === 10 ? `${currentArticle.date}T00:00` : currentArticle.date) : ''}
+                  onChange={e => setCurrentArticle({...currentArticle, date: e.target.value})}
                   className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-400 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm [color-scheme:dark] transition-all"
                 />
                 <p className="text-[10px] text-zinc-500">ตั้งเวลาการเผยแพร่ล่วงหน้า ปล่อยว่างหากต้องการเผยแพร่ทันที</p>
@@ -1048,21 +1077,33 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       ) : (
         /* List Section (ตารางแสดงบทความ) */
         <div className="bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl shadow-black/50">
-          {/* ตัวกรองสถานะ */}
-          <div className="p-6 border-b border-zinc-800 flex gap-2">
-            {['all', 'published', 'draft'].map((status) => (
-              <button
-                key={status}
-                onClick={() => setFilterStatus(status as any)}
-                className={`px-4 py-2 rounded-full text-sm font-bold capitalize transition-colors ${
-                  filterStatus === status 
-                    ? 'bg-red-600 text-white' 
-                    : 'bg-black text-zinc-400 border border-zinc-800 hover:border-red-500'
-                }`}
-              >
-                {status}
-              </button>
-            ))}
+          {/* ตัวกรองและค้นหา */}
+          <div className="p-6 border-b border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+              {['all', 'published', 'draft'].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilterStatus(status as any)}
+                  className={`px-4 py-2 rounded-full text-sm font-bold capitalize transition-colors whitespace-nowrap ${
+                    filterStatus === status 
+                      ? 'bg-red-600 text-white' 
+                      : 'bg-black text-zinc-400 border border-zinc-800 hover:border-red-500'
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+            <div className="relative w-full md:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+              <input 
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="ค้นหาบทความ..."
+                className="w-full bg-black border border-zinc-800 rounded-full pl-10 pr-4 py-2 text-sm text-white focus:border-red-500 outline-none transition-colors"
+              />
+            </div>
           </div>
 
           {/* ตารางข้อมูล */}
@@ -1070,22 +1111,58 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-black/50 text-red-500 text-sm uppercase tracking-wider">
-                  <th className="p-4 font-bold">หัวข้อบทความ</th>
-                  <th className="p-4 font-bold">หมวดหมู่</th>
-                  <th className="p-4 font-bold">สถานะ</th>
+                  <th 
+                    className="p-4 font-bold cursor-pointer hover:text-white transition-colors"
+                    onClick={() => handleSort('title')}
+                  >
+                    <div className="flex items-center gap-2">
+                      หัวข้อบทความ
+                      {sortConfig.key === 'title' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                    </div>
+                  </th>
+                  <th 
+                    className="p-4 font-bold cursor-pointer hover:text-white transition-colors"
+                    onClick={() => handleSort('category')}
+                  >
+                    <div className="flex items-center gap-2">
+                      หมวดหมู่
+                      {sortConfig.key === 'category' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                    </div>
+                  </th>
+                  <th 
+                    className="p-4 font-bold cursor-pointer hover:text-white transition-colors"
+                    onClick={() => handleSort('date')}
+                  >
+                    <div className="flex items-center gap-2">
+                      วันที่
+                      {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                    </div>
+                  </th>
+                  <th 
+                    className="p-4 font-bold cursor-pointer hover:text-white transition-colors"
+                    onClick={() => handleSort('status')}
+                  >
+                    <div className="flex items-center gap-2">
+                      สถานะ
+                      {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                    </div>
+                  </th>
                   <th className="p-4 font-bold text-right">จัดการ</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800">
                 {filteredArticles.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="p-8 text-center text-zinc-500">ยังไม่มีบทความ</td>
+                    <td colSpan={5} className="p-8 text-center text-zinc-500">ไม่พบข้อมูลบทความ</td>
                   </tr>
                 ) : (
                   filteredArticles.map((article) => (
                     <tr key={article.id} className="hover:bg-white/5 transition-colors">
-                      <td className="p-4 font-medium text-zinc-200">{article.title}</td>
+                      <td className="p-4 font-medium text-zinc-200">
+                        <div className="line-clamp-1">{article.title}</div>
+                      </td>
                       <td className="p-4 text-zinc-400">{article.category}</td>
+                      <td className="p-4 text-zinc-500 text-xs">{article.date}</td>
                       <td className="p-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                           article.status === 'published' ? 'bg-green-500/20 text-green-400' : 'bg-zinc-900 text-zinc-400'
@@ -1093,16 +1170,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
                           {article.status}
                         </span>
                       </td>
-                      <td className="p-4 text-right space-x-2">
+                      <td className="p-4 text-right space-x-2 whitespace-nowrap">
                         <button 
                           onClick={() => { setCurrentArticle(article); setIsEditing(true); }}
                           className="p-2 text-zinc-400 hover:text-red-500 bg-black rounded-lg transition-colors inline-flex border border-zinc-800"
+                          title="แก้ไข"
                         >
                           <Edit size={16} />
                         </button>
                         <button 
                           onClick={() => article.id && handleDelete(article.id)}
                           className="p-2 text-zinc-400 hover:text-red-500 bg-black rounded-lg transition-colors inline-flex border border-zinc-800"
+                          title="ลบ"
                         >
                           <Trash2 size={16} />
                         </button>

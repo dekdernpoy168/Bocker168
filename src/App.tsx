@@ -680,6 +680,7 @@ function Bocker168Landing() {
 
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
+  const [articleError, setArticleError] = useState<string | null>(null);
 
   const fetchArticles = async () => {
     try {
@@ -688,13 +689,15 @@ function Bocker168Landing() {
         const data = await response.json();
         if (Array.isArray(data)) {
           setArticles(data);
+          setArticleError(null);
         }
       } else {
-        const errorText = await response.text();
-        console.error('Failed to fetch articles. Status:', response.status, 'Response:', errorText);
+        // Silent fail for background polling, but set error state
+        setArticleError('Unable to load articles at this time.');
       }
     } catch (error) {
-      console.error('Error fetching articles:', error);
+      // Graceful error handling
+      setArticleError('Connection error while fetching articles.');
     }
   };
 
@@ -946,23 +949,15 @@ function Bocker168Landing() {
               
               {currentArticle ? (
                 <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden">
-                  <div className="h-64 md:h-96 overflow-hidden relative">
-                    <div className="absolute top-6 left-6 z-10 px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-full">
-                      {currentArticle.category}
-                    </div>
-                    <img 
-                      src={currentArticle.image} 
-                      alt={currentArticle.title} 
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-80" />
-                  </div>
-                  
                   <div className="p-8 md:p-12">
-                    <div className="flex items-center gap-2 text-zinc-400 text-sm mb-6">
-                      <Calendar className="w-5 h-5" />
-                      <span>{currentArticle.date}</span>
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
+                        {currentArticle.category}
+                      </div>
+                      <div className="flex items-center gap-2 text-zinc-400 text-sm">
+                        <Calendar className="w-5 h-5" />
+                        <span>{currentArticle.date}</span>
+                      </div>
                     </div>
                     
                     <h1 className="text-3xl md:text-4xl font-black text-white mb-8 leading-tight">
@@ -970,7 +965,7 @@ function Bocker168Landing() {
                     </h1>
                     
                     <div 
-                      className="max-w-none [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-white [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-white [&>h3]:mt-6 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-white"
+                      className="max-w-none [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-white [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-white [&>h3]:mt-6 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-white [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
                       dangerouslySetInnerHTML={{ __html: currentArticle.content || (currentArticle as any).description }}
                     />
                   </div>
@@ -1603,7 +1598,29 @@ function Bocker168Landing() {
             centered={true}
           />
 
-          {articles.length === 0 ? (
+          {isLoadingArticles ? (
+            <div className="flex flex-col items-center justify-center py-24 mt-16">
+              <div className="w-12 h-12 border-4 border-red-600/20 border-t-red-600 rounded-full animate-spin mb-4" />
+              <p className="text-zinc-400 animate-pulse">กำลังโหลดบทความ...</p>
+            </div>
+          ) : articleError ? (
+            <div className="text-center py-20 bg-zinc-900/20 border border-zinc-800/50 rounded-3xl mt-16">
+              <div className="w-16 h-16 bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="w-8 h-8 text-zinc-600" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">ขออภัย เกิดข้อผิดพลาด</h3>
+              <p className="text-zinc-400">{articleError}</p>
+              <button 
+                onClick={() => {
+                  setIsLoadingArticles(true);
+                  fetchArticles().finally(() => setIsLoadingArticles(false));
+                }}
+                className="mt-6 px-6 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-bold rounded-full transition-colors"
+              >
+                ลองใหม่อีกครั้ง
+              </button>
+            </div>
+          ) : articles.length === 0 ? (
             <div className="text-center py-20 bg-zinc-900/20 border border-zinc-800/50 rounded-3xl mt-16">
               <BookOpen className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-2">ยังไม่มีบทความในขณะนี้</h3>
