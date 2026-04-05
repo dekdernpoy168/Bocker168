@@ -1776,11 +1776,14 @@ function Bocker168Landing() {
             <div className="hidden lg:block lg:col-span-2">
               <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">ติดต่อเรา</h4>
               <ul className="space-y-6">
-                <li className="flex items-center gap-4 text-zinc-400 text-sm font-medium group cursor-pointer">
+                <li 
+                  onClick={() => window.open('https://line.me/R/ti/p/@so168', '_blank')}
+                  className="flex items-center gap-4 text-zinc-400 text-sm font-medium group cursor-pointer"
+                >
                   <div className="w-10 h-10 bg-red-600/10 rounded-xl flex items-center justify-center text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all">
                     <MessageCircle className="w-5 h-5" />
                   </div>
-                  <span>Line: @bocker168</span>
+                  <span>Line: @so168</span>
                 </li>
                 <li className="flex items-center gap-4 text-zinc-400 text-sm font-medium group cursor-pointer">
                   <div className="w-10 h-10 bg-red-600/10 rounded-xl flex items-center justify-center text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all">
