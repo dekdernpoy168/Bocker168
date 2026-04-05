@@ -681,25 +681,35 @@ function Bocker168Landing() {
   const [articles, setArticles] = useState(ARTICLES);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      setIsLoadingArticles(true);
-      try {
-        const response = await fetch('/api/articles');
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data.length > 0) {
-            setArticles(data);
-          }
+  const fetchArticles = async () => {
+    try {
+      const response = await fetch('/api/articles');
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.length > 0) {
+          setArticles(data);
         }
-      } catch (error) {
-        console.error('Error fetching articles:', error);
-      } finally {
-        setIsLoadingArticles(false);
       }
-    };
-    fetchArticles();
+    } catch (error) {
+      console.error('Error fetching articles:', error);
+    }
+  };
+
+  useEffect(() => {
+    setIsLoadingArticles(true);
+    fetchArticles().finally(() => setIsLoadingArticles(false));
+
+    // Real-time polling every 10 seconds
+    const interval = setInterval(fetchArticles, 10000);
+    return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    // Re-fetch when admin dashboard is closed to ensure latest data
+    if (!showAdmin) {
+      fetchArticles();
+    }
+  }, [showAdmin]);
 
   const isHome = location.pathname === '/';
   const isFeatures = location.pathname === '/features';
@@ -748,7 +758,7 @@ function Bocker168Landing() {
   };
 
   if (showAdmin) {
-    return <AdminDashboard onClose={() => setShowAdmin(false)} />;
+    return <AdminDashboard onClose={() => setShowAdmin(false)} onSaveSuccess={fetchArticles} />;
   }
 
   return (

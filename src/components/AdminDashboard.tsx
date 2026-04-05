@@ -13,9 +13,10 @@ import 'react-quill-new/dist/quill.snow.css';
 
 interface AdminDashboardProps {
   onClose?: () => void;
+  onSaveSuccess?: () => void;
 }
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -146,6 +147,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       
       if (response.ok) {
         fetchArticles();
+        if (onSaveSuccess) onSaveSuccess();
         setIsEditing(false);
         setCurrentArticle({});
       } else {
@@ -171,6 +173,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       const response = await fetch(`/api/articles/${id}`, { method: 'DELETE' });
       if (response.ok) {
         fetchArticles();
+        if (onSaveSuccess) onSaveSuccess();
       }
     } catch (error) {
       console.error('Error deleting article:', error);
