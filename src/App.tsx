@@ -678,6 +678,29 @@ function Bocker168Landing() {
     setShowCookieBanner(false);
   };
 
+  const [articles, setArticles] = useState(ARTICLES);
+  const [isLoadingArticles, setIsLoadingArticles] = useState(false);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      setIsLoadingArticles(true);
+      try {
+        const response = await fetch('/api/articles');
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            setArticles(data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setIsLoadingArticles(false);
+      }
+    };
+    fetchArticles();
+  }, []);
+
   const isHome = location.pathname === '/';
   const isFeatures = location.pathname === '/features';
   const isBaccarat = location.pathname === '/baccarat';
@@ -694,7 +717,7 @@ function Bocker168Landing() {
   
   const isArticleDetail = location.pathname.startsWith('/article/');
   const articleSlug = isArticleDetail ? decodeURIComponent(location.pathname.split('/article/')[1]) : null;
-  const currentArticle = articleSlug ? ARTICLES.find(a => (a.slug || a.title.replace(/\s+/g, '-').toLowerCase()) === articleSlug) : null;
+  const currentArticle = articleSlug ? articles.find(a => (a.slug || a.title.replace(/\s+/g, '-').toLowerCase()) === articleSlug) : null;
 
   const getPageTitle = () => {
     if (isHome) return 'Bocker168 - บาคาร่าออนไลน์ เว็บตรงไม่ผ่านเอเย่นต์ ฝากถอนไม่มีขั้นต่ำ';
@@ -1518,7 +1541,7 @@ function Bocker168Landing() {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
-            {ARTICLES.map((article, index) => (
+            {articles.map((article, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 30 }}

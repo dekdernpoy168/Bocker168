@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Plus, Edit, Trash2, Save, X, FileText, Target, Upload,
   Type as TypeIcon, Link as LinkIcon, Search, Folder, Tag,
   Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2,
-  LayoutTemplate, Code
+  LayoutTemplate, Code, Database
 } from 'lucide-react';
 import { Article } from '../types';
 import AIPromptModal from './AIPromptModal';
@@ -42,9 +42,60 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // ข้อมูลจำลอง (Mock Data)
   const [articles, setArticles] = useState<Article[]>([]); 
+  const [isLoading, setIsLoading] = useState(false);
+  const [dbConfig, setDbConfig] = useState<{ d1Configured: boolean, fallbackMode: boolean }>({ d1Configured: true, fallbackMode: false });
   const categories = ['บาคาร่า', 'คาสิโน', 'สูตรสล็อต'];
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchArticles();
+      fetchConfigStatus();
+    }
+  }, [isAuthenticated]);
+
+  const fetchConfigStatus = async () => {
+    try {
+      const response = await fetch('/api/config-status');
+      if (response.ok) {
+        const data = await response.json();
+        setDbConfig(data);
+      }
+    } catch (error) {
+      console.error('Error fetching config status:', error);
+    }
+  };
+
+  const fetchArticles = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/articles');
+      if (response.ok) {
+        const data = await response.json();
+        setArticles(data);
+      }
+    } catch (error) {
+      console.error('Error fetching articles:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const initDatabase = async () => {
+    if (!window.confirm('ต้องการสร้างตารางใน D1 Database ใช่หรือไม่?')) return;
+    try {
+      const response = await fetch('/api/init-db', { method: 'POST' });
+      const data = await response.json();
+      if (data.success) {
+        alert('สร้างตารางสำเร็จ!');
+      } else {
+        alert('เกิดข้อผิดพลาด: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error initializing DB:', error);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    }
+  };
 
   const filteredArticles = articles.filter(article => {
     if (filterStatus === 'all') return true;
@@ -86,19 +137,44 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       metaKeywords: currentArticle.metaKeywords || '',
     };
 
-    if (currentArticle.id) {
-      setArticles(articles.map(a => a.id === currentArticle.id ? newArticle : a));
-    } else {
-      setArticles([newArticle, ...articles]);
+    try {
+      const response = await fetch('/api/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newArticle),
+      });
+      
+      if (response.ok) {
+        fetchArticles();
+        setIsEditing(false);
+        setCurrentArticle({});
+      } else {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const err = await response.json();
+          alert('บันทึกไม่สำเร็จ: ' + (err.error || 'Unknown error'));
+        } else {
+          const text = await response.text();
+          console.error('Server error response:', text);
+          alert('บันทึกไม่สำเร็จ: เกิดข้อผิดพลาดที่เซิร์ฟเวอร์ (Server Error)');
+        }
+      }
+    } catch (error) {
+      console.error('Error saving article:', error);
+      alert('เกิดข้อผิดพลาดในการบันทึก');
     }
-    
-    setIsEditing(false);
-    setCurrentArticle({});
   };
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("ยืนยันการลบตัวเลือกนี้?")) return;
-    setArticles(articles.filter(a => a.id !== id));
+    try {
+      const response = await fetch(`/api/articles/${id}`, { method: 'DELETE' });
+      if (response.ok) {
+        fetchArticles();
+      }
+    } catch (error) {
+      console.error('Error deleting article:', error);
+    }
   };
 
   const handleGenerateContent = async () => {
@@ -448,6 +524,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         </button>
       )}
       
+      {!dbConfig.d1Configured && (
+        <div className="mb-8 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-4 text-amber-500 text-sm">
+          <Database size={20} className="mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="font-bold mb-1">Cloudflare D1 ยังไม่ได้ตั้งค่า</p>
+            <p className="text-amber-500/80">
+              ระบบกำลังบันทึกข้อมูลแบบ Local ชั่วคราวในไฟล์ <code>articles_local.json</code> 
+              กรุณาตั้งค่า <strong>CLOUDFLARE_ACCOUNT_ID</strong>, <strong>CLOUDFLARE_D1_DATABASE_ID</strong> และ <strong>CLOUDFLARE_API_TOKEN</strong> ใน Secrets เพื่อใช้งานฐานข้อมูลจริง
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12">
         <div>
@@ -457,6 +546,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           <p className="text-zinc-400">จัดการบทความและเนื้อหาทั้งหมดของเว็บไซต์</p>
         </div>
         <div className="flex gap-3">
+          <button 
+            onClick={initDatabase}
+            className="bg-zinc-900 text-zinc-400 px-4 py-3 rounded-full font-bold hover:bg-zinc-800 transition-colors flex items-center border border-zinc-800"
+            title="ตั้งค่าฐานข้อมูลครั้งแรก"
+          >
+            <Database size={20} className="mr-2" /> Init DB
+          </button>
           <button 
             onClick={() => { setIsEditing(true); setCurrentArticle({}); }}
             className="bg-red-600 text-white px-8 py-3 rounded-full font-black hover:bg-red-700 transition-colors flex items-center shadow-lg shadow-red-600/20"
