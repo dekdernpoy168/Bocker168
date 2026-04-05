@@ -45,6 +45,7 @@ import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
+import { Helmet } from 'react-helmet-async';
 import { ARTICLES } from './data/articles';
 import LiveChat from './components/LiveChat';
 
@@ -359,7 +360,7 @@ interface CookieSettings {
   marketing: boolean;
 }
 
-const CookieConsent = ({ onAccept, onManage }: { onAccept: () => void; onManage: () => void }) => (
+const CookieConsent = ({ onAccept, onReject, onManage }: { onAccept: () => void; onReject: () => void; onManage: () => void }) => (
   <motion.div
     initial={{ y: 100, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
@@ -367,7 +368,7 @@ const CookieConsent = ({ onAccept, onManage }: { onAccept: () => void; onManage:
     className="fixed bottom-0 left-0 w-full z-[100] p-4 md:p-6"
   >
     <div className="container mx-auto">
-      <div className="bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 p-6 rounded-3xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 p-6 rounded-3xl shadow-2xl flex flex-col xl:flex-row items-center justify-between gap-6">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 bg-red-600/20 rounded-2xl flex items-center justify-center shrink-0">
             <ShieldCheck className="text-red-500 w-6 h-6" />
@@ -380,16 +381,22 @@ const CookieConsent = ({ onAccept, onManage }: { onAccept: () => void; onManage:
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-4 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
           <button 
             onClick={onManage}
-            className="flex-1 md:flex-none px-6 py-3 text-zinc-400 hover:text-white text-sm font-bold transition-colors"
+            className="flex-1 md:flex-none px-4 py-3 text-zinc-400 hover:text-white text-sm font-bold transition-colors"
           >
             ตั้งค่าคุกกี้
           </button>
           <button 
+            onClick={onReject}
+            className="flex-1 md:flex-none px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-bold rounded-xl transition-colors"
+          >
+            ปฏิเสธทั้งหมด
+          </button>
+          <button 
             onClick={onAccept}
-            className="flex-1 md:flex-none px-8 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-red-900/40 transition-all active:scale-95"
+            className="flex-1 md:flex-none px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-red-900/40 transition-all active:scale-95"
           >
             ยอมรับทั้งหมด
           </button>
@@ -638,6 +645,24 @@ function Bocker168Landing() {
     setShowCookieBanner(false);
   };
 
+  const handleRejectAllCookies = () => {
+    const newSettings = {
+      necessary: true,
+      analytics: false,
+      marketing: false,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('cookie-consent', JSON.stringify(newSettings));
+    setCookieSettings(newSettings);
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('consent', 'update', {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied'
+      });
+    }
+    setShowCookieBanner(false);
+  };
+
   const handleSaveCookieSettings = () => {
     localStorage.setItem('cookie-consent', JSON.stringify({
       ...cookieSettings,
@@ -671,12 +696,50 @@ function Bocker168Landing() {
   const articleSlug = isArticleDetail ? decodeURIComponent(location.pathname.split('/article/')[1]) : null;
   const currentArticle = articleSlug ? ARTICLES.find(a => (a.slug || a.title.replace(/\s+/g, '-').toLowerCase()) === articleSlug) : null;
 
+  const getPageTitle = () => {
+    if (isHome) return 'Bocker168 - บาคาร่าออนไลน์ เว็บตรงไม่ผ่านเอเย่นต์ ฝากถอนไม่มีขั้นต่ำ';
+    if (isFeatures) return 'จุดเด่นของเรา - Bocker168 บาคาร่าเว็บตรง';
+    if (isBaccarat) return 'บาคาร่าออนไลน์ คาสิโนสด - Bocker168';
+    if (isPromotions) return 'โปรโมชั่นบาคาร่า - Bocker168';
+    if (isArticles) return 'บทความและเทคนิคบาคาร่า - Bocker168';
+    if (isFaq) return 'คำถามที่พบบ่อย - Bocker168';
+    if (isContact) return 'ติดต่อเรา - Bocker168';
+    if (isRegisterGuide) return 'วิธีสมัครสมาชิก - Bocker168';
+    if (isDepositWithdrawGuide) return 'วิธีฝาก-ถอนเงิน - Bocker168';
+    if (isTerms) return 'ข้อตกลงและเงื่อนไข - Bocker168';
+    if (isPrivacy) return 'นโยบายความเป็นส่วนตัว - Bocker168';
+    if (isCookies) return 'นโยบายคุกกี้ - Bocker168';
+    if (isResponsibleGambling) return 'ความรับผิดชอบต่อสังคม - Bocker168';
+    if (isArticleDetail && currentArticle) return `${currentArticle.title} - Bocker168`;
+    return 'Bocker168 - บาคาร่าออนไลน์';
+  };
+
+  const getPageDescription = () => {
+    if (isArticleDetail && currentArticle) return currentArticle.description;
+    return 'เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม';
+  };
+
+  const getPageKeywords = () => {
+    if (isArticleDetail && currentArticle && currentArticle.metaKeywords) return currentArticle.metaKeywords;
+    return 'บาคาร่า, บาคาร่าออนไลน์, บาคาร่าเว็บตรง, สมัครบาคาร่า, คาสิโนสด, bocker168';
+  };
+
   if (showAdmin) {
     return <AdminDashboard onClose={() => setShowAdmin(false)} />;
   }
 
   return (
     <div className="min-h-screen bg-black text-zinc-100 font-sans selection:bg-red-600 selection:text-white overflow-x-hidden">
+      <Helmet>
+        <title>{getPageTitle()}</title>
+        <meta name="description" content={getPageDescription()} />
+        <meta name="keywords" content={getPageKeywords()} />
+        <meta property="og:title" content={getPageTitle()} />
+        <meta property="og:description" content={getPageDescription()} />
+        <meta property="og:type" content={isArticleDetail ? "article" : "website"} />
+        <meta property="og:url" content={`https://bocker168.com${location.pathname}`} />
+        <link rel="canonical" href={`https://bocker168.com${location.pathname}`} />
+      </Helmet>
       
       {/* Red Glow Background Elements */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden">
@@ -1037,10 +1100,10 @@ function Bocker168Landing() {
                   <UserPlus className="w-5 h-5" />
                   สมัครบาคาร่า
                 </a>
-                <button className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-black rounded-2xl border border-zinc-800 transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-2">
+                <Link to="/promotions" className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-black rounded-2xl border border-zinc-800 transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-2">
                   <Gift className="w-5 h-5 text-amber-500" />
                   ดูโปรโมชั่น
-                </button>
+                </Link>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 justify-center">
@@ -1278,41 +1341,43 @@ function Bocker168Landing() {
           >
             {CATEGORIES.map((cat, i) => (
               <SwiperSlide key={i} className="h-auto">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="relative overflow-hidden rounded-3xl group cursor-pointer bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 transition-colors flex flex-col h-full"
-                >
-                  <div className="relative h-64 overflow-hidden pt-6 px-4 flex items-end justify-center">
-                    <div className={`absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/20 to-transparent z-10`} />
-                    <div className={`absolute inset-0 bg-gradient-to-br ${cat.accent} opacity-20 group-hover:opacity-40 transition-opacity z-10`} />
-                    <img 
-                      src={cat.image} 
-                      alt={cat.title} 
-                      className="w-full h-full object-contain object-bottom group-hover:scale-110 transition-transform duration-500 relative z-0"
-                      referrerPolicy="no-referrer"
-                    />
-                    <img 
-                      src={cat.logo} 
-                      alt={`${cat.title} logo`} 
-                      className="absolute top-4 left-4 w-12 h-12 z-20 rounded-full border border-zinc-700 bg-zinc-900 p-1"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                  <div className="relative p-8 pt-0 flex-1 flex flex-col justify-between z-20">
-                    <div>
-                      <h3 className="text-2xl font-black text-white mb-4 group-hover:text-amber-500 transition-colors">{cat.title}</h3>
-                      <p className="text-zinc-400 text-sm leading-relaxed mb-8">
-                        {cat.description}
-                      </p>
+                <Link to="/baccarat" className="block h-full">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="relative overflow-hidden rounded-3xl group cursor-pointer bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 transition-colors flex flex-col h-full"
+                  >
+                    <div className="relative h-64 overflow-hidden pt-6 px-4 flex items-end justify-center">
+                      <div className={`absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/20 to-transparent z-10`} />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${cat.accent} opacity-20 group-hover:opacity-40 transition-opacity z-10`} />
+                      <img 
+                        src={cat.image} 
+                        alt={cat.title} 
+                        className="w-full h-full object-contain object-bottom group-hover:scale-110 transition-transform duration-500 relative z-0"
+                        referrerPolicy="no-referrer"
+                      />
+                      <img 
+                        src={cat.logo} 
+                        alt={`${cat.title} logo`} 
+                        className="absolute top-4 left-4 w-12 h-12 z-20 rounded-full border border-zinc-700 bg-zinc-900 p-1"
+                        referrerPolicy="no-referrer"
+                      />
                     </div>
-                    <div className="flex items-center gap-2 text-red-500 font-bold text-sm group-hover:translate-x-2 transition-transform">
-                      ดูรายละเอียด <Zap className="w-4 h-4 fill-current" />
+                    <div className="relative p-8 pt-0 flex-1 flex flex-col justify-between z-20">
+                      <div>
+                        <h3 className="text-2xl font-black text-white mb-4 group-hover:text-amber-500 transition-colors">{cat.title}</h3>
+                        <p className="text-zinc-400 text-sm leading-relaxed mb-8">
+                          {cat.description}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 text-red-500 font-bold text-sm group-hover:translate-x-2 transition-transform">
+                        ดูรายละเอียด <Zap className="w-4 h-4 fill-current" />
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </Link>
               </SwiperSlide>
             ))}
           </Swiper>
@@ -1586,7 +1651,7 @@ function Bocker168Landing() {
         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
         
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-20">
             <div className="space-y-8 lg:col-span-4">
               <Link to="/" className="flex items-center gap-3 group">
                 <img 
@@ -1612,7 +1677,36 @@ function Bocker168Landing() {
               </div>
             </div>
 
-            <div className="lg:col-span-2">
+            {/* Mobile/Tablet Navigation Buttons */}
+            <div className="lg:hidden col-span-full">
+              <div className="flex flex-wrap justify-center gap-3">
+                {[
+                  { label: 'หน้าแรก', path: '/' },
+                  { label: 'จุดเด่น', path: '/features' },
+                  { label: 'บาคาร่าออนไลน์', path: '/baccarat' },
+                  { label: 'โปรโมชั่น', path: '/promotions' },
+                  { label: 'บทความ', path: '/articles' },
+                  { label: 'คำถามที่พบบ่อย', path: '/faq' },
+                  { label: 'ติดต่อเรา', path: '/contact' },
+                  { label: 'วิธีสมัครสมาชิก', path: '/register-guide' },
+                  { label: 'วิธีฝาก-ถอน', path: '/deposit-withdraw-guide' },
+                  { label: 'ข้อตกลงและเงื่อนไข', path: '/terms' },
+                  { label: 'นโยบายความเป็นส่วนตัว', path: '/privacy' },
+                  { label: 'นโยบายคุกกี้', path: '/cookies' },
+                  { label: 'ความรับผิดชอบต่อสังคม', path: '/responsible-gambling' },
+                ].map((item) => (
+                  <Link 
+                    key={item.label}
+                    to={item.path}
+                    className="px-4 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-xl text-zinc-400 text-xs font-bold hover:text-white hover:border-red-600/50 transition-all"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="hidden lg:block lg:col-span-2">
               <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">เกี่ยวกับเรา</h4>
               <ul className="space-y-5">
                 {[
@@ -1635,7 +1729,7 @@ function Bocker168Landing() {
               </ul>
             </div>
 
-            <div className="lg:col-span-2">
+            <div className="hidden lg:block lg:col-span-2">
               <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">ช่วยเหลือ</h4>
               <ul className="space-y-5">
                 {[
@@ -1657,7 +1751,7 @@ function Bocker168Landing() {
               </ul>
             </div>
 
-            <div className="lg:col-span-2">
+            <div className="hidden lg:block lg:col-span-2">
               <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">ข้อกำหนด</h4>
               <ul className="space-y-5">
                 {[
@@ -1679,7 +1773,7 @@ function Bocker168Landing() {
               </ul>
             </div>
 
-            <div className="lg:col-span-2">
+            <div className="hidden lg:block lg:col-span-2">
               <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">ติดต่อเรา</h4>
               <ul className="space-y-6">
                 <li className="flex items-center gap-4 text-zinc-400 text-sm font-medium group cursor-pointer">
@@ -1733,9 +1827,14 @@ function Bocker168Landing() {
 
       {/* Floating Action Button (Mobile Only) */}
       <div className="fixed bottom-6 right-6 lg:hidden z-40">
-        <button className="w-14 h-14 bg-red-600 text-white rounded-full shadow-2xl flex items-center justify-center animate-bounce">
+        <a 
+          href="https://inlnk.co/registerbocker168" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="w-14 h-14 bg-red-600 text-white rounded-full shadow-2xl flex items-center justify-center animate-bounce"
+        >
           <PlayCircle className="w-8 h-8" />
-        </button>
+        </a>
       </div>
 
       {/* Cookie Consent Banner */}
@@ -1743,6 +1842,7 @@ function Bocker168Landing() {
         {showCookieBanner && (
           <CookieConsent 
             onAccept={handleAcceptAllCookies} 
+            onReject={handleRejectAllCookies}
             onManage={() => setShowCookieSettings(true)} 
           />
         )}

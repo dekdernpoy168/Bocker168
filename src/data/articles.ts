@@ -20,7 +20,8 @@ export const ARTICLES = [
     `,
     image: 'https://images.unsplash.com/photo-1605870445919-838d190e8e1b?auto=format&fit=crop&q=80&w=800',
     date: '29 มี.ค. 2026',
-    category: 'สูตรบาคาร่า'
+    category: 'สูตรบาคาร่า',
+    metaKeywords: 'สูตรบาคาร่า, เค้าไพ่บาคาร่า, บาคาร่า 2026, เทคนิคบาคาร่า, เดินเงินบาคาร่า'
   },
   {
     slug: 'direct-web-vs-agent',
@@ -48,7 +49,8 @@ export const ARTICLES = [
     `,
     image: 'https://images.unsplash.com/photo-1596838132731-3301c3fd4317?auto=format&fit=crop&q=80&w=800',
     date: '28 มี.ค. 2026',
-    category: 'ความรู้ทั่วไป'
+    category: 'ความรู้ทั่วไป',
+    metaKeywords: 'บาคาร่าเว็บตรง, เว็บเอเย่นต์, บาคาร่าไม่ผ่านเอเย่นต์, สมัครบาคาร่าเว็บตรง'
   },
   {
     slug: 'bankroll-management',
@@ -72,6 +74,7 @@ export const ARTICLES = [
     `,
     image: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800',
     date: '27 มี.ค. 2026',
-    category: 'เทคนิคการเล่น'
+    category: 'เทคนิคการเล่น',
+    metaKeywords: 'จัดการเงินทุนบาคาร่า, เดินเงินบาคาร่า, bankroll management, เทคนิคบาคาร่า'
   }
 ];
