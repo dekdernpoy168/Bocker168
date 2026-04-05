@@ -27,6 +27,13 @@ export async function onRequestGet(context: any) {
 
     const data = await response.json();
     if (!data.success) {
+      const errorMsg = data.errors?.[0]?.message || JSON.stringify(data.errors);
+      if (errorMsg.includes('no such table: articles')) {
+        // Return empty array if table doesn't exist yet
+        return new Response(JSON.stringify([]), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
       return new Response(JSON.stringify({ error: data.errors }), { status: 500 });
     }
     return new Response(JSON.stringify(data.result[0].results || []), {

@@ -70,13 +70,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const fetchArticles = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/articles');
+      const response = await fetch(`/api/articles?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         setArticles(data);
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to fetch articles in AdminDashboard. Status:', response.status, 'Response:', errorText);
       }
     } catch (error) {
-      console.error('Error fetching articles:', error);
+      console.error('Error fetching articles in AdminDashboard:', error);
     } finally {
       setIsLoading(false);
     }

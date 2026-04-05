@@ -46,8 +46,8 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { Helmet } from 'react-helmet-async';
-import { ARTICLES } from './data/articles';
 import LiveChat from './components/LiveChat';
+import { Article } from './types';
 
 // --- Constants & Data ---
 
@@ -678,13 +678,10 @@ function Bocker168Landing() {
     setShowCookieBanner(false);
   };
 
-  const [articles, setArticles] = useState(ARTICLES);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
 
-  const [fetchError, setFetchError] = useState(false);
-
   const fetchArticles = async () => {
-    if (fetchError) return; // Stop trying if it failed previously
     try {
       const response = await fetch(`/api/articles?t=${Date.now()}`);
       if (response.ok) {
@@ -693,11 +690,11 @@ function Bocker168Landing() {
           setArticles(data);
         }
       } else {
-        setFetchError(true);
+        const errorText = await response.text();
+        console.error('Failed to fetch articles. Status:', response.status, 'Response:', errorText);
       }
     } catch (error) {
       console.error('Error fetching articles:', error);
-      setFetchError(true);
     }
   };
 
@@ -707,10 +704,10 @@ function Bocker168Landing() {
 
     // Real-time polling every 5 seconds
     const interval = setInterval(() => {
-      if (!fetchError) fetchArticles();
+      fetchArticles();
     }, 5000);
     return () => clearInterval(interval);
-  }, [fetchError]);
+  }, []);
 
   useEffect(() => {
     // Re-fetch when admin dashboard is closed to ensure latest data
