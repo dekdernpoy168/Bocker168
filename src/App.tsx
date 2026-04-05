@@ -681,18 +681,23 @@ function Bocker168Landing() {
   const [articles, setArticles] = useState(ARTICLES);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
 
+  const [fetchError, setFetchError] = useState(false);
+
   const fetchArticles = async () => {
+    if (fetchError) return; // Stop trying if it failed previously
     try {
       const response = await fetch(`/api/articles?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
-        // Use data from API directly
         if (Array.isArray(data)) {
           setArticles(data);
         }
+      } else {
+        setFetchError(true);
       }
     } catch (error) {
       console.error('Error fetching articles:', error);
+      setFetchError(true);
     }
   };
 
@@ -701,9 +706,11 @@ function Bocker168Landing() {
     fetchArticles().finally(() => setIsLoadingArticles(false));
 
     // Real-time polling every 5 seconds
-    const interval = setInterval(fetchArticles, 5000);
+    const interval = setInterval(() => {
+      if (!fetchError) fetchArticles();
+    }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchError]);
 
   useEffect(() => {
     // Re-fetch when admin dashboard is closed to ensure latest data
@@ -1599,53 +1606,61 @@ function Bocker168Landing() {
             centered={true}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
-            {articles.map((article, index) => (
-              <motion.div
-                key={article.id || index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden hover:border-red-600/30 transition-all duration-500 flex flex-col"
-              >
-                <Link to={`/article/${article.slug || article.title.replace(/\s+/g, '-').toLowerCase()}`} className="flex flex-col h-full">
-                  <div className="h-56 overflow-hidden relative">
-                    <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
-                      {article.category}
-                    </div>
-                    <img 
-                      src={article.image} 
-                      alt={article.title} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-80" />
-                  </div>
-                  
-                  <div className="p-6 md:p-8 flex flex-col flex-grow">
-                    <div className="flex items-center gap-2 text-zinc-400 text-sm mb-4">
-                      <Calendar className="w-4 h-4" />
-                      <span>{article.date}</span>
+          {articles.length === 0 ? (
+            <div className="text-center py-20 bg-zinc-900/20 border border-zinc-800/50 rounded-3xl mt-16">
+              <BookOpen className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">ยังไม่มีบทความในขณะนี้</h3>
+              <p className="text-zinc-400">บทความใหม่ๆ จะถูกอัปเดตและแสดงผลที่นี่เร็วๆ นี้</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
+              {articles.map((article, index) => (
+                <motion.div
+                  key={article.id || index}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="group bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden hover:border-red-600/30 transition-all duration-500 flex flex-col"
+                >
+                  <Link to={`/article/${article.slug || article.title.replace(/\s+/g, '-').toLowerCase()}`} className="flex flex-col h-full">
+                    <div className="h-56 overflow-hidden relative">
+                      <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
+                        {article.category}
+                      </div>
+                      <img 
+                        src={article.image} 
+                        alt={article.title} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-80" />
                     </div>
                     
-                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors line-clamp-2">
-                      {article.title}
-                    </h3>
-                    
-                    <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
-                      {article.excerpt || (article as any).description}
-                    </p>
-                    
-                    <div className="flex items-center gap-2 text-red-500 font-bold text-sm group/btn mt-auto w-fit">
-                      อ่านเพิ่มเติม
-                      <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                    <div className="p-6 md:p-8 flex flex-col flex-grow">
+                      <div className="flex items-center gap-2 text-zinc-400 text-sm mb-4">
+                        <Calendar className="w-4 h-4" />
+                        <span>{article.date}</span>
+                      </div>
+                      
+                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors line-clamp-2">
+                        {article.title}
+                      </h3>
+                      
+                      <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
+                        {article.excerpt || (article as any).description}
+                      </p>
+                      
+                      <div className="flex items-center gap-2 text-red-500 font-bold text-sm group/btn mt-auto w-fit">
+                        อ่านเพิ่มเติม
+                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          )}
           
           <div className="mt-16 text-center">
             <Link to="/articles" className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-600/50 text-white font-bold rounded-2xl transition-all flex items-center gap-3 mx-auto group w-fit">
