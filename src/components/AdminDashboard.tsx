@@ -609,10 +609,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
             onClick={async () => {
               try {
                 const res = await fetch('/api/test-d1');
-                const data = await res.json();
-                alert(data.success ? 'เชื่อมต่อ D1 สำเร็จ!' : 'เชื่อมต่อไม่สำเร็จ: ' + data.error);
+                const text = await res.text();
+                try {
+                  const data = JSON.parse(text);
+                  alert(data.success ? 'เชื่อมต่อ D1 สำเร็จ!' : 'เชื่อมต่อไม่สำเร็จ: ' + (data.error || 'Unknown error'));
+                } catch (e) {
+                  alert('เซิร์ฟเวอร์ตอบกลับไม่ใช่ JSON: ' + text.substring(0, 100));
+                }
               } catch (e) {
-                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+                alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ (Network Error)');
               }
             }}
             className="bg-zinc-900 text-zinc-400 px-4 py-3 rounded-full font-bold hover:bg-zinc-800 transition-colors flex items-center border border-zinc-800"

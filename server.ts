@@ -72,13 +72,21 @@ async function startServer() {
       });
 
       const data = await response.json();
-      if (!data.success) {
-        const errorMsg = data.errors?.[0]?.message || JSON.stringify(data.errors);
-        if (errorMsg.includes('Authentication error')) {
-          throw new Error('Cloudflare API Token ไม่ถูกต้อง หรือไม่มีสิทธิ์เข้าถึง D1 Database (Authentication Error)');
+      
+      if (!response.ok || !data.success) {
+        console.error('Cloudflare D1 API Error Response:', JSON.stringify(data));
+        const errorMsg = data.errors?.[0]?.message || JSON.stringify(data.errors) || 'Unknown Cloudflare Error';
+        
+        if (response.status === 401 || errorMsg.includes('Authentication error')) {
+          throw new Error('Cloudflare API Token ไม่ถูกต้อง หรือไม่มีสิทธิ์เข้าถึง D1 Database (401 Unauthorized)');
         }
-        throw new Error(`D1 Query Error: ${errorMsg}`);
+        if (response.status === 404) {
+          throw new Error('ไม่พบ Account ID หรือ Database ID ที่ระบุ (404 Not Found)');
+        }
+        
+        throw new Error(`D1 Query Error (Status ${response.status}): ${errorMsg}`);
       }
+      
       return data.result[0];
     } catch (error: any) {
       if (error.message.includes('fetch')) {
