@@ -686,9 +686,9 @@ function Bocker168Landing() {
       const response = await fetch(`/api/articles?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
-        // If we have data from API, use it. If it's empty, use default ARTICLES
+        // Use data from API directly
         if (Array.isArray(data)) {
-          setArticles(data.length > 0 ? data : ARTICLES);
+          setArticles(data);
         }
       }
     } catch (error) {
@@ -773,6 +773,54 @@ function Bocker168Landing() {
         <meta property="og:type" content={isArticleDetail ? "article" : "website"} />
         <meta property="og:url" content={`https://bocker168.com${location.pathname}`} />
         <link rel="canonical" href={`https://bocker168.com${location.pathname}`} />
+        
+        {/* Schema.org JSON-LD Markup */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "OnlineCasino",
+            "name": "Bocker168",
+            "url": "https://bocker168.com",
+            "logo": "https://img2.pic.in.th/A2-Logo-Bocker-168.png",
+            "description": "เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม",
+            "currenciesAccepted": "THB",
+            "paymentAccepted": "Bank Transfer, TrueMoney Wallet",
+            "openingHours": "Mo-Su 00:00-24:00",
+            "address": {
+              "@type": "PostalAddress",
+              "addressCountry": "TH"
+            }
+          })}
+        </script>
+
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CasinoGame",
+            "name": "บาคาร่าออนไลน์",
+            "description": "เกมบาคาร่าสดจากค่ายดัง SA Gaming, Sexy Baccarat, Dream Gaming พร้อมสูตรและเทคนิคการอ่านเค้าไพ่",
+            "gameCategory": "Card Game",
+            "publisher": {
+              "@type": "Organization",
+              "name": "Bocker168"
+            }
+          })}
+        </script>
+
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": FAQS.map(faq => ({
+              "@type": "Question",
+              "name": faq.question,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": faq.answer
+              }
+            }))
+          })}
+        </script>
       </Helmet>
       
       {/* Red Glow Background Elements */}
