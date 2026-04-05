@@ -683,7 +683,7 @@ function Bocker168Landing() {
 
   const fetchArticles = async () => {
     try {
-      const response = await fetch('/api/articles');
+      const response = await fetch(`/api/articles?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         // If we have data from API, use it. If it's empty, use default ARTICLES
@@ -700,8 +700,8 @@ function Bocker168Landing() {
     setIsLoadingArticles(true);
     fetchArticles().finally(() => setIsLoadingArticles(false));
 
-    // Real-time polling every 10 seconds
-    const interval = setInterval(fetchArticles, 10000);
+    // Real-time polling every 5 seconds
+    const interval = setInterval(fetchArticles, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -1554,7 +1554,7 @@ function Bocker168Landing() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
             {articles.map((article, index) => (
               <motion.div
-                key={index}
+                key={article.id || index}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
