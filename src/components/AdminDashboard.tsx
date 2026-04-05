@@ -263,7 +263,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       }
       
       const ai = new GoogleGenAI({ apiKey });
-      const prompt = `Generate 3 short, SEO-friendly URL slugs for the article title: "${currentArticle.title}". 
+      const prompt = `Generate 3 short, SEO-friendly URL slugs for the following article.
+      Title: "${currentArticle.title}"
+      Content: "${currentArticle.content?.substring(0, 1000) || ''}"
+      
       Return ONLY a valid JSON array of 3 strings. 
       The slugs should be in English (translate if necessary), lowercase, and use hyphens for spaces. 
       Example: ["slug-option-1", "slug-option-2", "slug-option-3"]`;
@@ -321,8 +324,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       
       const ai = new GoogleGenAI({ apiKey });
       const prompt = `Generate SEO tags for an article. 
-      Topic: "${seoTopic}"
+      Title: "${currentArticle.title || seoTopic}"
       Primary Keyword: "${seoPrimaryKeyword}"
+      Article Content: "${currentArticle.content?.substring(0, 1500) || ''}"
       
       Return ONLY a valid JSON object with two keys: "metaTitle" (max 60 characters) and "metaDescription" (max 160 characters).
       The language should be Thai.
@@ -376,7 +380,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       }
       
       const ai = new GoogleGenAI({ apiKey });
-      const prompt = `Generate 3 short, engaging excerpts (คำโปรย) in Thai for an article titled "${currentArticle.title}". 
+      const prompt = `Generate 3 short, engaging excerpts (คำโปรย) in Thai for the following article.
+      Title: "${currentArticle.title}"
+      Content: "${currentArticle.content?.substring(0, 1500) || ''}"
+      
       Each excerpt should be 1-2 sentences long.
       Return ONLY a JSON array of strings.
       Example: ["Excerpt 1", "Excerpt 2", "Excerpt 3"]`;
@@ -429,7 +436,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       }
       
       const ai = new GoogleGenAI({ apiKey });
-      const prompt = `Generate SEO keywords in Thai for an article titled "${currentArticle.title}".
+      const prompt = `Generate SEO keywords in Thai for the following article.
+      Title: "${currentArticle.title}"
+      Content: "${currentArticle.content?.substring(0, 1500) || ''}"
+      
       Return ONLY a comma-separated list of 5-8 relevant keywords.
       Example: คีย์เวิร์ด1, คีย์เวิร์ด2, คีย์เวิร์ด3`;
       
