@@ -130,15 +130,19 @@ async function startServer() {
 
   app.get('/api/test-d1', async (req, res) => {
     try {
+      console.log('Testing D1 connection...');
       if (!isD1Configured()) {
+        console.log('D1 not configured');
         return res.status(400).json({ 
           success: false, 
           error: 'D1 is not configured. Please set CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_D1_DATABASE_ID, and CLOUDFLARE_API_TOKEN.' 
         });
       }
       const result = await queryD1('SELECT 1');
+      console.log('D1 connection successful');
       res.json({ success: true, message: 'D1 connection successful', result });
     } catch (error: any) {
+      console.error('D1 Test Error:', error.message);
       res.status(500).json({ success: false, error: error.message });
     }
   });
@@ -312,6 +316,12 @@ async function startServer() {
       console.error('Error initializing database:', error);
       res.status(500).json({ error: error.message });
     }
+  });
+
+  // Catch-all for /api routes to prevent HTML fallback
+  app.all('/api/*', (req, res) => {
+    console.log(`API 404: ${req.method} ${req.url}`);
+    res.status(404).json({ error: `API route not found: ${req.method} ${req.url}` });
   });
 
   // Vite middleware for development

@@ -610,11 +610,20 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
               try {
                 const res = await fetch('/api/test-d1');
                 const text = await res.text();
+                if (!res.ok) {
+                  try {
+                    const data = JSON.parse(text);
+                    alert(`Error ${res.status}: ${data.error || data.message || 'Unknown error'}`);
+                  } catch (e) {
+                    alert(`Error ${res.status}: ${text.substring(0, 200)}`);
+                  }
+                  return;
+                }
                 try {
                   const data = JSON.parse(text);
                   alert(data.success ? 'เชื่อมต่อ D1 สำเร็จ!' : 'เชื่อมต่อไม่สำเร็จ: ' + (data.error || 'Unknown error'));
                 } catch (e) {
-                  alert('เซิร์ฟเวอร์ตอบกลับไม่ใช่ JSON: ' + text.substring(0, 100));
+                  alert('เซิร์ฟเวอร์ตอบกลับไม่ใช่ JSON (Response: ' + text.substring(0, 200) + ')');
                 }
               } catch (e) {
                 alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ (Network Error)');
