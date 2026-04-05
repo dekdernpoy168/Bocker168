@@ -72,21 +72,13 @@ async function startServer() {
       });
 
       const data = await response.json();
-      
-      if (!response.ok || !data.success) {
-        console.error('Cloudflare D1 API Error Response:', JSON.stringify(data));
-        const errorMsg = data.errors?.[0]?.message || JSON.stringify(data.errors) || 'Unknown Cloudflare Error';
-        
-        if (response.status === 401 || errorMsg.includes('Authentication error')) {
-          throw new Error('Cloudflare API Token ไม่ถูกต้อง หรือไม่มีสิทธิ์เข้าถึง D1 Database (401 Unauthorized)');
+      if (!data.success) {
+        const errorMsg = data.errors?.[0]?.message || JSON.stringify(data.errors);
+        if (errorMsg.includes('Authentication error')) {
+          throw new Error('Cloudflare API Token ไม่ถูกต้อง หรือไม่มีสิทธิ์เข้าถึง D1 Database (Authentication Error)');
         }
-        if (response.status === 404) {
-          throw new Error('ไม่พบ Account ID หรือ Database ID ที่ระบุ (404 Not Found)');
-        }
-        
-        throw new Error(`D1 Query Error (Status ${response.status}): ${errorMsg}`);
+        throw new Error(`D1 Query Error: ${errorMsg}`);
       }
-      
       return data.result[0];
     } catch (error: any) {
       if (error.message.includes('fetch')) {
@@ -128,38 +120,16 @@ async function startServer() {
     });
   });
 
-  app.get('/api/test-d1', async (req, res) => {
-    try {
-      console.log('Testing D1 connection...');
-      if (!isD1Configured()) {
-        console.log('D1 not configured');
-        return res.status(400).json({ 
-          success: false, 
-          error: 'D1 is not configured. Please set CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_D1_DATABASE_ID, and CLOUDFLARE_API_TOKEN.' 
-        });
-      }
-      const result = await queryD1('SELECT 1');
-      console.log('D1 connection successful');
-      res.json({ success: true, message: 'D1 connection successful', result });
-    } catch (error: any) {
-      console.error('D1 Test Error:', error.message);
-      res.status(500).json({ success: false, error: error.message });
-    }
-  });
-
   app.get('/api/articles', async (req, res) => {
-    console.log('GET /api/articles - D1 Configured:', isD1Configured());
+    console.log('GET /api/articles');
     try {
       if (!isD1Configured()) {
         const local = await getLocalArticles();
-        console.log(`Returning ${local.length} local articles`);
         return res.json(local);
       }
       try {
         const result = await queryD1('SELECT * FROM articles ORDER BY date DESC');
-        const articles = result.results || [];
-        console.log(`Returning ${articles.length} D1 articles`);
-        res.json(articles);
+        res.json(result.results || []);
       } catch (error: any) {
         if (error.message.includes('no such table: articles')) {
           console.log('Table "articles" not found. Initializing...');
@@ -167,7 +137,6 @@ async function startServer() {
           const result = await queryD1('SELECT * FROM articles ORDER BY date DESC');
           return res.json(result.results || []);
         }
-        console.error('D1 Query Error in /api/articles:', error);
         throw error;
       }
     } catch (error: any) {
@@ -251,41 +220,6 @@ async function startServer() {
   });
 
   // Initialize Table Route (One-time setup)
-  app.post('/api/sync-local-to-d1', async (req, res) => {
-    try {
-      if (!isD1Configured()) {
-        throw new Error('D1 is not configured.');
-      }
-      const local = await getLocalArticles();
-      if (local.length === 0) {
-        return res.json({ success: true, count: 0, message: 'No local articles to sync' });
-      }
-
-      await initTable();
-      
-      let count = 0;
-      for (const article of local) {
-        const sql = `
-          INSERT INTO articles (id, title, slug, content, excerpt, category, image, status, author, date, metaTitle, metaDescription, metaKeywords)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          ON CONFLICT(id) DO NOTHING
-        `;
-        const params = [
-          article.id, article.title, article.slug, article.content, article.excerpt,
-          article.category, article.image, article.status, article.author, article.date,
-          article.metaTitle, article.metaDescription, article.metaKeywords
-        ];
-        await queryD1(sql, params);
-        count++;
-      }
-      
-      res.json({ success: true, count, message: `Synced ${count} articles to D1` });
-    } catch (error: any) {
-      console.error('Error syncing local to D1:', error);
-      res.status(500).json({ success: false, error: error.message });
-    }
-  });
-
   app.post('/api/init-db', async (req, res) => {
     try {
       if (!isD1Configured()) {
@@ -318,12 +252,6 @@ async function startServer() {
     }
   });
 
-  // Catch-all for /api routes to prevent HTML fallback
-  app.all('/api/*', (req, res) => {
-    console.log(`API 404: ${req.method} ${req.url}`);
-    res.status(404).json({ error: `API route not found: ${req.method} ${req.url}` });
-  });
-
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
@@ -333,9 +261,8 @@ async function startServer() {
     app.use(vite.middlewares);
     
     // SPA Fallback for development
-    app.get('*', async (req, res, next) => {
+    app.get('*all', async (req, res, next) => {
       const url = req.originalUrl;
-      console.log(`[Vite] Serving index.html for: ${url}`);
       try {
         let template = await fs.readFile(path.resolve(process.cwd(), 'index.html'), 'utf-8');
         template = await vite.transformIndexHtml(url, template);
@@ -348,8 +275,7 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      console.log(`[Static] Serving index.html for: ${req.originalUrl}`);
+    app.get('*all', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
