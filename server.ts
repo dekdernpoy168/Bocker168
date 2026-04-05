@@ -333,8 +333,9 @@ async function startServer() {
     app.use(vite.middlewares);
     
     // SPA Fallback for development
-    app.get('*all', async (req, res, next) => {
+    app.get('*', async (req, res, next) => {
       const url = req.originalUrl;
+      console.log(`[Vite] Serving index.html for: ${url}`);
       try {
         let template = await fs.readFile(path.resolve(process.cwd(), 'index.html'), 'utf-8');
         template = await vite.transformIndexHtml(url, template);
@@ -347,7 +348,8 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*all', (req, res) => {
+    app.get('*', (req, res) => {
+      console.log(`[Static] Serving index.html for: ${req.originalUrl}`);
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
