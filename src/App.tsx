@@ -686,8 +686,9 @@ function Bocker168Landing() {
       const response = await fetch('/api/articles');
       if (response.ok) {
         const data = await response.json();
-        if (data && data.length > 0) {
-          setArticles(data);
+        // If we have data from API, use it. If it's empty, use default ARTICLES
+        if (Array.isArray(data)) {
+          setArticles(data.length > 0 ? data : ARTICLES);
         }
       }
     } catch (error) {
@@ -715,15 +716,15 @@ function Bocker168Landing() {
   const isFeatures = location.pathname === '/features';
   const isBaccarat = location.pathname === '/baccarat';
   const isPromotions = location.pathname === '/promotions';
-  const isArticles = location.pathname === '/articles';
-  const isFaq = location.pathname === '/faq';
-  const isContact = location.pathname === '/contact';
-  const isRegisterGuide = location.pathname === '/register-guide';
-  const isDepositWithdrawGuide = location.pathname === '/deposit-withdraw-guide';
-  const isTerms = location.pathname === '/terms';
-  const isPrivacy = location.pathname === '/privacy';
-  const isCookies = location.pathname === '/cookies';
-  const isResponsibleGambling = location.pathname === '/responsible-gambling';
+  const isArticles = location.pathname.replace(/\/$/, '') === '/articles';
+  const isFaq = location.pathname.replace(/\/$/, '') === '/faq';
+  const isContact = location.pathname.replace(/\/$/, '') === '/contact';
+  const isRegisterGuide = location.pathname.replace(/\/$/, '') === '/register-guide';
+  const isDepositWithdrawGuide = location.pathname.replace(/\/$/, '') === '/deposit-withdraw-guide';
+  const isTerms = location.pathname.replace(/\/$/, '') === '/terms';
+  const isPrivacy = location.pathname.replace(/\/$/, '') === '/privacy';
+  const isCookies = location.pathname.replace(/\/$/, '') === '/cookies';
+  const isResponsibleGambling = location.pathname.replace(/\/$/, '') === '/responsible-gambling';
   
   const isArticleDetail = location.pathname.startsWith('/article/');
   const articleSlug = isArticleDetail ? decodeURIComponent(location.pathname.split('/article/')[1]) : null;
@@ -748,7 +749,7 @@ function Bocker168Landing() {
   };
 
   const getPageDescription = () => {
-    if (isArticleDetail && currentArticle) return currentArticle.description;
+    if (isArticleDetail && currentArticle) return currentArticle.excerpt || (currentArticle as any).description;
     return 'เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม';
   };
 
@@ -918,7 +919,7 @@ function Bocker168Landing() {
                     
                     <div 
                       className="max-w-none [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-white [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-white [&>h3]:mt-6 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-white"
-                      dangerouslySetInnerHTML={{ __html: currentArticle.content || currentArticle.description }}
+                      dangerouslySetInnerHTML={{ __html: currentArticle.content || (currentArticle as any).description }}
                     />
                   </div>
                 </div>
@@ -1585,7 +1586,7 @@ function Bocker168Landing() {
                     </h3>
                     
                     <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
-                      {article.description}
+                      {article.excerpt || (article as any).description}
                     </p>
                     
                     <div className="flex items-center gap-2 text-red-500 font-bold text-sm group/btn mt-auto w-fit">
