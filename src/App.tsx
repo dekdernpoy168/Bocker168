@@ -48,6 +48,7 @@ import 'swiper/css/navigation';
 import { Helmet } from 'react-helmet-async';
 import LiveChat from './components/LiveChat';
 import { Article } from './types';
+import { ArticleCardSkeleton, ArticleDetailSkeleton } from './components/Skeleton';
 
 // --- Constants & Data ---
 
@@ -947,7 +948,9 @@ function Bocker168Landing() {
                 กลับไปหน้าบทความ
               </Link>
               
-              {currentArticle ? (
+              {isLoadingArticles ? (
+                <ArticleDetailSkeleton />
+              ) : currentArticle ? (
                 <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden">
                   <div className="p-8 md:p-12">
                     <div className="flex items-center gap-4 mb-6">
@@ -1599,9 +1602,10 @@ function Bocker168Landing() {
           />
 
           {isLoadingArticles ? (
-            <div className="flex flex-col items-center justify-center py-24 mt-16">
-              <div className="w-12 h-12 border-4 border-red-600/20 border-t-red-600 rounded-full animate-spin mb-4" />
-              <p className="text-zinc-400 animate-pulse">กำลังโหลดบทความ...</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
+              {[...Array(6)].map((_, i) => (
+                <ArticleCardSkeleton key={i} />
+              ))}
             </div>
           ) : articleError ? (
             <div className="text-center py-20 bg-zinc-900/20 border border-zinc-800/50 rounded-3xl mt-16">

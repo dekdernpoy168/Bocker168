@@ -11,6 +11,7 @@ import AIPromptModal from './AIPromptModal';
 import { GoogleGenAI } from '@google/genai';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import { TableSkeleton } from './Skeleton';
 
 interface AdminDashboardProps {
   onClose?: () => void;
@@ -1210,7 +1211,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800">
-                {filteredArticles.length === 0 ? (
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={5} className="p-0">
+                      <TableSkeleton rows={5} />
+                    </td>
+                  </tr>
+                ) : filteredArticles.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="p-8 text-center text-zinc-500">ไม่พบข้อมูลบทความ</td>
                   </tr>
