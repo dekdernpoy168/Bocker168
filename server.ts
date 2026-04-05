@@ -120,16 +120,34 @@ async function startServer() {
     });
   });
 
+  app.get('/api/test-d1', async (req, res) => {
+    try {
+      if (!isD1Configured()) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'D1 is not configured. Please set CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_D1_DATABASE_ID, and CLOUDFLARE_API_TOKEN.' 
+        });
+      }
+      const result = await queryD1('SELECT 1');
+      res.json({ success: true, message: 'D1 connection successful', result });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
   app.get('/api/articles', async (req, res) => {
-    console.log('GET /api/articles');
+    console.log('GET /api/articles - D1 Configured:', isD1Configured());
     try {
       if (!isD1Configured()) {
         const local = await getLocalArticles();
+        console.log(`Returning ${local.length} local articles`);
         return res.json(local);
       }
       try {
         const result = await queryD1('SELECT * FROM articles ORDER BY date DESC');
-        res.json(result.results || []);
+        const articles = result.results || [];
+        console.log(`Returning ${articles.length} D1 articles`);
+        res.json(articles);
       } catch (error: any) {
         if (error.message.includes('no such table: articles')) {
           console.log('Table "articles" not found. Initializing...');
@@ -137,6 +155,7 @@ async function startServer() {
           const result = await queryD1('SELECT * FROM articles ORDER BY date DESC');
           return res.json(result.results || []);
         }
+        console.error('D1 Query Error in /api/articles:', error);
         throw error;
       }
     } catch (error: any) {
@@ -220,6 +239,41 @@ async function startServer() {
   });
 
   // Initialize Table Route (One-time setup)
+  app.post('/api/sync-local-to-d1', async (req, res) => {
+    try {
+      if (!isD1Configured()) {
+        throw new Error('D1 is not configured.');
+      }
+      const local = await getLocalArticles();
+      if (local.length === 0) {
+        return res.json({ success: true, count: 0, message: 'No local articles to sync' });
+      }
+
+      await initTable();
+      
+      let count = 0;
+      for (const article of local) {
+        const sql = `
+          INSERT INTO articles (id, title, slug, content, excerpt, category, image, status, author, date, metaTitle, metaDescription, metaKeywords)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(id) DO NOTHING
+        `;
+        const params = [
+          article.id, article.title, article.slug, article.content, article.excerpt,
+          article.category, article.image, article.status, article.author, article.date,
+          article.metaTitle, article.metaDescription, article.metaKeywords
+        ];
+        await queryD1(sql, params);
+        count++;
+      }
+      
+      res.json({ success: true, count, message: `Synced ${count} articles to D1` });
+    } catch (error: any) {
+      console.error('Error syncing local to D1:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
   app.post('/api/init-db', async (req, res) => {
     try {
       if (!isD1Configured()) {

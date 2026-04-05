@@ -3,7 +3,8 @@ import {
   Plus, Edit, Trash2, Save, X, FileText, Target, Upload,
   Type as TypeIcon, Link as LinkIcon, Search, Folder, Tag,
   Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2,
-  LayoutTemplate, Code, Database
+  LayoutTemplate, Code, Database,
+  Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2, Heading3, Quote
 } from 'lucide-react';
 import { Article } from '../types';
 import AIPromptModal from './AIPromptModal';
@@ -84,6 +85,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       console.error('Error fetching articles in AdminDashboard:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const syncLocalToD1 = async () => {
+    if (!window.confirm('ต้องการนำเข้าบทความจาก Local JSON ไปยัง D1 Database ใช่หรือไม่?')) return;
+    try {
+      const response = await fetch('/api/sync-local-to-d1', { method: 'POST' });
+      const data = await response.json();
+      if (data.success) {
+        alert(`นำเข้าสำเร็จ! ทั้งหมด ${data.count} บทความ`);
+        fetchArticles();
+      } else {
+        alert('เกิดข้อผิดพลาด: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error syncing articles:', error);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
     }
   };
 
@@ -586,7 +604,29 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
           </h1>
           <p className="text-zinc-400">จัดการบทความและเนื้อหาทั้งหมดของเว็บไซต์</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
+          <button 
+            onClick={async () => {
+              try {
+                const res = await fetch('/api/test-d1');
+                const data = await res.json();
+                alert(data.success ? 'เชื่อมต่อ D1 สำเร็จ!' : 'เชื่อมต่อไม่สำเร็จ: ' + data.error);
+              } catch (e) {
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+              }
+            }}
+            className="bg-zinc-900 text-zinc-400 px-4 py-3 rounded-full font-bold hover:bg-zinc-800 transition-colors flex items-center border border-zinc-800"
+            title="ทดสอบการเชื่อมต่อ D1"
+          >
+            <Check size={20} className="mr-2" /> Test D1
+          </button>
+          <button 
+            onClick={syncLocalToD1}
+            className="bg-zinc-900 text-zinc-400 px-4 py-3 rounded-full font-bold hover:bg-zinc-800 transition-colors flex items-center border border-zinc-800"
+            title="นำเข้าข้อมูลจาก Local ไป D1"
+          >
+            <Upload size={20} className="mr-2" /> Sync Local
+          </button>
           <button 
             onClick={initDatabase}
             className="bg-zinc-900 text-zinc-400 px-4 py-3 rounded-full font-bold hover:bg-zinc-800 transition-colors flex items-center border border-zinc-800"
@@ -1017,22 +1057,27 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
                   </div>
                 ) : (
                   <>
-                    <div className="bg-zinc-900/50 border-b border-zinc-800 p-2 flex gap-1 text-zinc-400 overflow-x-auto">
-                      <button type="button" onClick={() => insertFormatting('\n\n')} className="p-1.5 hover:bg-zinc-800 rounded text-sm transition-colors">Normal</button>
+                    <div className="bg-zinc-900/50 border-b border-zinc-800 p-2 flex gap-1 text-zinc-400 overflow-x-auto items-center">
+                      <button type="button" onClick={() => insertFormatting('<h2>', '</h2>')} className="p-2 hover:bg-zinc-800 rounded transition-colors" title="Heading 2"><Heading2 size={16} /></button>
+                      <button type="button" onClick={() => insertFormatting('<h3>', '</h3>')} className="p-2 hover:bg-zinc-800 rounded transition-colors" title="Heading 3"><Heading3 size={16} /></button>
                       <div className="w-px h-5 bg-zinc-800 mx-1 self-center"></div>
-                      <button type="button" onClick={() => insertFormatting('**', '**')} className="p-1.5 hover:bg-zinc-800 rounded font-bold transition-colors">B</button>
-                      <button type="button" onClick={() => insertFormatting('*', '*')} className="p-1.5 hover:bg-zinc-800 rounded italic transition-colors">I</button>
-                      <button type="button" onClick={() => insertFormatting('<u>', '</u>')} className="p-1.5 hover:bg-zinc-800 rounded underline transition-colors">U</button>
+                      <button type="button" onClick={() => insertFormatting('<strong>', '</strong>')} className="p-2 hover:bg-zinc-800 rounded transition-colors" title="Bold"><Bold size={16} /></button>
+                      <button type="button" onClick={() => insertFormatting('<em>', '</em>')} className="p-2 hover:bg-zinc-800 rounded transition-colors" title="Italic"><Italic size={16} /></button>
+                      <button type="button" onClick={() => insertFormatting('<u>', '</u>')} className="p-2 hover:bg-zinc-800 rounded transition-colors" title="Underline"><Underline size={16} /></button>
+                      <div className="w-px h-5 bg-zinc-800 mx-1 self-center"></div>
+                      <button type="button" onClick={() => insertFormatting('<ul>\n  <li>', '</li>\n</ul>')} className="p-2 hover:bg-zinc-800 rounded transition-colors" title="Bullet List"><List size={16} /></button>
+                      <button type="button" onClick={() => insertFormatting('<ol>\n  <li>', '</li>\n</ol>')} className="p-2 hover:bg-zinc-800 rounded transition-colors" title="Numbered List"><ListOrdered size={16} /></button>
                       <div className="w-px h-5 bg-zinc-800 mx-1 self-center"></div>
                       <button type="button" onClick={() => {
                         const url = prompt('Enter URL:');
-                        if (url) insertFormatting('[', `](${url})`);
-                      }} className="p-1.5 hover:bg-zinc-800 rounded transition-colors">🔗</button>
+                        if (url) insertFormatting(`<a href="${url}" target="_blank" rel="noopener noreferrer">`, '</a>');
+                      }} className="p-2 hover:bg-zinc-800 rounded transition-colors" title="Link"><LinkIcon size={16} /></button>
                       <button type="button" onClick={() => {
                         const url = prompt('Enter Image URL:');
-                        if (url) insertFormatting('![alt text](', `${url})`);
-                      }} className="p-1.5 hover:bg-zinc-800 rounded transition-colors">📷</button>
-                      <button type="button" onClick={() => insertFormatting('### ', '')} className="p-1.5 hover:bg-zinc-800 rounded transition-colors">📝</button>
+                        if (url) insertFormatting(`<img src="${url}" alt="" className="w-full rounded-xl my-6" />`, '');
+                      }} className="p-2 hover:bg-zinc-800 rounded transition-colors" title="Image"><ImageIcon size={16} /></button>
+                      <button type="button" onClick={() => insertFormatting('<blockquote>', '</blockquote>')} className="p-2 hover:bg-zinc-800 rounded transition-colors" title="Quote"><Quote size={16} /></button>
+                      <button type="button" onClick={() => insertFormatting('<pre><code>', '</code></pre>')} className="p-2 hover:bg-zinc-800 rounded transition-colors" title="Code Block"><Code size={16} /></button>
                     </div>
                     <textarea 
                       ref={contentTextareaRef}
