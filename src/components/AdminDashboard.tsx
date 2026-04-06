@@ -228,7 +228,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       }));
     } catch (error) {
       console.error('Error generating content:', error);
-      alert('Failed to generate content. Check console for details.');
+      alert('เกิดข้อผิดพลาดในการสร้างเนื้อหา กรุณาตรวจสอบการตั้งค่า API');
     } finally {
       setIsGenerating(false);
     }
@@ -307,7 +307,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       }
     } catch (error) {
       console.error('Error generating slug:', error);
-      alert('Failed to generate slug. Check console for details.');
+      alert('เกิดข้อผิดพลาดในการสร้าง Slug กรุณาตรวจสอบการตั้งค่า API');
     } finally {
       setIsGeneratingSlug(false);
     }
@@ -358,7 +358,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       }
     } catch (error) {
       console.error('Error generating SEO tags:', error);
-      alert('Failed to generate SEO tags. Check console for details.');
+      alert('เกิดข้อผิดพลาดในการสร้าง SEO Tags กรุณาตรวจสอบการตั้งค่า API');
     } finally {
       setIsGeneratingSEO(false);
     }
@@ -402,7 +402,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       }
     } catch (error) {
       console.error('Error generating excerpt:', error);
-      alert('Failed to generate excerpt. Check console for details.');
+      alert('เกิดข้อผิดพลาดในการสร้างคำโปรย กรุณาตรวจสอบการตั้งค่า API');
     } finally {
       setIsGeneratingExcerpt(false);
     }
@@ -434,7 +434,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       }
     } catch (error) {
       console.error('Error generating keywords:', error);
-      alert('Failed to generate keywords. Check console for details.');
+      alert('เกิดข้อผิดพลาดในการสร้าง Keywords กรุณาตรวจสอบการตั้งค่า API');
     } finally {
       setIsGeneratingKeywords(false);
     }
