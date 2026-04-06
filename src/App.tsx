@@ -59,6 +59,8 @@ const MENU_ITEMS = [
   { label: 'บทความ', path: '/articles' },
   { label: 'คำถามที่พบบ่อย', path: '/faq' },
   { label: 'ติดต่อเรา', path: '/contact' },
+  { label: 'วิธีสมัครสมาชิก', path: '/register-guide' },
+  { label: 'วิธีฝาก-ถอน', path: '/deposit-withdraw-guide' },
 ];
 
 const LIVE_STATS = [
@@ -575,7 +577,6 @@ export default function App() {
 function Bocker168Landing() {
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const [showCookieBanner, setShowCookieBanner] = useState(false);
   const [showCookieSettings, setShowCookieSettings] = useState(false);
@@ -843,103 +844,68 @@ function Bocker168Landing() {
       {/* --- Header --- */}
       <header 
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          isScrolled ? 'bg-black/90 backdrop-blur-md py-3 border-b border-zinc-800' : 'bg-transparent py-6'
+          isScrolled ? 'bg-black/95 backdrop-blur-md py-2 border-b border-zinc-800' : 'bg-transparent py-4'
         }`}
       >
-        <div className="container mx-auto px-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <img 
-              src="https://img2.pic.in.th/A2-Logo-Bocker-168.png" 
-              alt="Bocker168 Logo" 
-              className="h-16 md:h-20 w-auto group-hover:scale-105 transition-transform"
-              referrerPolicy="no-referrer"
-            />
-          </Link>
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between gap-4 mb-2 lg:mb-0">
+            <Link to="/" className="flex items-center gap-2 group shrink-0">
+              <img 
+                src="https://img2.pic.in.th/A2-Logo-Bocker-168.png" 
+                alt="Bocker168 Logo" 
+                className="h-12 md:h-16 lg:h-20 w-auto group-hover:scale-105 transition-transform"
+                referrerPolicy="no-referrer"
+              />
+            </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-8">
+            {/* Desktop Nav (Hidden on Mobile/Tablet, shown in separate row below for them) */}
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+              {MENU_ITEMS.map((item) => (
+                <Link 
+                  key={item.label} 
+                  to={item.path}
+                  className="text-[13px] xl:text-sm font-bold text-zinc-300 hover:text-red-500 transition-colors whitespace-nowrap"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+
+            {/* Auth Buttons */}
+            <div className="flex items-center gap-2 md:gap-4 shrink-0">
+              <button 
+                onClick={() => setShowAdmin(true)}
+                className="px-3 md:px-6 py-2 text-xs md:text-sm font-bold text-white hover:text-red-500 transition-colors"
+              >
+                เข้าสู่ระบบ
+              </button>
+              <a 
+                href="https://inlnk.co/registerbocker168" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-4 md:px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-xs md:text-sm font-bold rounded-full shadow-lg shadow-red-900/40 transition-all active:scale-95 inline-block whitespace-nowrap"
+              >
+                สมัครสมาชิก
+              </a>
+            </div>
+          </div>
+
+          {/* Mobile/Tablet Nav - Always visible, scrollable horizontally */}
+          <nav className="lg:hidden flex items-center gap-5 overflow-x-auto no-scrollbar py-2 border-t border-zinc-800/50 mt-2">
             {MENU_ITEMS.map((item) => (
               <Link 
                 key={item.label} 
                 to={item.path}
-                className="text-sm font-medium text-zinc-300 hover:text-amber-500 transition-colors"
+                className="text-[12px] font-bold text-zinc-400 hover:text-white transition-colors whitespace-nowrap shrink-0"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
-
-          {/* Auth Buttons */}
-          <div className="hidden lg:flex items-center gap-4">
-            <button 
-              onClick={() => setShowAdmin(true)}
-              className="px-6 py-2 text-sm font-bold text-white hover:text-amber-500 transition-colors"
-            >
-              เข้าสู่ระบบ
-            </button>
-            <a 
-              href="https://inlnk.co/registerbocker168" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-sm font-bold rounded-full shadow-lg shadow-red-900/40 transition-all active:scale-95 inline-block"
-            >
-              สมัครสมาชิก
-            </a>
-          </div>
-
-          {/* Mobile Toggle */}
-          <button 
-            className="lg:hidden p-2 text-white"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X /> : <Menu />}
-          </button>
         </div>
-
-        {/* Mobile Menu Drawer */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, x: '100%' }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: '100%' }}
-              className="fixed inset-0 top-[60px] bg-black z-40 lg:hidden p-6 flex flex-col gap-6"
-            >
-              {MENU_ITEMS.map((item) => (
-                <Link 
-                  key={item.label} 
-                  to={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-xl font-bold text-white border-b border-zinc-800 pb-4"
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <div className="flex flex-col gap-4 mt-4">
-                <button 
-                  onClick={() => {
-                    setShowAdmin(true);
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full py-4 bg-zinc-900 text-white font-bold rounded-xl border border-zinc-800"
-                >
-                  เข้าสู่ระบบ
-                </button>
-                <a 
-                  href="https://inlnk.co/registerbocker168" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-900/40 text-center block"
-                >
-                  สมัครสมาชิก
-                </a>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
 
-      <main className={!isHome ? "pt-24" : ""}>
+      <main className={!isHome ? "pt-32 lg:pt-24" : ""}>
       
       {/* --- Article Detail Section --- */}
       {isArticleDetail && (
