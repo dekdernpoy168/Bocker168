@@ -751,12 +751,16 @@ function Bocker168Landing() {
     if (isPrivacy) return 'นโยบายความเป็นส่วนตัว - Bocker168';
     if (isCookies) return 'นโยบายคุกกี้ - Bocker168';
     if (isResponsibleGambling) return 'ความรับผิดชอบต่อสังคม - Bocker168';
-    if (isArticleDetail && currentArticle) return `${currentArticle.title} - Bocker168`;
+    if (isArticleDetail && currentArticle) {
+      return currentArticle.metaTitle || `${currentArticle.title} - Bocker168`;
+    }
     return 'Bocker168 - บาคาร่าออนไลน์';
   };
 
   const getPageDescription = () => {
-    if (isArticleDetail && currentArticle) return currentArticle.excerpt || (currentArticle as any).description;
+    if (isArticleDetail && currentArticle) {
+      return currentArticle.metaDescription || currentArticle.excerpt || (currentArticle as any).description || 'อ่านบทความเกี่ยวกับบาคาร่าและคาสิโนออนไลน์ได้ที่ Bocker168';
+    }
     return 'เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม';
   };
 
@@ -1642,12 +1646,18 @@ function Bocker168Landing() {
                       <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
                         {article.category}
                       </div>
-                      <img 
-                        src={article.image} 
-                        alt={article.title} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        referrerPolicy="no-referrer"
-                      />
+                      {article.image ? (
+                        <img 
+                          src={article.image} 
+                          alt={article.title} 
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                          <BookOpen className="w-12 h-12 text-zinc-700" />
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-80" />
                     </div>
                     

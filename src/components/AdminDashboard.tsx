@@ -313,8 +313,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   };
 
   const handleGenerateSEO = async () => {
-    if (!seoPrimaryKeyword.trim() || !seoTopic.trim()) {
-      alert('กรุณาใส่คีย์เวิร์ดหลักและหัวข้อ');
+    if (!seoTopic.trim()) {
+      alert('กรุณาใส่หัวข้อบทความ');
       return;
     }
     
@@ -322,12 +322,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     try {
       const prompt = `Generate SEO tags for an article. 
       Title: "${currentArticle.title || seoTopic}"
-      Primary Keyword: "${seoPrimaryKeyword}"
-      Article Content: "${currentArticle.content?.substring(0, 1500) || ''}"
+      Primary Keyword: "${seoPrimaryKeyword || ''}"
+      Existing Keywords: "${currentArticle.metaKeywords || ''}"
+      Article Content: "${currentArticle.content?.substring(0, 2000) || ''}"
       
-      Return ONLY a valid JSON object with two keys: "metaTitle" (max 60 characters) and "metaDescription" (max 160 characters).
+      Return ONLY a valid JSON object with three keys: 
+      1. "metaTitle" (max 60 characters, engaging, includes keyword)
+      2. "metaDescription" (max 160 characters, call to action, includes keyword)
+      3. "metaKeywords" (comma-separated list of 5-10 relevant keywords)
+      
       The language should be Thai.
-      Example: {"metaTitle": "Title here", "metaDescription": "Description here"}`;
+      Example: {"metaTitle": "Title here", "metaDescription": "Description here", "metaKeywords": "keyword1, keyword2"}`;
       
       const text = await generateAIContent(prompt);
       
@@ -339,7 +344,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
           setCurrentArticle(prev => ({
             ...prev,
             metaTitle: seoData.metaTitle || prev.metaTitle,
-            metaDescription: seoData.metaDescription || prev.metaDescription
+            metaDescription: seoData.metaDescription || prev.metaDescription,
+            metaKeywords: seoData.metaKeywords || prev.metaKeywords
           }));
           setIsSEOModalOpen(false);
         } catch (e) {
@@ -409,11 +415,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     
     setIsGeneratingKeywords(true);
     try {
-      const prompt = `Generate SEO keywords in Thai for the following article.
+      const prompt = `Generate 5-10 SEO keywords in Thai for the following article.
       Title: "${currentArticle.title}"
-      Content: "${currentArticle.content?.substring(0, 1500) || ''}"
+      Content: "${currentArticle.content?.substring(0, 2000) || ''}"
       
-      Return ONLY a comma-separated list of 5-8 relevant keywords.
+      Return ONLY a comma-separated list of relevant keywords.
       Example: คีย์เวิร์ด1, คีย์เวิร์ด2, คีย์เวิร์ด3`;
       
       const text = await generateAIContent(prompt);
@@ -591,7 +597,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
             <div className="flex items-center justify-between p-4 border-b border-zinc-700">
               <h2 className="text-white font-bold text-lg flex items-center gap-2">
                 <Search size={18} className="text-red-500" />
-                Generate SEO Tags
+                AI SEO Generator
               </h2>
               <button onClick={() => setIsSEOModalOpen(false)} className="text-zinc-400 hover:text-white transition-colors">
                 <X size={20} />
@@ -599,7 +605,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
             </div>
             <div className="p-5 space-y-4">
               <div className="space-y-2">
-                <label className="text-zinc-300 text-sm font-medium">หัวข้อ (Topic)</label>
+                <label className="text-zinc-300 text-sm font-medium">หัวข้อบทความ (Topic)</label>
                 <input 
                   type="text" 
                   value={seoTopic}
@@ -609,7 +615,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-zinc-300 text-sm font-medium">คีย์เวิร์ดหลัก (Primary Keyword)</label>
+                <label className="text-zinc-300 text-sm font-medium">คีย์เวิร์ดหลัก (Primary Keyword - Optional)</label>
                 <input 
                   type="text" 
                   value={seoPrimaryKeyword}
@@ -617,14 +623,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
                   placeholder="เช่น บาคาร่าออนไลน์"
                   className="w-full bg-black border border-zinc-700 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
                 />
+                <p className="text-[10px] text-zinc-500">AI จะใช้คีย์เวิร์ดนี้ในการสร้าง Meta Title และ Description</p>
               </div>
               <button
                 onClick={handleGenerateSEO}
-                disabled={isGeneratingSEO || !seoTopic.trim() || !seoPrimaryKeyword.trim()}
+                disabled={isGeneratingSEO || !seoTopic.trim()}
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
               >
                 {isGeneratingSEO ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Wand2 size={16} />}
-                {isGeneratingSEO ? 'กำลังสร้าง...' : 'Generate SEO Tags'}
+                {isGeneratingSEO ? 'กำลังสร้าง SEO Tags...' : 'สร้าง Meta Title, Desc, Keywords'}
               </button>
             </div>
           </div>
@@ -1151,9 +1158,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
             <div className="p-8 overflow-y-auto custom-scrollbar flex-1 bg-white text-black">
               <div className="max-w-3xl mx-auto">
                 <h1 className="text-4xl font-bold mb-6">{currentArticle.title || 'ไม่มีหัวข้อ'}</h1>
-                {currentArticle.image && (
+                {currentArticle.image ? (
                   <img src={currentArticle.image} alt="Cover" className="w-full h-auto rounded-xl mb-8 object-cover max-h-[400px]" />
-                )}
+                ) : null}
                 <div 
                   className="prose prose-lg max-w-none"
                   dangerouslySetInnerHTML={{ __html: currentArticle.content || '<p className="text-gray-500 italic">ยังไม่มีเนื้อหา</p>' }}
