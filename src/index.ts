@@ -29,138 +29,151 @@ export interface Env {
 
 export default {
   async fetch(request: Request, env: Env) {
-    const db = drizzle(env.DB);
-    const url = new URL(request.url);
+    try {
+      if (!env.DB) {
+        return new Response("D1 Database binding 'DB' is missing. Please check your wrangler.jsonc/toml.", { status: 500 });
+      }
 
-    // API Routes
-    if (url.pathname.startsWith('/api/')) {
-      // Route to get all articles
-      if (url.pathname === '/api/articles' && request.method === 'GET') {
-        try {
-          const allArticles = await db.select().from(articles).orderBy(desc(articles.date)).all();
-          return Response.json(allArticles);
-        } catch (error: any) {
-          if (error.message.includes('no such table')) {
-             return Response.json([]);
+      const db = drizzle(env.DB);
+      const url = new URL(request.url);
+
+      // API Routes
+      if (url.pathname.startsWith('/api/')) {
+        // Route to get all articles
+        if (url.pathname === '/api/articles' && request.method === 'GET') {
+          try {
+            const allArticles = await db.select().from(articles).orderBy(desc(articles.date)).all();
+            return Response.json(allArticles);
+          } catch (error: any) {
+            if (error.message.includes('no such table')) {
+               return Response.json([]);
+            }
+            return new Response(error.message, { status: 500 });
           }
-          return new Response(error.message, { status: 500 });
         }
-      }
 
-      // Route to add/update an article
-      if (url.pathname === '/api/articles' && request.method === 'POST') {
-        try {
-          const article = await request.json() as any;
-          
-          // Try to insert, if conflict (id exists), update
-          // D1's ON CONFLICT is supported via db.run or raw sql
+        // Route to add/update an article
+        if (url.pathname === '/api/articles' && request.method === 'POST') {
+          try {
+            const article = await request.json() as any;
+            
+            await db.run(sql`
+              INSERT INTO articles (id, title, slug, content, excerpt, category, image, status, author, date, metaTitle, metaDescription, metaKeywords)
+              VALUES (${article.id}, ${article.title}, ${article.slug}, ${article.content}, ${article.excerpt}, ${article.category}, ${article.image}, ${article.status}, ${article.author}, ${article.date}, ${article.metaTitle}, ${article.metaDescription}, ${article.metaKeywords})
+              ON CONFLICT(id) DO UPDATE SET
+                title = excluded.title,
+                slug = excluded.slug,
+                content = excluded.content,
+                excerpt = excluded.excerpt,
+                category = excluded.category,
+                image = excluded.image,
+                status = excluded.status,
+                author = excluded.author,
+                date = excluded.date,
+                metaTitle = excluded.metaTitle,
+                metaDescription = excluded.metaDescription,
+                metaKeywords = excluded.metaKeywords
+            `);
+            
+            return Response.json({ success: true });
+          } catch (error: any) {
+            return new Response(error.message, { status: 500 });
+          }
+        }
+
+        // Route to delete an article
+        if (url.pathname.startsWith('/api/articles/') && request.method === 'DELETE') {
+          const id = url.pathname.split('/').pop();
+          if (id) {
+            await db.delete(articles).where(eq(articles.id, id)).run();
+            return Response.json({ success: true });
+          }
+          return new Response('ID missing', { status: 400 });
+        }
+
+        // Route to check config status
+        if (url.pathname === '/api/config-status') {
+          return Response.json({ d1Configured: true, fallbackMode: false });
+        }
+
+        // Route to initialize the database
+        if (url.pathname === '/api/init-db' && request.method === 'POST') {
           await db.run(sql`
-            INSERT INTO articles (id, title, slug, content, excerpt, category, image, status, author, date, metaTitle, metaDescription, metaKeywords)
-            VALUES (${article.id}, ${article.title}, ${article.slug}, ${article.content}, ${article.excerpt}, ${article.category}, ${article.image}, ${article.status}, ${article.author}, ${article.date}, ${article.metaTitle}, ${article.metaDescription}, ${article.metaKeywords})
-            ON CONFLICT(id) DO UPDATE SET
-              title = excluded.title,
-              slug = excluded.slug,
-              content = excluded.content,
-              excerpt = excluded.excerpt,
-              category = excluded.category,
-              image = excluded.image,
-              status = excluded.status,
-              author = excluded.author,
-              date = excluded.date,
-              metaTitle = excluded.metaTitle,
-              metaDescription = excluded.metaDescription,
-              metaKeywords = excluded.metaKeywords
+            CREATE TABLE IF NOT EXISTS articles (
+              id TEXT PRIMARY KEY,
+              title TEXT NOT NULL,
+              slug TEXT UNIQUE NOT NULL,
+              content TEXT NOT NULL,
+              excerpt TEXT,
+              category TEXT,
+              image TEXT,
+              status TEXT,
+              author TEXT,
+              date TEXT,
+              metaTitle TEXT,
+              metaDescription TEXT,
+              metaKeywords TEXT,
+              createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+              updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
           `);
-          
-          return Response.json({ success: true });
-        } catch (error: any) {
-          return new Response(error.message, { status: 500 });
+          return Response.json({ success: true, message: 'Database initialized successfully' });
         }
       }
 
-      // Route to delete an article
-      if (url.pathname.startsWith('/api/articles/') && request.method === 'DELETE') {
-        const id = url.pathname.split('/').pop();
-        if (id) {
-          await db.delete(articles).where(eq(articles.id, id)).run();
-          return Response.json({ success: true });
+      // Route to handle IndexNow requests
+      if (url.pathname === '/IndexNow' && request.method === 'POST') {
+        try {
+          const body = await request.json() as any;
+          const { host, key, keyLocation, urlList } = body;
+
+          if (!host || !key || !urlList) {
+            return new Response('Missing required fields: host, key, or urlList', { status: 400 });
+          }
+
+          const indexNowResponse = await fetch('https://api.indexnow.org/indexnow', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+            },
+            body: JSON.stringify({
+              host,
+              key,
+              keyLocation,
+              urlList,
+            }),
+          });
+
+          if (indexNowResponse.ok) {
+            return new Response('IndexNow submission successful', { status: 200 });
+          } else {
+            const errorText = await indexNowResponse.text();
+            return new Response(`IndexNow submission failed: ${errorText}`, { status: indexNowResponse.status });
+          }
+        } catch (error) {
+          return new Response(`Error processing IndexNow request: ${error instanceof Error ? error.message : String(error)}`, { status: 500 });
         }
-        return new Response('ID missing', { status: 400 });
       }
 
-      // Route to check config status
-      if (url.pathname === '/api/config-status') {
-        return Response.json({ d1Configured: true, fallbackMode: false });
+      // Serve static assets
+      if (env.ASSETS) {
+        try {
+          let response = await env.ASSETS.fetch(request);
+
+          // If asset not found and it's a navigation request (no extension), serve index.html for SPA
+          if (response.status === 404 && !url.pathname.includes('.')) {
+            const indexRequest = new Request(new URL('/index.html', url.origin), request);
+            response = await env.ASSETS.fetch(indexRequest);
+          }
+          return response;
+        } catch (assetError: any) {
+          return new Response(`Asset Fetch Error: ${assetError.message}`, { status: 500 });
+        }
       }
 
-      // Route to initialize the database
-      if (url.pathname === '/api/init-db' && request.method === 'POST') {
-        await db.run(sql`
-          CREATE TABLE IF NOT EXISTS articles (
-            id TEXT PRIMARY KEY,
-            title TEXT NOT NULL,
-            slug TEXT UNIQUE NOT NULL,
-            content TEXT NOT NULL,
-            excerpt TEXT,
-            category TEXT,
-            image TEXT,
-            status TEXT,
-            author TEXT,
-            date TEXT,
-            metaTitle TEXT,
-            metaDescription TEXT,
-            metaKeywords TEXT,
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-          )
-        `);
-        return Response.json({ success: true, message: 'Database initialized successfully' });
-      }
+      return new Response("Worker is running, but no assets binding found and route not matched.", { status: 404 });
+    } catch (globalError: any) {
+      return new Response(`Global Worker Error: ${globalError.message}\n${globalError.stack}`, { status: 500 });
     }
-
-    // Route to handle IndexNow requests
-    if (url.pathname === '/IndexNow' && request.method === 'POST') {
-      try {
-        const body = await request.json() as any;
-        const { host, key, keyLocation, urlList } = body;
-
-        if (!host || !key || !urlList) {
-          return new Response('Missing required fields: host, key, or urlList', { status: 400 });
-        }
-
-        const indexNowResponse = await fetch('https://api.indexnow.org/indexnow', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-          },
-          body: JSON.stringify({
-            host,
-            key,
-            keyLocation,
-            urlList,
-          }),
-        });
-
-        if (indexNowResponse.ok) {
-          return new Response('IndexNow submission successful', { status: 200 });
-        } else {
-          const errorText = await indexNowResponse.text();
-          return new Response(`IndexNow submission failed: ${errorText}`, { status: indexNowResponse.status });
-        }
-      } catch (error) {
-        return new Response(`Error processing IndexNow request: ${error instanceof Error ? error.message : String(error)}`, { status: 500 });
-      }
-    }
-
-    // Serve static assets
-    let response = await env.ASSETS.fetch(request);
-
-    // If asset not found and it's a navigation request (no extension), serve index.html for SPA
-    if (response.status === 404 && !url.pathname.includes('.')) {
-      const indexRequest = new Request(new URL('/index.html', url.origin), request);
-      response = await env.ASSETS.fetch(indexRequest);
-    }
-
-    return response;
   },
 };
