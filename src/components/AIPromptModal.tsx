@@ -6,9 +6,10 @@ interface AIPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
   onExecute: (prompt: string) => void;
+  initialTopic?: string;
 }
 
-export default function AIPromptModal({ isOpen, onClose, onExecute }: AIPromptModalProps) {
+export default function AIPromptModal({ isOpen, onClose, onExecute, initialTopic = '' }: AIPromptModalProps) {
   const [category, setCategory] = useState('Copywriting');
   const [subCategory, setSubCategory] = useState('Blog Writing');
   const [template, setTemplate] = useState('Generate Paragraph Of Text');
@@ -18,13 +19,19 @@ export default function AIPromptModal({ isOpen, onClose, onExecute }: AIPromptMo
   const [targetAudience, setTargetAudience] = useState('General');
   const [anchorText, setAnchorText] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
-  const [topic, setTopic] = useState('');
+  const [topic, setTopic] = useState(initialTopic);
   const [totalWords, setTotalWords] = useState(1000);
   const [primaryKeyword, setPrimaryKeyword] = useState('');
   const [secondaryKeywordCount, setSecondaryKeywordCount] = useState(5);
   const [secondaryKeywords, setSecondaryKeywords] = useState('');
   const [isFetchingKeywords, setIsFetchingKeywords] = useState(false);
   const [isGeneratingSecondaryKeywords, setIsGeneratingSecondaryKeywords] = useState(false);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setTopic(initialTopic);
+    }
+  }, [isOpen, initialTopic]);
 
   const fetchKeywords = async (query: string, isPrimary: boolean) => {
     if (!query) return;

@@ -3,7 +3,7 @@ import {
   Plus, Edit, Trash2, Save, X, FileText, Target, Upload,
   Type as TypeIcon, Link as LinkIcon, Search, Folder, Tag,
   Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2,
-  LayoutTemplate, Code, Database
+  LayoutTemplate, Code, Database, Sparkles
 } from 'lucide-react';
 import { Article } from '../types';
 import AIPromptModal from './AIPromptModal';
@@ -24,6 +24,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
 
   const [isEditing, setIsEditing] = useState(false);
   const [isAIPromptOpen, setIsAIPromptOpen] = useState(false);
+  const [aiPromptInitialTopic, setAiPromptInitialTopic] = useState('');
   const [aiPrompt, setAiPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingSlug, setIsGeneratingSlug] = useState(false);
@@ -557,6 +558,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
         onExecute={(prompt) => {
           setAiPrompt(prompt);
         }}
+        initialTopic={aiPromptInitialTopic}
       />
 
       {/* Slug Selection Modal */}
@@ -925,10 +927,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
                   </div>
                   <button 
                     type="button" 
-                    onClick={() => setIsAIPromptOpen(true)}
+                    onClick={() => {
+                      setAiPromptInitialTopic('');
+                      setIsAIPromptOpen(true);
+                    }}
                     className="flex items-center gap-1 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-medium transition-colors border border-zinc-800"
                   >
                     <LayoutTemplate size={14} /> Templates
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setAiPromptInitialTopic('Generate 5 blog post ideas related to Baccarat online for a Thai audience.');
+                      setIsAIPromptOpen(true);
+                    }}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-red-600/10 hover:bg-red-600/20 text-red-500 rounded-lg text-xs font-medium transition-colors border border-red-500/30"
+                  >
+                    <Sparkles size={14} /> Content Ideas
                   </button>
                   <div className="flex-1 md:w-64 relative">
                     <input 
