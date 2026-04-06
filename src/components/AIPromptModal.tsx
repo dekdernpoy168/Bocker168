@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Search, Sparkles } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import { generateAIContent } from '../lib/aiService';
 
 interface AIPromptModalProps {
   isOpen: boolean;
@@ -65,24 +65,12 @@ export default function AIPromptModal({ isOpen, onClose, onExecute }: AIPromptMo
     if (!primaryKeyword) return;
     setIsGeneratingSecondaryKeywords(true);
     try {
-      const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        alert('Please set GEMINI_API_KEY environment variable');
-        setIsGeneratingSecondaryKeywords(false);
-        return;
-      }
-      
-      const ai = new GoogleGenAI({ apiKey });
       const prompt = `Generate ${secondaryKeywordCount} secondary SEO keywords in Thai related to the primary keyword "${primaryKeyword}".
       Return ONLY a comma-separated list of keywords.
       Example: คีย์เวิร์ด1, คีย์เวิร์ด2, คีย์เวิร์ด3`;
       
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-      });
+      const text = await generateAIContent(prompt);
       
-      const text = response.text || '';
       const keywords = text.replace(/^[-\d.\s*"'\[\]]+/, '').replace(/["',\]]+$/, '').trim();
       
       if (keywords) {

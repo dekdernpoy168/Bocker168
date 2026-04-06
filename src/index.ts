@@ -45,6 +45,40 @@ export default {
       return Response.json(allUsers);
     }
 
+    // Route to handle IndexNow requests
+    if (url.pathname === '/IndexNow' && request.method === 'POST') {
+      try {
+        const body = await request.json() as any;
+        const { host, key, keyLocation, urlList } = body;
+
+        if (!host || !key || !urlList) {
+          return new Response('Missing required fields: host, key, or urlList', { status: 400 });
+        }
+
+        const indexNowResponse = await fetch('https://api.indexnow.org/indexnow', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+          },
+          body: JSON.stringify({
+            host,
+            key,
+            keyLocation,
+            urlList,
+          }),
+        });
+
+        if (indexNowResponse.ok) {
+          return new Response('IndexNow submission successful', { status: 200 });
+        } else {
+          const errorText = await indexNowResponse.text();
+          return new Response(`IndexNow submission failed: ${errorText}`, { status: indexNowResponse.status });
+        }
+      } catch (error) {
+        return new Response(`Error processing IndexNow request: ${error instanceof Error ? error.message : String(error)}`, { status: 500 });
+      }
+    }
+
     // Default route
     return new Response('D1 Connected!');
   },

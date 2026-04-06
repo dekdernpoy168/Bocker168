@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Article } from '../types';
 import AIPromptModal from './AIPromptModal';
-import { GoogleGenAI } from '@google/genai';
+import { generateAIContent } from '../lib/aiService';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
@@ -213,22 +213,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     
     setIsGenerating(true);
     try {
-      const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        alert('Please set GEMINI_API_KEY environment variable');
-        setIsGenerating(false);
-        return;
-      }
-      
-      const ai = new GoogleGenAI({ apiKey });
       const finalPrompt = aiPrompt + "\n\nIMPORTANT: You MUST format your response entirely in HTML. Use <p> for paragraphs, <h2> and <h3> for headings, <strong> for bold text, and <ul>/<li> for lists. Do NOT use Markdown. Do NOT wrap the response in ```html code blocks, just return the raw HTML.";
       
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: finalPrompt,
-      });
+      const text = await generateAIContent(finalPrompt);
       
-      let newText = response.text || '';
+      let newText = text || '';
       // Remove markdown code blocks if AI still adds them
       newText = newText.replace(/^```html\s*/i, '').replace(/\s*```$/i, '');
       
@@ -283,14 +272,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     
     setIsGeneratingSlug(true);
     try {
-      const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        alert('Please set GEMINI_API_KEY environment variable');
-        setIsGeneratingSlug(false);
-        return;
-      }
-      
-      const ai = new GoogleGenAI({ apiKey });
       const prompt = `Generate 3 short, SEO-friendly URL slugs for the following article.
       Title: "${currentArticle.title}"
       Content: "${currentArticle.content?.substring(0, 1000) || ''}"
@@ -299,12 +280,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       The slugs should be in English (translate if necessary), lowercase, and use hyphens for spaces. 
       Example: ["slug-option-1", "slug-option-2", "slug-option-3"]`;
       
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-      });
+      const text = await generateAIContent(prompt);
       
-      const text = response.text || '';
       const jsonMatch = text.match(/\[.*\]/s);
       let options: string[] = [];
       
@@ -343,14 +320,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     
     setIsGeneratingSEO(true);
     try {
-      const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        alert('Please set GEMINI_API_KEY environment variable');
-        setIsGeneratingSEO(false);
-        return;
-      }
-      
-      const ai = new GoogleGenAI({ apiKey });
       const prompt = `Generate SEO tags for an article. 
       Title: "${currentArticle.title || seoTopic}"
       Primary Keyword: "${seoPrimaryKeyword}"
@@ -360,12 +329,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       The language should be Thai.
       Example: {"metaTitle": "Title here", "metaDescription": "Description here"}`;
       
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-      });
+      const text = await generateAIContent(prompt);
       
-      const text = response.text || '';
       const jsonMatch = text.match(/\{.*\}/s);
       
       if (jsonMatch) {
@@ -400,14 +365,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     
     setIsGeneratingExcerpt(true);
     try {
-      const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        alert('Please set GEMINI_API_KEY environment variable');
-        setIsGeneratingExcerpt(false);
-        return;
-      }
-      
-      const ai = new GoogleGenAI({ apiKey });
       const prompt = `Generate 3 short, engaging excerpts (คำโปรย) in Thai for the following article.
       Title: "${currentArticle.title}"
       Content: "${currentArticle.content?.substring(0, 1500) || ''}"
@@ -416,12 +373,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       Return ONLY a JSON array of strings.
       Example: ["Excerpt 1", "Excerpt 2", "Excerpt 3"]`;
       
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-      });
+      const text = await generateAIContent(prompt);
       
-      const text = response.text || '';
       const jsonMatch = text.match(/\[.*\]/s);
       
       if (jsonMatch) {
@@ -456,14 +409,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     
     setIsGeneratingKeywords(true);
     try {
-      const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        alert('Please set GEMINI_API_KEY environment variable');
-        setIsGeneratingKeywords(false);
-        return;
-      }
-      
-      const ai = new GoogleGenAI({ apiKey });
       const prompt = `Generate SEO keywords in Thai for the following article.
       Title: "${currentArticle.title}"
       Content: "${currentArticle.content?.substring(0, 1500) || ''}"
@@ -471,12 +416,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       Return ONLY a comma-separated list of 5-8 relevant keywords.
       Example: คีย์เวิร์ด1, คีย์เวิร์ด2, คีย์เวิร์ด3`;
       
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-      });
+      const text = await generateAIContent(prompt);
       
-      const text = response.text || '';
       const keywords = text.replace(/^[-\d.\s*"'\[\]]+/, '').replace(/["',\]]+$/, '').trim();
       
       if (keywords) {
