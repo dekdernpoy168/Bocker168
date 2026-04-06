@@ -442,7 +442,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center px-4 relative z-50">
+      <div className="min-h-screen bg-black flex items-center justify-center px-4 relative z-[60]">
         {onClose && (
           <button 
             onClick={onClose}
@@ -503,7 +503,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-black min-h-screen text-white relative z-50">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-black min-h-screen text-white relative z-[60]">
       {onClose && (
         <button 
           onClick={onClose}

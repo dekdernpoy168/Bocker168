@@ -904,7 +904,7 @@ function Bocker168Landing() {
         </div>
       </header>
 
-      <main className={!isHome ? "pt-32 lg:pt-24" : ""}>
+      <main className={!isHome ? "pt-56 lg:pt-24" : ""}>
       
       {/* --- Article Detail Section --- */}
       {isArticleDetail && (
@@ -1109,7 +1109,7 @@ function Bocker168Landing() {
       {/* --- Hero Section --- */}
       {isHome && (
         <>
-          <section id="home" className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+          <section id="home" className="relative pt-56 pb-20 md:pt-48 md:pb-32 overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto items-center">
             <motion.div
