@@ -1,16 +1,30 @@
 import { drizzle } from 'drizzle-orm/d1';
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
-import { sql } from 'drizzle-orm';
+import { sql, eq, desc } from 'drizzle-orm';
 
-// 1) Define the users table
-const users = sqliteTable('users', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  name: text('name').notNull(),
+// 1) Define the articles table
+const articles = sqliteTable('articles', {
+  id: text('id').primaryKey(),
+  title: text('title').notNull(),
+  slug: text('slug').notNull().unique(),
+  content: text('content').notNull(),
+  excerpt: text('excerpt'),
+  category: text('category'),
+  image: text('image'),
+  status: text('status'), // 'published', 'draft', 'scheduled'
+  author: text('author'),
+  date: text('date'),
+  metaTitle: text('metaTitle'),
+  metaDescription: text('metaDescription'),
+  metaKeywords: text('metaKeywords'),
+  createdAt: text('createdAt').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text('updatedAt').default(sql`CURRENT_TIMESTAMP`),
 });
 
 // 2) Describe your Env interface
 export interface Env {
   DB: D1Database;
+  ASSETS: { fetch: (request: Request) => Promise<Response> };
 }
 
 export default {
@@ -18,31 +32,90 @@ export default {
     const db = drizzle(env.DB);
     const url = new URL(request.url);
 
-    // Route to create the users table if it doesn't exist
-    if (url.pathname === '/setup') {
-      await db.run(sql`
-        CREATE TABLE IF NOT EXISTS users (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL
-        )
-      `);
-      return new Response('Table created or already exists!');
-    }
+    // API Routes
+    if (url.pathname.startsWith('/api/')) {
+      // Route to get all articles
+      if (url.pathname === '/api/articles' && request.method === 'GET') {
+        try {
+          const allArticles = await db.select().from(articles).orderBy(desc(articles.date)).all();
+          return Response.json(allArticles);
+        } catch (error: any) {
+          if (error.message.includes('no such table')) {
+             return Response.json([]);
+          }
+          return new Response(error.message, { status: 500 });
+        }
+      }
 
-    // Route to add a test user
-    if (url.pathname === '/add') {
-      const newUser = await db.insert(users)
-        .values({ name: 'Test User' })
-        .returning()
-        .get();
+      // Route to add/update an article
+      if (url.pathname === '/api/articles' && request.method === 'POST') {
+        try {
+          const article = await request.json() as any;
+          
+          // Try to insert, if conflict (id exists), update
+          // D1's ON CONFLICT is supported via db.run or raw sql
+          await db.run(sql`
+            INSERT INTO articles (id, title, slug, content, excerpt, category, image, status, author, date, metaTitle, metaDescription, metaKeywords)
+            VALUES (${article.id}, ${article.title}, ${article.slug}, ${article.content}, ${article.excerpt}, ${article.category}, ${article.image}, ${article.status}, ${article.author}, ${article.date}, ${article.metaTitle}, ${article.metaDescription}, ${article.metaKeywords})
+            ON CONFLICT(id) DO UPDATE SET
+              title = excluded.title,
+              slug = excluded.slug,
+              content = excluded.content,
+              excerpt = excluded.excerpt,
+              category = excluded.category,
+              image = excluded.image,
+              status = excluded.status,
+              author = excluded.author,
+              date = excluded.date,
+              metaTitle = excluded.metaTitle,
+              metaDescription = excluded.metaDescription,
+              metaKeywords = excluded.metaKeywords
+          `);
+          
+          return Response.json({ success: true });
+        } catch (error: any) {
+          return new Response(error.message, { status: 500 });
+        }
+      }
 
-      return Response.json(newUser);
-    }
+      // Route to delete an article
+      if (url.pathname.startsWith('/api/articles/') && request.method === 'DELETE') {
+        const id = url.pathname.split('/').pop();
+        if (id) {
+          await db.delete(articles).where(eq(articles.id, id)).run();
+          return Response.json({ success: true });
+        }
+        return new Response('ID missing', { status: 400 });
+      }
 
-    // Route to get all users
-    if (url.pathname === '/users') {
-      const allUsers = await db.select().from(users).all();
-      return Response.json(allUsers);
+      // Route to check config status
+      if (url.pathname === '/api/config-status') {
+        return Response.json({ d1Configured: true, fallbackMode: false });
+      }
+
+      // Route to initialize the database
+      if (url.pathname === '/api/init-db' && request.method === 'POST') {
+        await db.run(sql`
+          CREATE TABLE IF NOT EXISTS articles (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            slug TEXT UNIQUE NOT NULL,
+            content TEXT NOT NULL,
+            excerpt TEXT,
+            category TEXT,
+            image TEXT,
+            status TEXT,
+            author TEXT,
+            date TEXT,
+            metaTitle TEXT,
+            metaDescription TEXT,
+            metaKeywords TEXT,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+          )
+        `);
+        return Response.json({ success: true, message: 'Database initialized successfully' });
+      }
     }
 
     // Route to handle IndexNow requests
@@ -79,7 +152,15 @@ export default {
       }
     }
 
-    // Default route
-    return new Response('D1 Connected!');
+    // Serve static assets
+    let response = await env.ASSETS.fetch(request);
+
+    // If asset not found and it's a navigation request (no extension), serve index.html for SPA
+    if (response.status === 404 && !url.pathname.includes('.')) {
+      const indexRequest = new Request(new URL('/index.html', url.origin), request);
+      response = await env.ASSETS.fetch(indexRequest);
+    }
+
+    return response;
   },
 };

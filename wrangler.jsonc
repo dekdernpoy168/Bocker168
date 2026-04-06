@@ -3,7 +3,6 @@
   "name": "bocker168",
   "main": "src/index.ts",
   "compatibility_date": "2026-03-30",
-  "pages_build_output_dir": "dist",
   "assets": {
     "directory": "dist"
   },
@@ -15,12 +14,6 @@
       "binding": "DB",
       "database_name": "bmg-database",
       "database_id": "b0a09208-964d-4309-b52f-591fcfc3e8c9"
-    }
-  ],
-  "analytics_engine_datasets": [
-    {
-      "binding": "Bocker168",
-      "dataset": "Bocker168"
     }
   ]
 }
