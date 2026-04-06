@@ -71,7 +71,7 @@ async function startServer() {
         }),
       });
 
-      const data = await response.json();
+      const data: any = await response.json();
       if (!data.success) {
         const errorMsg = data.errors?.[0]?.message || JSON.stringify(data.errors);
         if (errorMsg.includes('Authentication error')) {

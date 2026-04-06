@@ -1,5 +1,19 @@
 export async function onRequestGet(context: any) {
   const { env } = context;
+  
+  // Write to Analytics Engine if binding exists
+  if (env.Bocker168) {
+    try {
+      env.Bocker168.writeDataPoint({
+        blobs: ['view', 'articles'],
+        doubles: [1],
+        indexes: ['article_list']
+      });
+    } catch (e) {
+      console.error('Analytics error:', e);
+    }
+  }
+
   const accountId = env.CLOUDFLARE_ACCOUNT_ID;
   const databaseId = env.CLOUDFLARE_D1_DATABASE_ID;
   const apiToken = env.CLOUDFLARE_API_TOKEN;
@@ -25,7 +39,7 @@ export async function onRequestGet(context: any) {
       }),
     });
 
-    const data = await response.json();
+    const data: any = await response.json();
     if (!data.success) {
       const errorMsg = data.errors?.[0]?.message || JSON.stringify(data.errors);
       if (errorMsg.includes('no such table: articles')) {
@@ -48,6 +62,19 @@ export async function onRequestPost(context: any) {
   const { request, env } = context;
   const article = await request.json();
   
+  // Write to Analytics Engine if binding exists
+  if (env.Bocker168) {
+    try {
+      env.Bocker168.writeDataPoint({
+        blobs: ['create', article.category || 'uncategorized'],
+        doubles: [1],
+        indexes: [article.id || 'new_article']
+      });
+    } catch (e) {
+      console.error('Analytics error:', e);
+    }
+  }
+
   const accountId = env.CLOUDFLARE_ACCOUNT_ID;
   const databaseId = env.CLOUDFLARE_D1_DATABASE_ID;
   const apiToken = env.CLOUDFLARE_API_TOKEN;
@@ -91,7 +118,7 @@ export async function onRequestPost(context: any) {
       body: JSON.stringify({ sql, params }),
     });
 
-    const data = await response.json();
+    const data: any = await response.json();
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json' }
     });

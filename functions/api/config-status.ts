@@ -1,5 +1,19 @@
 export async function onRequestGet(context: any) {
   const { env } = context;
+  
+  // Write to Analytics Engine if binding exists
+  if (env.Bocker168) {
+    try {
+      env.Bocker168.writeDataPoint({
+        blobs: ['check', 'config'],
+        doubles: [1],
+        indexes: ['config_status']
+      });
+    } catch (e) {
+      console.error('Analytics error:', e);
+    }
+  }
+
   const accountId = env.CLOUDFLARE_ACCOUNT_ID;
   const databaseId = env.CLOUDFLARE_D1_DATABASE_ID;
   const apiToken = env.CLOUDFLARE_API_TOKEN;

@@ -41,7 +41,7 @@ export default function AIPromptModal({ isOpen, onClose, onExecute }: AIPromptMo
       });
       
       if (response.ok) {
-        const data = await response.json();
+        const data: any = await response.json();
         if (data && data.data && data.data.length > 0) {
           const kwData = data.data[0];
           // For demonstration, we just show an alert with the volume.

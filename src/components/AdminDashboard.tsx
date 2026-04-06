@@ -61,7 +61,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     try {
       const response = await fetch('/api/config-status');
       if (response.ok) {
-        const data = await response.json();
+        const data: any = await response.json();
         setDbConfig(data);
       }
     } catch (error) {
@@ -74,7 +74,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     try {
       const response = await fetch(`/api/articles?t=${Date.now()}`);
       if (response.ok) {
-        const data = await response.json();
+        const data: any = await response.json();
         setArticles(data);
       } else {
         const errorText = await response.text();
@@ -91,7 +91,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     if (!window.confirm('ต้องการสร้างตารางใน D1 Database ใช่หรือไม่?')) return;
     try {
       const response = await fetch('/api/init-db', { method: 'POST' });
-      const data = await response.json();
+      const data: any = await response.json();
       if (data.success) {
         alert('สร้างตารางสำเร็จ!');
       } else {
@@ -181,7 +181,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       } else {
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
-          const err = await response.json();
+          const err: any = await response.json();
           alert('บันทึกไม่สำเร็จ: ' + (err.error || 'Unknown error'));
         } else {
           const text = await response.text();
