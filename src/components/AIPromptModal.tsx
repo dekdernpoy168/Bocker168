@@ -37,32 +37,18 @@ export default function AIPromptModal({ isOpen, onClose, onExecute, initialTopic
     if (!query) return;
     setIsFetchingKeywords(true);
     try {
-      const response = await fetch('https://api.keywordseverywhere.com/v1/get_keyword_data', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer 2826fafad184ca3fa476',
-          'Accept': 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `kw[]=${encodeURIComponent(query)}`
-      });
+      const prompt = `Suggest 1 best SEO primary keyword for the topic "${query}" in Thai language. Return ONLY the keyword text, nothing else. Do not include quotes or punctuation.`;
+      const text = await generateAIContent(prompt);
+      const keyword = text.replace(/["']/g, '').trim();
       
-      if (response.ok) {
-        const data: any = await response.json();
-        if (data && data.data && data.data.length > 0) {
-          const kwData = data.data[0];
-          // For demonstration, we just show an alert with the volume.
-          // In a real app, you might fetch related keywords instead of just volume.
-          alert(`Keyword: ${kwData.keyword}\nVolume: ${kwData.vol}\nCPC: ${kwData.cpc}\nCompetition: ${kwData.competition}`);
-        } else {
-          alert('No data found for this keyword.');
-        }
+      if (keyword) {
+        setPrimaryKeyword(keyword);
       } else {
-        alert('Failed to fetch keywords from API.');
+        alert('ไม่สามารถวิเคราะห์คีย์เวิร์ดได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (error) {
       console.error('Error fetching keywords:', error);
-      alert('Error fetching keywords. Check console.');
+      alert('เกิดข้อผิดพลาดในการสร้างคีย์เวิร์ด กรุณาตรวจสอบการตั้งค่า API');
     } finally {
       setIsFetchingKeywords(false);
     }
