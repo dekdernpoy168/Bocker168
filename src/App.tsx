@@ -53,11 +53,10 @@ import { Article } from './types';
 
 const MENU_ITEMS = [
   { label: 'หน้าแรก', path: '/' },
-  { label: 'จุดเด่น', path: '/features' },
   { label: 'บาคาร่าออนไลน์', path: '/baccarat' },
+  { label: 'จุดเด่น', path: '/features' },
   { label: 'โปรโมชั่น', path: '/promotions' },
   { label: 'บทความ', path: '/articles' },
-  { label: 'คำถามที่พบบ่อย', path: '/faq' },
   { label: 'ติดต่อเรา', path: '/contact' },
   { label: 'วิธีสมัครสมาชิก', path: '/register-guide' },
   { label: 'วิธีฝาก-ถอน', path: '/deposit-withdraw-guide' },
@@ -890,13 +889,13 @@ function Bocker168Landing() {
             </div>
           </div>
 
-          {/* Mobile/Tablet Nav - Always visible, scrollable horizontally */}
-          <nav className="lg:hidden flex items-center gap-5 overflow-x-auto no-scrollbar py-2 border-t border-zinc-800/50 mt-2">
+          {/* Mobile/Tablet Nav - Button Grid */}
+          <nav className="lg:hidden grid grid-cols-4 gap-2 py-3 border-t border-zinc-800/50 mt-3">
             {MENU_ITEMS.map((item) => (
               <Link 
                 key={item.label} 
                 to={item.path}
-                className="text-[12px] font-bold text-zinc-400 hover:text-white transition-colors whitespace-nowrap shrink-0"
+                className="flex items-center justify-center text-center px-1 py-2 bg-zinc-900/50 border border-zinc-800 rounded-lg text-[10px] font-bold text-zinc-400 hover:text-white hover:border-red-600 transition-all"
               >
                 {item.label}
               </Link>
@@ -1733,183 +1732,65 @@ function Bocker168Landing() {
       </main>
 
       {/* --- Footer --- */}
-      <footer id="footer" className="bg-[#050505] pt-24 pb-12 relative z-10 overflow-hidden">
+      <footer id="footer" className="bg-[#050505] pt-20 pb-10 relative z-10 overflow-hidden">
         {/* Metallic Gold Border Top */}
         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
         
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-20">
-            <div className="space-y-8 lg:col-span-4">
-              <Link to="/" className="flex items-center gap-3 group">
-                <img 
-                  src="https://img2.pic.in.th/A2-Logo-Bocker-168.png" 
-                  alt="Bocker168 Logo" 
-                  className="h-24 md:h-32 w-auto group-hover:scale-105 transition-transform"
-                  referrerPolicy="no-referrer"
-                />
-              </Link>
-              <p className="text-zinc-400 text-sm leading-relaxed font-medium">
-                เว็บตรงบาคาร่าออนไลน์อันดับ 1 มั่นคง ปลอดภัย ให้บริการคาสิโนสดจากค่ายชั้นนำระดับโลก พร้อมระบบฝากถอนออโต้ 24 ชั่วโมง
-              </p>
+          <div className="flex flex-col items-center text-center mb-12">
+            <Link to="/" className="mb-8 block group">
+              <img 
+                src="https://img2.pic.in.th/A2-Logo-Bocker-168.png" 
+                alt="Bocker168 Logo" 
+                className="h-20 md:h-24 w-auto group-hover:scale-105 transition-transform"
+                referrerPolicy="no-referrer"
+              />
+            </Link>
+            
+            <p className="text-zinc-400 text-sm max-w-2xl mx-auto leading-relaxed mb-10">
+              Bocker168 เว็บตรงบาคาร่าออนไลน์อันดับ 1 มั่นคง ปลอดภัย ให้บริการคาสิโนสดจากค่ายชั้นนำระดับโลก พร้อมระบบฝากถอนออโต้ 24 ชั่วโมง
+            </p>
 
-              <div className="flex flex-wrap gap-3">
-                {[
-                  'บาคาร่าออนไลน์', 'บาคาร่าเว็บตรง', 'สมัครบาคาร่า', 'บาคาร่าทรูวอเลท', 
-                  'สูตรบาคาร่า', 'ทดลองเล่นบาคาร่า', 'เว็บบาคาร่าอันดับ1', 'คาสิโนสด', 'SA Gaming', 'Sexy Baccarat'
-                ].map((tag) => (
-                  <span key={tag} className="px-4 py-2 bg-zinc-900/50 text-zinc-400 text-xs font-bold rounded-xl border border-zinc-800 hover:border-red-600/50 hover:text-white transition-all cursor-default">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Mobile/Tablet Navigation Buttons */}
-            <div className="lg:hidden col-span-full">
-              <div className="flex flex-wrap justify-center gap-3">
-                {[
-                  { label: 'หน้าแรก', path: '/' },
-                  { label: 'จุดเด่น', path: '/features' },
-                  { label: 'บาคาร่าออนไลน์', path: '/baccarat' },
-                  { label: 'โปรโมชั่น', path: '/promotions' },
-                  { label: 'บทความ', path: '/articles' },
-                  { label: 'คำถามที่พบบ่อย', path: '/faq' },
-                  { label: 'ติดต่อเรา', path: '/contact' },
-                  { label: 'วิธีสมัครสมาชิก', path: '/register-guide' },
-                  { label: 'วิธีฝาก-ถอน', path: '/deposit-withdraw-guide' },
-                  { label: 'ข้อตกลงและเงื่อนไข', path: '/terms' },
-                  { label: 'นโยบายความเป็นส่วนตัว', path: '/privacy' },
-                  { label: 'นโยบายคุกกี้', path: '/cookies' },
-                  { label: 'ความรับผิดชอบต่อสังคม', path: '/responsible-gambling' },
-                ].map((item) => (
-                  <Link 
-                    key={item.label}
-                    to={item.path}
-                    className="px-4 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-xl text-zinc-400 text-xs font-bold hover:text-white hover:border-red-600/50 transition-all"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div className="hidden lg:block lg:col-span-2">
-              <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">เกี่ยวกับเรา</h4>
-              <ul className="space-y-5">
-                {[
-                  { label: 'หน้าแรก', path: '/' },
-                  { label: 'จุดเด่น', path: '/features' },
-                  { label: 'บาคาร่าออนไลน์', path: '/baccarat' },
-                  { label: 'โปรโมชั่น', path: '/promotions' },
-                  { label: 'บทความ', path: '/articles' },
-                ].map((item) => (
-                  <li key={item.label}>
-                    <Link 
-                      to={item.path} 
-                      className="text-zinc-500 hover:text-red-500 transition-all text-sm font-semibold flex items-center gap-2 group"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="hidden lg:block lg:col-span-2">
-              <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">ช่วยเหลือ</h4>
-              <ul className="space-y-5">
-                {[
-                  { label: 'คำถามที่พบบ่อย', path: '/faq' },
-                  { label: 'ติดต่อเรา', path: '/contact' },
-                  { label: 'วิธีสมัครสมาชิก', path: '/register-guide' },
-                  { label: 'วิธีฝาก-ถอน', path: '/deposit-withdraw-guide' },
-                ].map((item) => (
-                  <li key={item.label}>
-                    <Link 
-                      to={item.path} 
-                      className="text-zinc-500 hover:text-red-500 transition-all text-sm font-semibold flex items-center gap-2 group"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="hidden lg:block lg:col-span-2">
-              <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">ข้อกำหนด</h4>
-              <ul className="space-y-5">
-                {[
-                  { label: 'ข้อตกลงและเงื่อนไข', path: '/terms' },
-                  { label: 'นโยบายความเป็นส่วนตัว', path: '/privacy' },
-                  { label: 'นโยบายคุกกี้', path: '/cookies' },
-                  { label: 'ความรับผิดชอบต่อสังคม', path: '/responsible-gambling' },
-                ].map((item) => (
-                  <li key={item.label}>
-                    <Link 
-                      to={item.path} 
-                      className="text-zinc-500 hover:text-red-500 transition-all text-sm font-semibold flex items-center gap-2 group"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="hidden lg:block lg:col-span-2">
-              <h4 className="text-white font-black text-lg mb-8 tracking-tight uppercase">ติดต่อเรา</h4>
-              <ul className="space-y-6">
-                <li 
-                  onClick={() => window.open('https://line.me/R/ti/p/@so168', '_blank')}
-                  className="flex items-center gap-4 text-zinc-400 text-sm font-medium group cursor-pointer"
+            <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 mb-10">
+              {[
+                { label: 'คำถามที่พบบ่อย', path: '/faq' },
+                { label: 'ข้อตกลงและเงื่อนไข', path: '/terms' },
+                { label: 'นโยบายความเป็นส่วนตัว', path: '/privacy' },
+                { label: 'นโยบายคุกกี้', path: '/cookies' },
+                { label: 'ความรับผิดชอบต่อสังคม', path: '/responsible-gambling' },
+              ].map((item) => (
+                <Link 
+                  key={item.label} 
+                  to={item.path} 
+                  className="text-zinc-500 hover:text-red-500 transition-all text-sm font-bold uppercase tracking-wider"
                 >
-                  <div className="w-10 h-10 bg-red-600/10 rounded-xl flex items-center justify-center text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all">
-                    <MessageCircle className="w-5 h-5" />
-                  </div>
-                  <span>Line: @so168</span>
-                </li>
-                <li className="flex items-center gap-4 text-zinc-400 text-sm font-medium group cursor-pointer">
-                  <div className="w-10 h-10 bg-red-600/10 rounded-xl flex items-center justify-center text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all">
-                    <Send className="w-5 h-5" />
-                  </div>
-                  <span>Telegram: @bocker168</span>
-                </li>
-                <li className="flex items-center gap-4 text-zinc-400 text-sm font-medium group cursor-pointer">
-                  <div className="w-10 h-10 bg-red-600/10 rounded-xl flex items-center justify-center text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <span>Email: support@bocker168.com</span>
-                </li>
-              </ul>
+                  {item.label}
+                </Link>
+              ))}
             </div>
-          </div>
 
-          <div className="pt-12 border-t border-zinc-900/50">
-            <div className="flex flex-wrap justify-center gap-6 mb-12">
+            <div className="flex flex-wrap justify-center gap-4 mb-10">
               {[
                 { icon: ShieldCheck, label: 'Licensed & Certified' },
                 { icon: CreditCard, label: 'Secure Payments' },
                 { icon: Zap, label: 'Fast Auto-Deposit' },
                 { icon: Headset, label: '24/7 Support' },
               ].map((badge) => (
-                <div key={badge.label} className="flex items-center gap-3 bg-zinc-900/50 px-6 py-3 rounded-2xl border border-zinc-800">
-                  <badge.icon className="w-6 h-6 text-red-500" />
-                  <span className="text-white font-bold text-sm">{badge.label}</span>
+                <div key={badge.label} className="flex items-center gap-2 bg-zinc-900/30 px-4 py-2 rounded-xl border border-zinc-800/50">
+                  <badge.icon className="w-4 h-4 text-red-500" />
+                  <span className="text-zinc-300 font-bold text-[10px] uppercase tracking-tight">{badge.label}</span>
                 </div>
               ))}
             </div>
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-              <p className="text-zinc-600 text-xs font-bold tracking-widest uppercase">
-                © 2026 Bocker168. All rights reserved.
-              </p>
-              <div className="flex items-center gap-3 text-zinc-500 text-xs bg-zinc-900/30 px-6 py-3 rounded-2xl border border-zinc-800/50 backdrop-blur-sm">
-                <ShieldCheck className="w-5 h-5 text-amber-500" />
-                <span className="font-bold">สำหรับผู้มีอายุ 18 ปีขึ้นไป กรุณาใช้งานอย่างมีความรับผิดชอบ</span>
-              </div>
+          </div>
+
+          <div className="pt-8 border-t border-zinc-900/50 flex flex-col md:flex-row items-center justify-between gap-6">
+            <p className="text-zinc-600 text-[10px] font-bold tracking-widest uppercase">
+              © 2026 Bocker168. All rights reserved.
+            </p>
+            <div className="flex items-center gap-3 text-zinc-500 text-[10px] bg-zinc-900/30 px-5 py-2 rounded-full border border-zinc-800/50">
+              <ShieldCheck className="w-4 h-4 text-amber-500" />
+              <span className="font-bold">สำหรับผู้มีอายุ 18 ปีขึ้นไป กรุณาใช้งานอย่างมีความรับผิดชอบ</span>
             </div>
           </div>
         </div>
