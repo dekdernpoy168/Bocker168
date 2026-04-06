@@ -929,12 +929,12 @@ function Bocker168Landing() {
                       </div>
                     </div>
                     
-                    <h1 className="text-3xl md:text-4xl font-black text-white mb-8 leading-tight">
+                    <h1 className="text-3xl md:text-4xl font-black text-red-500 mb-8 leading-tight">
                       {currentArticle.title}
                     </h1>
                     
                     <div 
-                      className="max-w-none [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-white [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-white [&>h3]:mt-6 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-white [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
+                      className="max-w-none [&>h1]:text-red-500 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-red-500 [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-red-500 [&>h3]:mt-6 [&>h4]:text-lg [&>h4]:font-bold [&>h4]:text-red-500 [&>h4]:mt-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-amber-500 [&>b]:text-amber-500 [&>a]:text-sky-400 hover:[&>a]:text-sky-300 [&>a]:underline transition-colors [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
                       dangerouslySetInnerHTML={{ __html: currentArticle.content || (currentArticle as any).description }}
                     />
                   </div>
@@ -960,21 +960,21 @@ function Bocker168Landing() {
                 <div className="flex gap-6 items-start">
                   <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-black text-xl shrink-0">1</div>
                   <div>
-                    <h3 className="text-white text-2xl font-bold mb-4">คลิกปุ่มสมัครสมาชิก</h3>
+                    <h3 className="text-red-500 text-2xl font-bold mb-4">คลิกปุ่มสมัครสมาชิก</h3>
                     <p>กดที่ปุ่ม "สมัครสมาชิก" บนหน้าเว็บไซต์ Bocker168 เพื่อเข้าสู่ระบบการสมัครอัตโนมัติ</p>
                   </div>
                 </div>
                 <div className="flex gap-6 items-start">
                   <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-black text-xl shrink-0">2</div>
                   <div>
-                    <h3 className="text-white text-2xl font-bold mb-4">กรอกข้อมูลส่วนตัว</h3>
+                    <h3 className="text-red-500 text-2xl font-bold mb-4">กรอกข้อมูลส่วนตัว</h3>
                     <p>ระบุเบอร์โทรศัพท์มือถือที่ใช้งานจริง และข้อมูลบัญชีธนาคาร (ชื่อ-นามสกุล ต้องตรงกับชื่อบัญชีธนาคารเพื่อความรวดเร็วในการฝาก-ถอน)</p>
                   </div>
                 </div>
                 <div className="flex gap-6 items-start">
                   <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-black text-xl shrink-0">3</div>
                   <div>
-                    <h3 className="text-white text-2xl font-bold mb-4">ยืนยันและรับยูสเซอร์</h3>
+                    <h3 className="text-red-500 text-2xl font-bold mb-4">ยืนยันและรับยูสเซอร์</h3>
                     <p>ตรวจสอบความถูกต้องของข้อมูลแล้วกดยืนยัน ระบบจะส่ง Username และ Password ให้คุณทันที สามารถเข้าเล่นได้เลย!</p>
                   </div>
                 </div>
@@ -1048,11 +1048,11 @@ function Bocker168Landing() {
               <SectionTitle title="นโยบายความเป็นส่วนตัว" centered={false} />
               <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
                 <p>Bocker168 ให้ความสำคัญกับความเป็นส่วนตัวของสมาชิกทุกท่าน ข้อมูลของคุณจะถูกเก็บรักษาเป็นความลับสูงสุด:</p>
-                <h3 className="text-white text-xl font-bold mt-8 mb-4">1. การเก็บรวบรวมข้อมูล</h3>
+                <h3 className="text-red-500 text-xl font-bold mt-8 mb-4">1. การเก็บรวบรวมข้อมูล</h3>
                 <p>เราเก็บรวบรวมข้อมูลที่จำเป็นสำหรับการให้บริการ เช่น ชื่อ-นามสกุล, เบอร์โทรศัพท์, และข้อมูลบัญชีธนาคาร เพื่อใช้ในการทำรายการฝาก-ถอน</p>
-                <h3 className="text-white text-xl font-bold mt-8 mb-4">2. การใช้งานข้อมูล</h3>
+                <h3 className="text-red-500 text-xl font-bold mt-8 mb-4">2. การใช้งานข้อมูล</h3>
                 <p>ข้อมูลของคุณจะถูกใช้เพื่อวัตถุประสงค์ในการให้บริการ ปรับปรุงประสบการณ์การใช้งาน และแจ้งข่าวสารโปรโมชั่นที่น่าสนใจเท่านั้น</p>
-                <h3 className="text-white text-xl font-bold mt-8 mb-4">3. การรักษาความปลอดภัย</h3>
+                <h3 className="text-red-500 text-xl font-bold mt-8 mb-4">3. การรักษาความปลอดภัย</h3>
                 <p>เราใช้ระบบเข้ารหัสข้อมูลขั้นสูง (SSL) เพื่อป้องกันการเข้าถึงข้อมูลโดยไม่ได้รับอนุญาต คุณจึงมั่นใจได้ว่าข้อมูลของคุณจะปลอดภัย 100%</p>
               </div>
             </div>
@@ -1068,9 +1068,9 @@ function Bocker168Landing() {
               <SectionTitle title="นโยบายคุกกี้" centered={false} />
               <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
                 <p>เว็บไซต์ของเรามีการใช้งานคุกกี้ (Cookies) เพื่อเพิ่มประสิทธิภาพในการใช้งานและมอบประสบการณ์ที่ดีที่สุดให้กับคุณ:</p>
-                <h3 className="text-white text-xl font-bold mt-8 mb-4">คุกกี้คืออะไร?</h3>
+                <h3 className="text-red-500 text-xl font-bold mt-8 mb-4">คุกกี้คืออะไร?</h3>
                 <p>คุกกี้คือไฟล์ขนาดเล็กที่ถูกเก็บไว้ในอุปกรณ์ของคุณเมื่อคุณเข้าชมเว็บไซต์ ช่วยให้เราจดจำการตั้งค่าและพฤติกรรมการใช้งานของคุณได้</p>
-                <h3 className="text-white text-xl font-bold mt-8 mb-4">เราใช้คุกกี้อย่างไร?</h3>
+                <h3 className="text-red-500 text-xl font-bold mt-8 mb-4">เราใช้คุกกี้อย่างไร?</h3>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>คุกกี้ที่จำเป็น: เพื่อให้เว็บไซต์ทำงานได้อย่างถูกต้อง</li>
                   <li>คุกกี้เพื่อการวิเคราะห์: เพื่อทำความเข้าใจว่าผู้ใช้งานเข้าถึงส่วนใดของเว็บมากที่สุด</li>
@@ -1090,7 +1090,7 @@ function Bocker168Landing() {
               <SectionTitle title="ความรับผิดชอบต่อสังคม" centered={false} />
               <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
                 <p>Bocker168 สนับสนุนการเล่นพนันอย่างมีความรับผิดชอบ เพื่อให้การเดิมพันเป็นเพียงกิจกรรมสันทนาการที่สนุกสนาน:</p>
-                <h3 className="text-white text-xl font-bold mt-8 mb-4">คำแนะนำในการเล่นอย่างมีความรับผิดชอบ</h3>
+                <h3 className="text-red-500 text-xl font-bold mt-8 mb-4">คำแนะนำในการเล่นอย่างมีความรับผิดชอบ</h3>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>เล่นเพื่อความสนุกสนาน ไม่ใช่เพื่อหารายได้หลัก</li>
                   <li>กำหนดงบประมาณที่สามารถเสียได้และไม่เดือดร้อนต่อตนเองและครอบครัว</li>
