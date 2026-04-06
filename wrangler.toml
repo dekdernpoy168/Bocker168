@@ -1,8 +1,0 @@
-name       = "bocker168"
-main       = "src/db/worker.ts"
-compatibility_date = "2024-01-01"
-
-[[d1_databases]]
-binding      = "DB"
-database_name = "bmg-database"
-database_id   = "b0a09208-964d-4309-b52f-591fcfc3e8c9"
