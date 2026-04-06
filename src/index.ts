@@ -155,15 +155,15 @@ export default {
         }
       }
 
+      // SPA Fallback: If asset not found (404) and it's likely a navigation request
+      // (doesn't look like a file with an extension), serve index.html
+      const isNavRequest = !url.pathname.split('/').pop()?.includes('.');
+      
       // Serve static assets
       if (env.ASSETS) {
         try {
           let response = await env.ASSETS.fetch(request);
 
-          // SPA Fallback: If asset not found (404) and it's likely a navigation request
-          // (doesn't look like a file with an extension), serve index.html
-          const isNavRequest = !url.pathname.split('/').pop()?.includes('.');
-          
           if (response.status === 404 && isNavRequest) {
             const indexUrl = new URL('/index.html', url.origin);
             const indexRequest = new Request(indexUrl, {
@@ -172,18 +172,20 @@ export default {
             });
             response = await env.ASSETS.fetch(indexRequest);
             
-            // If index.html is also not found, return a more helpful error
             if (response.status === 404) {
               return new Response(`SPA Fallback Error: index.html not found in assets. Path: ${url.pathname}`, { status: 404 });
             }
           }
           return response;
         } catch (assetError: any) {
-          return new Response(`Asset Fetch Error: ${assetError.message}\n${assetError.stack}`, { status: 500 });
+          // If ASSETS.fetch fails, it might be because the environment is not fully ready
+          // or the binding is not working as expected.
+          return new Response(`Asset Fetch Error: ${assetError.message}`, { status: 500 });
         }
       }
 
-      return new Response(`Worker running. Path: ${url.pathname}. Method: ${request.method}. env.ASSETS is ${env.ASSETS ? 'defined' : 'undefined'}.`, { status: 404 });
+      // If we reach here, it means env.ASSETS is missing or we couldn't serve the request
+      return new Response(`Worker running. Path: ${url.pathname}. Method: ${request.method}. env.ASSETS is ${env.ASSETS ? 'defined' : 'undefined'}. Please ensure your deployment is configured correctly for static assets.`, { status: 404 });
     } catch (globalError: any) {
       return new Response(`Global Worker Error: ${globalError.message}\n${globalError.stack}`, { status: 500 });
     }
