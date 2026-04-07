@@ -811,16 +811,15 @@ function Bocker168Landing() {
         <meta property="og:title" content={getPageTitle()} />
         <meta property="og:description" content={getPageDescription()} />
         <meta property="og:type" content={isArticleDetail ? "article" : "website"} />
-        <meta property="og:url" content={`https://bocker168.com${location.pathname}`} />
-        <link rel="canonical" href={`https://bocker168.com${location.pathname}`} />
+        <meta property="og:url" content={`https://hongkonglex.com${location.pathname}`} />
+        <link rel="canonical" href={`https://hongkonglex.com${location.pathname}`} />
         
-        {/* Schema.org JSON-LD Markup */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "OnlineCasino",
             "name": "Bocker168",
-            "url": "https://bocker168.com",
+            "url": "https://hongkonglex.com",
             "logo": "https://img2.pic.in.th/A2-Logo-Bocker-168.png",
             "description": "เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม",
             "currenciesAccepted": "THB",
@@ -875,7 +874,7 @@ function Bocker168Landing() {
               "author": {
                 "@type": "Person",
                 "name": currentArticle.author || "Admin Bocker168",
-                "url": "https://bocker168.com"
+                "url": "https://hongkonglex.com"
               },
               "publisher": {
                 "@type": "Organization",
@@ -889,7 +888,7 @@ function Bocker168Landing() {
               "dateModified": currentArticle.updatedAt || currentArticle.date || currentArticle.createdAt || new Date().toISOString(),
               "mainEntityOfPage": {
                 "@type": "WebPage",
-                "@id": `https://bocker168.com/article/${currentArticle.slug}`
+                "@id": `https://hongkonglex.com/article/${currentArticle.slug}`
               },
               "keywords": currentArticle.metaKeywords || "บาคาร่า, สูตรบาคาร่า"
             })}

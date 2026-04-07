@@ -6,7 +6,7 @@ import { ARTICLES } from '../src/data/articles';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// กำหนดโดเมนเนมของเว็บไซต์ (เปลี่ยนเป็นโดเมนจริงของคุณ)
+// กำหนดโดเมนเนมของเว็บไซต์
 const DOMAIN = 'https://hongkonglex.com';
 
 const today = new Date().toISOString().split('T')[0];
@@ -32,7 +32,7 @@ const routes = [
 ARTICLES.forEach(article => {
   routes.push({
     url: `/article/${article.slug}`,
-    lastmod: today, // Using today as fallback since date format in ARTICLES is Thai
+    lastmod: article.date || today,
     priority: '0.8'
   });
 });

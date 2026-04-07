@@ -155,6 +155,34 @@ export default {
         }
       }
 
+      // Route to handle sitemap.xml
+      if (url.pathname === '/sitemap.xml') {
+        const allArticles = await db.select().from(articles).where(eq(articles.status, 'published')).all();
+        
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${url.origin}/</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  ${allArticles.map(article => `
+  <url>
+    <loc>${url.origin}/article/${article.slug}</loc>
+    <lastmod>${article.updatedAt ? article.updatedAt.split(' ')[0] : new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('')}
+</urlset>`;
+
+        return new Response(xml, {
+          headers: {
+            'Content-Type': 'application/xml',
+          },
+        });
+      }
+
       // SPA Fallback: If asset not found (404) and it's likely a navigation request
       // (doesn't look like a file with an extension), serve index.html
       const isNavRequest = !url.pathname.split('/').pop()?.includes('.');
