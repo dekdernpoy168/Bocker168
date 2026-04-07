@@ -971,7 +971,7 @@ function Bocker168Landing() {
                           {/* CTR Buttons */}
                           {part1 && (
                             <div className="flex flex-col sm:flex-row gap-2 my-8 relative">
-                              <a href="https://inlnk.co/registerbocker168" target="_blank" className="flex-1 bg-[#00B900] hover:bg-[#009900] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-center text-sm md:text-base">
+                              <a href="https://line.me/R/ti/p/@so168" target="_blank" className="flex-1 bg-[#00B900] hover:bg-[#009900] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-center text-sm md:text-base">
                                 สมัครสมาชิกผ่าน LINE
                               </a>
                               <a href="https://inlnk.co/registerbocker168" target="_blank" className="flex-1 bg-[#E50914] hover:bg-[#B20710] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-center text-sm md:text-base">
@@ -999,7 +999,9 @@ function Bocker168Landing() {
                                     </button>
                                     <h3 className="text-lg font-bold text-center text-zinc-900 mb-4">สแกน QR Code</h3>
                                     <div className="bg-zinc-50 p-3 rounded-xl border border-zinc-100 mb-4">
-                                      <img src="https://img1.pic.in.th/images/QR-code-registerbocker168.png" alt="QR Code" className="w-full max-w-[200px] mx-auto h-auto rounded-lg" referrerPolicy="no-referrer" />
+                                      <a href="https://line.me/R/ti/p/@so168" target="_blank" className="block">
+                                        <img src="https://img1.pic.in.th/images/QR-code-registerbocker168.png" alt="QR Code" className="w-full max-w-[200px] mx-auto h-auto rounded-lg hover:opacity-90 transition-opacity" referrerPolicy="no-referrer" />
+                                      </a>
                                     </div>
                                     <p className="text-center text-zinc-500 text-xs font-medium mb-4">สแกนเพื่อสมัครสมาชิกและติดต่อเรา</p>
                                     <button 
