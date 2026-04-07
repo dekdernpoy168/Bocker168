@@ -815,50 +815,46 @@ function Bocker168Landing() {
         <link rel="canonical" href={`https://hongkonglex.com${location.pathname}`} />
         
         <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "OnlineCasino",
-            "name": "Bocker168",
-            "url": "https://hongkonglex.com",
-            "logo": "https://img2.pic.in.th/A2-Logo-Bocker-168.png",
-            "description": "เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม",
-            "currenciesAccepted": "THB",
-            "paymentAccepted": "Bank Transfer, TrueMoney Wallet",
-            "openingHours": "Mo-Su 00:00-24:00",
-            "address": {
-              "@type": "PostalAddress",
-              "addressCountry": "TH"
-            }
-          })}
-        </script>
-
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "CasinoGame",
-            "name": "บาคาร่าออนไลน์",
-            "description": "เกมบาคาร่าสดจากค่ายดัง SA Gaming, Sexy Baccarat, Dream Gaming พร้อมสูตรและเทคนิคการอ่านเค้าไพ่",
-            "gameCategory": "Card Game",
-            "publisher": {
-              "@type": "Organization",
-              "name": "Bocker168"
-            }
-          })}
-        </script>
-
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": FAQS.map(faq => ({
-              "@type": "Question",
-              "name": faq.question,
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": faq.answer
+          {JSON.stringify([
+            {
+              "@context": "https://schema.org",
+              "@type": "OnlineCasino",
+              "name": "Bocker168",
+              "url": "https://hongkonglex.com",
+              "logo": "https://img2.pic.in.th/A2-Logo-Bocker-168.png",
+              "description": "เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม",
+              "currenciesAccepted": "THB",
+              "paymentAccepted": "Bank Transfer, TrueMoney Wallet",
+              "openingHours": "Mo-Su 00:00-24:00",
+              "address": {
+                "@type": "PostalAddress",
+                "addressCountry": "TH"
               }
-            }))
-          })}
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "CasinoGame",
+              "name": "บาคาร่าออนไลน์",
+              "description": "เกมบาคาร่าสดจากค่ายดัง SA Gaming, Sexy Baccarat, Dream Gaming พร้อมสูตรและเทคนิคการอ่านเค้าไพ่",
+              "gameCategory": "Card Game",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Bocker168"
+              }
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": FAQS.map(faq => ({
+                "@type": "Question",
+                "name": faq.question,
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": faq.answer
+                }
+              }))
+            }
+          ])}
         </script>
 
         {isArticleDetail && currentArticle && (
