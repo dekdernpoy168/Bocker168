@@ -135,9 +135,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // รหัสผ่านจำลองสำหรับเข้าสู่ระบบ (Hardcoded)
-    if (username === 'admin' && password === 'Bankk2599++') {
+    if ((username === 'admin' && password === 'Bankk2599++') || (username === 'Bocker168' && password === 'adminbk168168+')) {
       setIsAuthenticated(true);
       setLoginError('');
+      // Optionally store the display name if needed, but the current logic seems to just set isAuthenticated
     } else {
       setLoginError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
     }
