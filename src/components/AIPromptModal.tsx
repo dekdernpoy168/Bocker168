@@ -209,20 +209,6 @@ export default function AIPromptModal({ isOpen, onClose, onExecute, initialTopic
                 </button>
               </div>
             </div>
-            
-            {/* CTR Buttons */}
-            <div className="flex gap-2 mt-4">
-              <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2">
-                Line
-              </button>
-              <button className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2">
-                สมัคร
-              </button>
-              <button className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2">
-                QR
-              </button>
-            </div>
-
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1">Total Words <Search size={10}/></label>
               <input type="number" value={totalWords} onChange={e => setTotalWords(Number(e.target.value))} className="w-full bg-[#333333] border border-zinc-600 rounded p-2.5 text-white text-sm focus:border-zinc-400 outline-none" />

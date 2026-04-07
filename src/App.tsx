@@ -37,7 +37,8 @@ import {
   Calendar,
   Flame,
   Activity,
-  Circle
+  Circle,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -681,6 +682,7 @@ function Bocker168Landing() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
   const [articleError, setArticleError] = useState<string | null>(null);
+  const [showArticleQR, setShowArticleQR] = useState(false);
 
   const fetchArticles = async () => {
     try {
@@ -761,6 +763,34 @@ function Bocker168Landing() {
   const getPageKeywords = () => {
     if (isArticleDetail && currentArticle && currentArticle.metaKeywords) return currentArticle.metaKeywords;
     return 'บาคาร่า, บาคาร่าออนไลน์, บาคาร่าเว็บตรง, สมัครบาคาร่า, คาสิโนสด, bocker168';
+  };
+
+  const splitArticleContent = (content: string) => {
+    if (!content) return ['', ''];
+    
+    // Try to find the first paragraph after the first H2 or H3
+    const headingMatch = content.match(/<\/(h2|h3)>\s*<p>.*?<\/p>/is);
+    if (headingMatch && headingMatch.index !== undefined) {
+      const splitIndex = headingMatch.index + headingMatch[0].length;
+      return [content.slice(0, splitIndex), content.slice(splitIndex)];
+    }
+
+    // Fallback: find the first paragraph that doesn't contain an image
+    const pMatches = Array.from(content.matchAll(/<p>.*?<\/p>/gis));
+    for (const match of pMatches) {
+      if (!match[0].includes('<img')) {
+        const splitIndex = match.index! + match[0].length;
+        return [content.slice(0, splitIndex), content.slice(splitIndex)];
+      }
+    }
+
+    // Ultimate fallback: just split after the first </p>
+    const firstP = content.indexOf('</p>');
+    if (firstP !== -1) {
+      return [content.slice(0, firstP + 4), content.slice(firstP + 4)];
+    }
+
+    return [content, ''];
   };
 
   if (showAdmin) {
@@ -927,10 +957,39 @@ function Bocker168Landing() {
                       {currentArticle.title}
                     </h1>
                     
-                    <div 
-                      className="max-w-none [&>h1]:text-red-500 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-red-500 [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-red-500 [&>h3]:mt-6 [&>h4]:text-lg [&>h4]:font-bold [&>h4]:text-red-500 [&>h4]:mt-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-amber-500 [&>b]:text-amber-500 [&>a]:text-sky-400 hover:[&>a]:text-sky-300 [&>a]:underline transition-colors [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
-                      dangerouslySetInnerHTML={{ __html: currentArticle.content || (currentArticle as any).description }}
-                    />
+                    {(() => {
+                      const content = currentArticle.content || (currentArticle as any).description || '';
+                      const [part1, part2] = splitArticleContent(content);
+                      
+                      return (
+                        <>
+                          <div 
+                            className="max-w-none [&>h1]:text-red-500 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-red-500 [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-red-500 [&>h3]:mt-6 [&>h4]:text-lg [&>h4]:font-bold [&>h4]:text-red-500 [&>h4]:mt-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-amber-500 [&>b]:text-amber-500 [&>a]:text-sky-400 hover:[&>a]:text-sky-300 [&>a]:underline transition-colors [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
+                            dangerouslySetInnerHTML={{ __html: part1 }}
+                          />
+                          
+                          {/* CTR Buttons */}
+                          {part1 && (
+                            <div className="flex flex-col sm:flex-row gap-2 my-8">
+                              <a href="https://inlnk.co/registerbocker168" target="_blank" className="flex-1 bg-[#00B900] hover:bg-[#009900] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-center text-sm md:text-base">
+                                สมัครสมาชิกผ่าน LINE
+                              </a>
+                              <a href="https://inlnk.co/registerbocker168" target="_blank" className="flex-1 bg-[#E50914] hover:bg-[#B20710] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-center text-sm md:text-base">
+                                สมัครสมาชิกระบบ AUTO
+                              </a>
+                              <button onClick={() => setShowArticleQR(true)} className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-center text-sm md:text-base">
+                                กดเพื่อสแกน QR
+                              </button>
+                            </div>
+                          )}
+
+                          <div 
+                            className="max-w-none [&>h1]:text-red-500 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-red-500 [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-red-500 [&>h3]:mt-6 [&>h4]:text-lg [&>h4]:font-bold [&>h4]:text-red-500 [&>h4]:mt-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-amber-500 [&>b]:text-amber-500 [&>a]:text-sky-400 hover:[&>a]:text-sky-300 [&>a]:underline transition-colors [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
+                            dangerouslySetInnerHTML={{ __html: part2 }}
+                          />
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               ) : (
@@ -1729,6 +1788,23 @@ function Bocker168Landing() {
       <footer id="footer" className="bg-[#050505] pt-20 pb-10 relative z-10 overflow-hidden">
         {/* Metallic Gold Border Top */}
         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
+
+        {/* QR Modal */}
+        {showArticleQR && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowArticleQR(false)}>
+            <div className="bg-white p-6 rounded-2xl max-w-sm w-full relative" onClick={e => e.stopPropagation()}>
+              <button 
+                onClick={() => setShowArticleQR(false)}
+                className="absolute top-4 right-4 text-zinc-500 hover:text-zinc-800"
+              >
+                <X size={24} />
+              </button>
+              <h3 className="text-xl font-bold text-center text-zinc-900 mb-4">สแกน QR Code</h3>
+              <img src="https://img1.pic.in.th/images/QR-code-registerbocker168.png" alt="QR Code" className="w-full h-auto rounded-lg" referrerPolicy="no-referrer" />
+              <p className="text-center text-zinc-600 text-sm mt-4">สแกนเพื่อสมัครสมาชิกและติดต่อเรา</p>
+            </div>
+          </div>
+        )}
         
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center text-center mb-12">
