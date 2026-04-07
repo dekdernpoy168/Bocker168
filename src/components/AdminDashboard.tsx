@@ -339,12 +339,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       Article Content: "${currentArticle.content?.substring(0, 2000) || ''}"
       
       Return ONLY a valid JSON object with three keys: 
-      1. "metaTitle" (max 60 characters, engaging, includes keyword)
-      2. "metaDescription" (max 160 characters, call to action, includes keyword)
+      1. "metaTitle" (Length: 55-60 characters, engaging, includes keyword)
+      2. "metaDescription" (Length: 155-160 characters, call to action, includes keyword)
       3. "metaKeywords" (comma-separated list of 5-10 relevant keywords)
       
       The language should be Thai.
-      Example: {"metaTitle": "Title here", "metaDescription": "Description here", "metaKeywords": "keyword1, keyword2"}`;
+      Example: {"metaTitle": "Title here (must be at least 55 chars)", "metaDescription": "Description here (must be at least 155 chars)", "metaKeywords": "keyword1, keyword2"}`;
       
       const text = await generateAIContent(prompt);
       
