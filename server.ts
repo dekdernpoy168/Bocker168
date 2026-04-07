@@ -128,13 +128,13 @@ async function startServer() {
         return res.json(local);
       }
       try {
-        const result = await queryD1('SELECT * FROM articles ORDER BY date DESC');
+        const result = await queryD1('SELECT * FROM articles ORDER BY date DESC LIMIT 100');
         res.json(result.results || []);
       } catch (error: any) {
         if (error.message.includes('no such table: articles')) {
           console.log('Table "articles" not found. Initializing...');
           await initTable();
-          const result = await queryD1('SELECT * FROM articles ORDER BY date DESC');
+          const result = await queryD1('SELECT * FROM articles ORDER BY date DESC LIMIT 100');
           return res.json(result.results || []);
         }
         throw error;

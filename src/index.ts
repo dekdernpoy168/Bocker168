@@ -42,7 +42,7 @@ export default {
         // Route to get all articles
         if (url.pathname === '/api/articles' && request.method === 'GET') {
           try {
-            const allArticles = await db.select().from(articles).orderBy(desc(articles.date)).all();
+            const allArticles = await db.select().from(articles).orderBy(desc(articles.date)).limit(100).all();
             return Response.json(allArticles);
           } catch (error: any) {
             if (error.message.includes('no such table')) {

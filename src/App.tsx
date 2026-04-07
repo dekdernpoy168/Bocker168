@@ -704,12 +704,6 @@ function Bocker168Landing() {
   useEffect(() => {
     setIsLoadingArticles(true);
     fetchArticles().finally(() => setIsLoadingArticles(false));
-
-    // Real-time polling every 5 seconds
-    const interval = setInterval(() => {
-      fetchArticles();
-    }, 5000);
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
