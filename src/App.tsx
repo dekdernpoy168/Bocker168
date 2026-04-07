@@ -48,6 +48,7 @@ import 'swiper/css/navigation';
 import { Helmet } from 'react-helmet-async';
 import LiveChat from './components/LiveChat';
 import { Article } from './types';
+import { ARTICLES } from './data/articles';
 
 // --- Constants & Data ---
 
@@ -678,7 +679,7 @@ function Bocker168Landing() {
     setShowCookieBanner(false);
   };
 
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [articles, setArticles] = useState<Article[]>(ARTICLES);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
   const [articleError, setArticleError] = useState<string | null>(null);
   const [showArticleQR, setShowArticleQR] = useState(false);
@@ -688,9 +689,12 @@ function Bocker168Landing() {
       const response = await fetch(`/api/articles?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setArticles(data);
           setArticleError(null);
+        } else if (Array.isArray(data) && data.length === 0 && ARTICLES.length > 0) {
+          // Keep initial articles if API returns empty
+          setArticles(ARTICLES);
         }
       } else {
         // Silent fail for background polling, but set error state
@@ -767,26 +771,28 @@ function Bocker168Landing() {
   const splitArticleContent = (content: string) => {
     if (!content) return ['', ''];
     
-    // Try to find the first paragraph after the first H2 or H3
-    const headingMatch = content.match(/<\/(h2|h3)>\s*<p>.*?<\/p>/is);
-    if (headingMatch && headingMatch.index !== undefined) {
-      const splitIndex = headingMatch.index + headingMatch[0].length;
+    // 1. Prioritize splitting after the first H2 or H3 tag followed by its first paragraph.
+    // This handles headings and paragraphs with attributes and any whitespace between them.
+    const headingWithParagraph = content.match(/<(h2|h3)[^>]*>.*?<\/\1>\s*<p[^>]*>.*?<\/p>/is);
+    if (headingWithParagraph && headingWithParagraph.index !== undefined) {
+      const splitIndex = headingWithParagraph.index + headingWithParagraph[0].length;
       return [content.slice(0, splitIndex), content.slice(splitIndex)];
     }
 
-    // Fallback: find the first paragraph that doesn't contain an image
-    const pMatches = Array.from(content.matchAll(/<p>.*?<\/p>/gis));
+    // 2. Fallback: split after the first paragraph that does not contain an image.
+    // We use a non-greedy match for paragraph content and check for <img> tags.
+    const pMatches = Array.from(content.matchAll(/<p[^>]*>.*?<\/p>/gis));
     for (const match of pMatches) {
-      if (!match[0].includes('<img')) {
+      if (!match[0].toLowerCase().includes('<img')) {
         const splitIndex = match.index! + match[0].length;
         return [content.slice(0, splitIndex), content.slice(splitIndex)];
       }
     }
 
-    // Ultimate fallback: just split after the first </p>
-    const firstP = content.indexOf('</p>');
-    if (firstP !== -1) {
-      return [content.slice(0, firstP + 4), content.slice(firstP + 4)];
+    // 3. Ultimate fallback: split after the first paragraph found, or return whole content if none.
+    if (pMatches.length > 0) {
+      const splitIndex = pMatches[0].index! + pMatches[0][0].length;
+      return [content.slice(0, splitIndex), content.slice(splitIndex)];
     }
 
     return [content, ''];
