@@ -37,8 +37,7 @@ import {
   Calendar,
   Flame,
   Activity,
-  Circle,
-  X
+  Circle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -1881,18 +1880,6 @@ function Bocker168Landing() {
           </div>
         </div>
       </footer>
-
-      {/* Floating Action Button (Mobile Only) */}
-      <div className="fixed bottom-6 right-6 lg:hidden z-40">
-        <a 
-          href="https://inlnk.co/registerbocker168" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="w-14 h-14 bg-red-600 text-white rounded-full shadow-2xl flex items-center justify-center animate-bounce"
-        >
-          <PlayCircle className="w-8 h-8" />
-        </a>
-      </div>
 
       {/* Cookie Consent Banner */}
       <AnimatePresence>

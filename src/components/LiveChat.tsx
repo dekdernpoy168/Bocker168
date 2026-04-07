@@ -41,7 +41,7 @@ export default function LiveChat() {
   };
 
   return (
-    <div className="fixed bottom-32 md:bottom-6 right-6 z-[100] flex flex-col items-end">
+    <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end pointer-events-none">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -49,7 +49,7 @@ export default function LiveChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl w-[320px] md:w-[360px] mb-4 overflow-hidden flex flex-col h-[500px]"
+            className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl w-[320px] md:w-[360px] mb-4 overflow-hidden flex flex-col h-[500px] pointer-events-auto"
           >
             {/* Chat Header */}
             <div className="bg-gradient-to-r from-red-600 to-red-800 p-4 flex items-center justify-between shadow-md">
@@ -140,10 +140,13 @@ export default function LiveChat() {
 
       {/* Floating Button */}
       <motion.button
+        drag
+        dragConstraints={{ left: -300, right: 0, top: -500, bottom: 0 }}
+        dragElastic={0.1}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-full shadow-lg shadow-red-900/40 flex items-center justify-center relative z-50"
+        className="w-14 h-14 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-full shadow-lg shadow-red-900/40 flex items-center justify-center relative z-50 pointer-events-auto cursor-grab active:cursor-grabbing"
       >
         <AnimatePresence mode="wait">
           {isOpen ? (
