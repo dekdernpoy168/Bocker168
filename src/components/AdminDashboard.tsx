@@ -152,6 +152,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       return;
     }
 
+    if (currentArticle.metaTitle && currentArticle.metaTitle.length < 55) {
+      alert('Meta Title ต้องมีความยาวไม่ต่ำกว่า 55 ตัวอักษร');
+      return;
+    }
+
+    if (currentArticle.metaDescription && currentArticle.metaDescription.length < 155) {
+      alert('Meta Description ต้องมีความยาวไม่ต่ำกว่า 155 ตัวอักษร');
+      return;
+    }
+
     const newArticle: Article = {
       id: currentArticle.id || Date.now().toString(),
       title: currentArticle.title || '',
@@ -774,29 +784,50 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
                   <Wand2 size={14} /> Generate SEO Tags
                 </button>
               </div>
+              <p className="text-xs text-zinc-400 mb-4">
+                * เน้นคุณภาพ อ่านเข้าใจง่าย ไม่ซับซ้อน เพื่อการเข้าถึงที่ดีที่สุด
+              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
                     <label className="text-zinc-400 font-medium uppercase">Meta Title</label>
-                    <span className="text-zinc-500">{currentArticle.metaTitle?.length || 0}/60</span>
+                    <span className={`${(currentArticle.metaTitle?.length || 0) < 55 ? 'text-red-500' : 'text-green-500'}`}>
+                      {currentArticle.metaTitle?.length || 0}/60 (ขั้นต่ำ 55)
+                    </span>
                   </div>
                   <input 
                     type="text" 
                     value={currentArticle.metaTitle || ''}
                     onChange={e => setCurrentArticle({...currentArticle, metaTitle: e.target.value})}
-                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
+                    className={`w-full bg-black border rounded-lg px-4 py-2.5 text-zinc-200 focus:ring-1 outline-none text-sm transition-all ${
+                      (currentArticle.metaTitle?.length || 0) > 0 && (currentArticle.metaTitle?.length || 0) < 55 
+                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                        : 'border-zinc-800 focus:border-red-500 focus:ring-red-500'
+                    }`}
                   />
+                  {(currentArticle.metaTitle?.length || 0) > 0 && (currentArticle.metaTitle?.length || 0) < 55 && (
+                    <p className="text-[10px] text-red-500">ความยาวต้องไม่ต่ำกว่า 55 ตัวอักษร</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
                     <label className="text-zinc-400 font-medium uppercase">Meta Description</label>
-                    <span className="text-zinc-500">{currentArticle.metaDescription?.length || 0}/160</span>
+                    <span className={`${(currentArticle.metaDescription?.length || 0) < 155 ? 'text-red-500' : 'text-green-500'}`}>
+                      {currentArticle.metaDescription?.length || 0}/160 (ขั้นต่ำ 155)
+                    </span>
                   </div>
                   <textarea 
                     value={currentArticle.metaDescription || ''}
                     onChange={e => setCurrentArticle({...currentArticle, metaDescription: e.target.value})}
-                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm resize-none h-[42px] transition-all"
+                    className={`w-full bg-black border rounded-lg px-4 py-2.5 text-zinc-200 focus:ring-1 outline-none text-sm resize-none h-[42px] transition-all ${
+                      (currentArticle.metaDescription?.length || 0) > 0 && (currentArticle.metaDescription?.length || 0) < 155 
+                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                        : 'border-zinc-800 focus:border-red-500 focus:ring-red-500'
+                    }`}
                   />
+                  {(currentArticle.metaDescription?.length || 0) > 0 && (currentArticle.metaDescription?.length || 0) < 155 && (
+                    <p className="text-[10px] text-red-500">ความยาวต้องไม่ต่ำกว่า 155 ตัวอักษร</p>
+                  )}
                 </div>
               </div>
             </div>

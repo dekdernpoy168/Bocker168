@@ -861,6 +861,40 @@ function Bocker168Landing() {
             }))
           })}
         </script>
+
+        {isArticleDetail && currentArticle && (
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": currentArticle.metaTitle || currentArticle.title,
+              "description": currentArticle.metaDescription || currentArticle.excerpt || (currentArticle as any).description,
+              "abstract": currentArticle.excerpt || currentArticle.metaDescription,
+              "articleSection": currentArticle.category,
+              "image": currentArticle.image || "https://img2.pic.in.th/A2-Logo-Bocker-168.png",
+              "author": {
+                "@type": "Person",
+                "name": currentArticle.author || "Admin Bocker168",
+                "url": "https://bocker168.com"
+              },
+              "publisher": {
+                "@type": "Organization",
+                "name": "Bocker168",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://img2.pic.in.th/A2-Logo-Bocker-168.png"
+                }
+              },
+              "datePublished": currentArticle.date || currentArticle.createdAt || new Date().toISOString(),
+              "dateModified": currentArticle.updatedAt || currentArticle.date || currentArticle.createdAt || new Date().toISOString(),
+              "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": `https://bocker168.com/article/${currentArticle.slug}`
+              },
+              "keywords": currentArticle.metaKeywords || "บาคาร่า, สูตรบาคาร่า"
+            })}
+          </script>
+        )}
       </Helmet>
       
       {/* Red Glow Background Elements */}
