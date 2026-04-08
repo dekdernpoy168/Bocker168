@@ -3,13 +3,16 @@ import {
   Plus, Edit, Trash2, Save, X, FileText, Target, Upload,
   Type as TypeIcon, Link as LinkIcon, Search, Folder, Tag,
   Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2,
-  LayoutTemplate, Code, Database, Sparkles
+  LayoutTemplate, Code, Database, Sparkles, Download, FileSpreadsheet, FileJson, FileCode
 } from 'lucide-react';
 import { Article } from '../types';
 import AIPromptModal from './AIPromptModal';
 import { generateAIContent } from '../lib/aiService';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import * as docx from 'docx';
+import * as xlsx from 'xlsx';
+import { saveAs } from 'file-saver';
 
 interface AdminDashboardProps {
   onClose?: () => void;
@@ -339,12 +342,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       Article Content: "${currentArticle.content?.substring(0, 2000) || ''}"
       
       Return ONLY a valid JSON object with three keys: 
-      1. "metaTitle" (Length: 55-60 characters, engaging, includes keyword)
-      2. "metaDescription" (Length: 155-160 characters, call to action, includes keyword)
+      1. "metaTitle" (Length: 55-60 characters, engaging, includes keyword, Thai language)
+      2. "metaDescription" (Length: 155-160 characters, call to action, includes keyword, Thai language)
       3. "metaKeywords" (comma-separated list of 5-10 relevant keywords)
       
-      The language should be Thai.
-      Example: {"metaTitle": "Title here (must be at least 55 chars)", "metaDescription": "Description here (must be at least 155 chars)", "metaKeywords": "keyword1, keyword2"}`;
+      STRICT RULES:
+      - metaTitle MUST be between 55 and 60 characters long.
+      - metaDescription MUST be between 155 and 160 characters long.
+      - Do not include any extra text, explanations, or markdown formatting.
+      - Return ONLY the JSON object.
+      
+      Example: {"metaTitle": "Title here (must be 55-60 chars)", "metaDescription": "Description here (must be 155-160 chars)", "metaKeywords": "keyword1, keyword2"}`;
       
       const text = await generateAIContent(prompt);
       
@@ -451,6 +459,200 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     }
   };
 
+  const exportToExcel = (data: Article[]) => {
+    const exportData = data.map(article => ({
+      'ID': article.id,
+      'Title': article.title,
+      'Slug': article.slug,
+      'Category': article.category,
+      'Date': article.date,
+      'Status': article.status,
+      'Author': article.author,
+      'Meta Title': article.metaTitle,
+      'Meta Description': article.metaDescription,
+      'Meta Keywords': article.metaKeywords,
+      'Image URL': article.image,
+      'Excerpt': article.excerpt
+    }));
+
+    const worksheet = xlsx.utils.json_to_sheet(exportData);
+    const workbook = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(workbook, worksheet, "Articles Report");
+    
+    const excelBuffer = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `Bocker168_Articles_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  const exportToText = (article: Article) => {
+    const text = `
+TITLE: ${article.title}
+SLUG: ${article.slug}
+CATEGORY: ${article.category}
+DATE: ${article.date}
+AUTHOR: ${article.author}
+STATUS: ${article.status}
+
+META TITLE: ${article.metaTitle}
+META DESCRIPTION: ${article.metaDescription}
+META KEYWORDS: ${article.metaKeywords}
+
+EXCERPT:
+${article.excerpt}
+
+CONTENT:
+${article.content?.replace(/<[^>]*>/g, '')}
+    `.trim();
+
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    saveAs(blob, `${article.slug || 'article'}.txt`);
+  };
+
+  const exportToWord = async (article: Article) => {
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, ImageRun, ExternalHyperlink } = docx;
+
+    const children: any[] = [
+      new Paragraph({
+        text: article.title,
+        heading: HeadingLevel.HEADING_1,
+        spacing: { after: 200 },
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({ text: `หมวดหมู่: ${article.category}`, bold: true }),
+          new TextRun({ text: ` | วันที่: ${article.date}`, italics: true }),
+        ],
+        spacing: { after: 400 },
+      }),
+    ];
+
+    // Try to add image if exists
+    if (article.image) {
+      try {
+        const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(article.image)}`;
+        const response = await fetch(proxyUrl);
+        if (response.ok) {
+          const blob = await response.blob();
+          const arrayBuffer = await blob.arrayBuffer();
+          children.push(
+            new Paragraph({
+              children: [
+                new ImageRun({
+                  data: new Uint8Array(arrayBuffer),
+                  transformation: { width: 600, height: 350 },
+                } as any),
+              ],
+              spacing: { after: 400 },
+            })
+          );
+        }
+      } catch (error) {
+        console.error("Failed to add image to Word doc", error);
+      }
+    }
+
+    // Parse HTML content to Docx elements
+    const parser = new DOMParser();
+    const docHtml = parser.parseFromString(article.content || '', 'text/html');
+    
+    const processNode = (node: Node): any[] => {
+      const runs: any[] = [];
+      node.childNodes.forEach(child => {
+        if (child.nodeType === Node.TEXT_NODE) {
+          if (child.textContent?.trim()) {
+            runs.push(new TextRun({ text: child.textContent }));
+          }
+        } else if (child.nodeType === Node.ELEMENT_NODE) {
+          const el = child as HTMLElement;
+          const tagName = el.tagName.toLowerCase();
+
+          if (tagName === 'a') {
+            runs.push(new ExternalHyperlink({
+              children: [new TextRun({ text: el.textContent || '', color: '0000FF', underline: {} })],
+              link: el.getAttribute('href') || '',
+            }));
+          } else if (['strong', 'b'].includes(tagName)) {
+            el.childNodes.forEach(c => {
+              if (c.nodeType === Node.TEXT_NODE) {
+                runs.push(new TextRun({ text: c.textContent || '', bold: true }));
+              } else {
+                // Handle nested formatting inside bold
+                const nested = processNode(c);
+                nested.forEach(r => {
+                  if (r instanceof TextRun) (r as any).root[1].bold = true;
+                  runs.push(r);
+                });
+              }
+            });
+          } else if (['em', 'i'].includes(tagName)) {
+            el.childNodes.forEach(c => {
+              if (c.nodeType === Node.TEXT_NODE) {
+                runs.push(new TextRun({ text: c.textContent || '', italics: true }));
+              }
+            });
+          } else if (tagName === 'u') {
+            el.childNodes.forEach(c => {
+              if (c.nodeType === Node.TEXT_NODE) {
+                runs.push(new TextRun({ text: c.textContent || '', underline: {} }));
+              }
+            });
+          } else if (['span', 'font'].includes(tagName)) {
+            runs.push(...processNode(el));
+          } else if (tagName === 'br') {
+            runs.push(new TextRun({ text: '', break: 1 }));
+          }
+        }
+      });
+      return runs;
+    };
+
+    const bodyNodes = docHtml.body.childNodes;
+    bodyNodes.forEach(node => {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as HTMLElement;
+        const tagName = el.tagName.toLowerCase();
+        
+        let heading: any = undefined;
+        if (tagName === 'h1') heading = HeadingLevel.HEADING_1;
+        else if (tagName === 'h2') heading = HeadingLevel.HEADING_2;
+        else if (tagName === 'h3') heading = HeadingLevel.HEADING_3;
+        else if (tagName === 'h4') heading = HeadingLevel.HEADING_4;
+
+        if (['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'div'].includes(tagName)) {
+          const runs = processNode(el);
+          if (runs.length > 0) {
+            children.push(new Paragraph({
+              children: runs,
+              heading: heading,
+              spacing: { after: 200 },
+              bullet: tagName === 'li' ? { level: 0 } : undefined
+            }));
+          }
+        }
+      } else if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+        children.push(new Paragraph({
+          children: [new TextRun(node.textContent)],
+          spacing: { after: 200 }
+        }));
+      }
+    });
+
+    const doc = new Document({
+      sections: [{
+        properties: {},
+        children: children,
+      }],
+    });
+
+    const buffer = await Packer.toBlob(doc);
+    saveAs(buffer, `${article.slug || 'article'}.docx`);
+  };
+
+  const exportToJSON = (data: Article[]) => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    saveAs(blob, `Bocker168_Articles_Backup_${new Date().toISOString().split('T')[0]}.json`);
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center px-4 relative z-[60]">
@@ -553,6 +755,30 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
           >
             <Database size={20} className="mr-2" /> Init DB
           </button>
+          
+          <div className="relative group">
+            <button 
+              className="bg-zinc-900 text-zinc-400 px-4 py-3 rounded-full font-bold hover:bg-zinc-800 transition-colors flex items-center border border-zinc-800"
+              title="Export ข้อมูลทั้งหมด"
+            >
+              <Download size={20} className="mr-2" /> Export Report
+            </button>
+            <div className="absolute right-0 top-full mt-2 w-48 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[70] overflow-hidden">
+              <button 
+                onClick={() => exportToExcel(filteredArticles)}
+                className="w-full text-left px-4 py-3 hover:bg-zinc-900 text-zinc-300 text-sm flex items-center gap-2 transition-colors"
+              >
+                <FileSpreadsheet size={16} className="text-green-500" /> Excel (.xlsx)
+              </button>
+              <button 
+                onClick={() => exportToJSON(filteredArticles)}
+                className="w-full text-left px-4 py-3 hover:bg-zinc-900 text-zinc-300 text-sm flex items-center gap-2 transition-colors"
+              >
+                <FileJson size={16} className="text-amber-500" /> JSON (.json)
+              </button>
+            </div>
+          </div>
+
           <button 
             onClick={() => { setIsEditing(true); setCurrentArticle({}); }}
             className="bg-red-600 text-white px-8 py-3 rounded-full font-black hover:bg-red-700 transition-colors flex items-center shadow-lg shadow-red-600/20"
@@ -1166,6 +1392,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
                         </span>
                       </td>
                       <td className="p-4 text-right space-x-2 whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1 mr-2 border-r border-zinc-800 pr-2">
+                          <button 
+                            onClick={() => exportToWord(article)}
+                            className="p-2 text-zinc-500 hover:text-blue-500 transition-colors"
+                            title="Export Word (.docx)"
+                          >
+                            <FileCode size={16} />
+                          </button>
+                          <button 
+                            onClick={() => exportToText(article)}
+                            className="p-2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                            title="Export Text (.txt)"
+                          >
+                            <FileText size={16} />
+                          </button>
+                        </div>
                         <button 
                           onClick={() => { setCurrentArticle(article); setIsEditing(true); }}
                           className="p-2 text-zinc-400 hover:text-red-500 bg-black rounded-lg transition-colors inline-flex border border-zinc-800"
