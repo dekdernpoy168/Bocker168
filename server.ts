@@ -138,6 +138,34 @@ async function startServer() {
 
     let bodyContent = "";
 
+    const jsonLd = [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": "https://hongkonglex.com/#website",
+        "url": "https://hongkonglex.com/",
+        "name": "Bocker168",
+        "alternateName": "บาคาร่าออนไลน์ Bocker168",
+        "description": "เว็บไซต์บาคาร่าออนไลน์อันดับ 1 เว็บตรงไม่ผ่านเอเย่นต์ ปลอดภัย 100% ฝากถอนออโต้ ไม่มีขั้นต่ำ",
+        "inLanguage": "th-TH"
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "@id": "https://hongkonglex.com/#organization",
+        "name": "Bocker168",
+        "url": "https://hongkonglex.com/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://img2.pic.in.th/A2-Logo-Bocker-168.png"
+        },
+        "sameAs": [
+          "https://www.facebook.com/bocker168",
+          "https://line.me/R/ti/p/@bocker168"
+        ]
+      }
+    ];
+
     if (slug) {
       const article = await getArticleBySlug(slug);
       if (article) {
@@ -151,6 +179,31 @@ async function startServer() {
             <p>${article.excerpt || ''}</p>
           </div>
         `;
+        jsonLd.push({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": article.title,
+          "description": article.metaDescription || article.excerpt,
+          "image": article.image,
+          "author": {
+            "@type": "Person",
+            "name": "Bocker168 Admin",
+            "url": "https://hongkonglex.com"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Bocker168",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://img2.pic.in.th/A2-Logo-Bocker-168.png"
+            }
+          },
+          "datePublished": article.date,
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": canonical
+          }
+        } as any);
       }
     }
 
@@ -163,7 +216,8 @@ async function startServer() {
       .replace(/<meta property="og:description" content=".*?" \/>/, `<meta property="og:description" content="${description}" />`)
       .replace(/<meta property="og:type" content=".*?" \/>/, `<meta property="og:type" content="${ogType}" />`)
       .replace(/<meta property="og:url" content=".*?" \/>/, `<meta property="og:url" content="${canonical}" />`)
-      .replace(/<link rel="canonical" href=".*?" \/>/, `<link rel="canonical" href="${canonical}" />`);
+      .replace(/<link rel="canonical" href=".*?" \/>/, `<link rel="canonical" href="${canonical}" />`)
+      .replace('</head>', `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n</head>`);
   };
 
   // API Routes
