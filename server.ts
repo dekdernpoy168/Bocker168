@@ -112,6 +112,60 @@ async function startServer() {
     await queryD1(sql);
   };
 
+  const getArticleBySlug = async (slug: string) => {
+    try {
+      if (!isD1Configured()) {
+        const local = await getLocalArticles();
+        return local.find((a: any) => a.slug === slug);
+      }
+      const result = await queryD1('SELECT * FROM articles WHERE slug = ? LIMIT 1', [slug]);
+      return result.results?.[0];
+    } catch (error) {
+      console.error('Error fetching article by slug:', error);
+      return null;
+    }
+  };
+
+  const injectSEO = async (template: string, url: string) => {
+    const articleMatch = url.match(/\/article\/([^\/\?]+)/);
+    const slug = articleMatch ? articleMatch[1] : null;
+    
+    let title = "บาคาร่าออนไลน์ Bocker168 เว็บตรงไม่ผ่านเอเย่นต์ ฝากถอนไม่มีขั้นต่ำ";
+    let description = "Bocker168 บาคาร่าเว็บตรงไม่ผ่านเอเย่นต์ อันดับ 1 ฝากถอนออโต้ไม่มีขั้นต่ำ รองรับทรูวอเลท (True Wallet) คาสิโนสด SA Gaming, Sexy Baccarat สมัครวันนี้รับโปรโมชั่นพิเศษ";
+    let keywords = "Bocker168, บาคาร่า, บาคาร่าออนไลน์, บาคาร่าเว็บตรง, สมัครบาคาร่า, บาคาร่าทรูวอเลท, บาคาร่าไม่มีขั้นต่ำ, คาสิโนออนไลน์, SA Gaming, Sexy Baccarat, เว็บบาคาร่าอันดับ1";
+    let canonical = `https://hongkonglex.com${url.split('?')[0]}`;
+    let ogType = "website";
+
+    let bodyContent = "";
+
+    if (slug) {
+      const article = await getArticleBySlug(slug);
+      if (article) {
+        title = article.metaTitle || article.title;
+        description = article.metaDescription || article.excerpt || description;
+        keywords = article.metaKeywords || keywords;
+        ogType = "article";
+        bodyContent = `
+          <div style="display:none">
+            <h1>${article.title}</h1>
+            <p>${article.excerpt || ''}</p>
+          </div>
+        `;
+      }
+    }
+
+    return template
+      .replace('<div id="root"></div>', `<div id="root">${bodyContent}</div>`)
+      .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
+      .replace(/<meta name="description" content=".*?" \/>/, `<meta name="description" content="${description}" />`)
+      .replace(/<meta name="keywords" content=".*?" \/>/, `<meta name="keywords" content="${keywords}" />`)
+      .replace(/<meta property="og:title" content=".*?" \/>/, `<meta property="og:title" content="${title}" />`)
+      .replace(/<meta property="og:description" content=".*?" \/>/, `<meta property="og:description" content="${description}" />`)
+      .replace(/<meta property="og:type" content=".*?" \/>/, `<meta property="og:type" content="${ogType}" />`)
+      .replace(/<meta property="og:url" content=".*?" \/>/, `<meta property="og:url" content="${canonical}" />`)
+      .replace(/<link rel="canonical" href=".*?" \/>/, `<link rel="canonical" href="${canonical}" />`);
+  };
+
   // API Routes
   app.get('/api/config-status', (req, res) => {
     res.json({
@@ -287,6 +341,7 @@ async function startServer() {
       try {
         let template = await fs.readFile(path.resolve(process.cwd(), 'index.html'), 'utf-8');
         template = await vite.transformIndexHtml(url, template);
+        template = await injectSEO(template, url);
         res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
       } catch (e) {
         vite.ssrFixStacktrace(e as Error);
@@ -296,8 +351,14 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*all', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    app.get('*all', async (req, res) => {
+      try {
+        let template = await fs.readFile(path.join(distPath, 'index.html'), 'utf-8');
+        template = await injectSEO(template, req.originalUrl);
+        res.status(200).set({ 'Content-Type': 'text/html' }).send(template);
+      } catch (error) {
+        res.sendFile(path.join(distPath, 'index.html'));
+      }
     });
   }
 
