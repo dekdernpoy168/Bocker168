@@ -381,6 +381,58 @@ async function startServer() {
     }
   });
 
+  app.get('/sitemap.xml', async (req, res) => {
+    const DOMAIN = 'https://hongkonglex.com';
+    const today = new Date().toISOString().split('T')[0];
+    
+    const staticRoutes = [
+      { url: '/', priority: '1.0' },
+      { url: '/features', priority: '0.9' },
+      { url: '/baccarat', priority: '0.9' },
+      { url: '/promotions', priority: '0.9' },
+      { url: '/articles', priority: '0.9' },
+      { url: '/faq', priority: '0.8' },
+      { url: '/contact', priority: '0.8' },
+      { url: '/register-guide', priority: '0.8' },
+      { url: '/deposit-withdraw-guide', priority: '0.8' },
+      { url: '/terms', priority: '0.7' },
+      { url: '/privacy', priority: '0.7' },
+      { url: '/cookies', priority: '0.7' },
+      { url: '/responsible-gambling', priority: '0.7' },
+    ];
+
+    let articles: any[] = [];
+    try {
+      if (!isD1Configured()) {
+        articles = await getLocalArticles();
+      } else {
+        const result = await queryD1('SELECT slug, date FROM articles');
+        articles = result.results || [];
+      }
+    } catch (error) {
+      console.error('Error fetching articles for sitemap:', error);
+    }
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${staticRoutes.map(route => `  <url>
+    <loc>${DOMAIN}${route.url}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${route.priority}</priority>
+  </url>`).join('\n')}
+${articles.map(article => `  <url>
+    <loc>${DOMAIN}/article/${article.slug}</loc>
+    <lastmod>${article.date || today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('\n')}
+</urlset>`;
+
+    res.header('Content-Type', 'application/xml');
+    res.send(sitemap);
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
