@@ -157,7 +157,25 @@ async function startServer() {
         'INSERT INTO request_logs (id, url, method, headers) VALUES (?, ?, ?, ?)',
         [id, url, method, headers]
       );
-    } catch (e) {
+    } catch (e: any) {
+      if (e.message?.includes('no such table: request_logs')) {
+        console.log('Table "request_logs" not found. Initializing...');
+        await initTable();
+        // Retry once
+        try {
+          const id = Math.random().toString(36).substring(2, 11);
+          const url = req.originalUrl || req.url;
+          const method = req.method;
+          const headers = JSON.stringify(req.headers);
+          await queryD1(
+            'INSERT INTO request_logs (id, url, method, headers) VALUES (?, ?, ?, ?)',
+            [id, url, method, headers]
+          );
+        } catch (retryError) {
+          console.error('Retry logging error:', retryError);
+        }
+        return;
+      }
       // Background logging should not crash the app
       console.error('Logging error:', e);
     }
@@ -550,6 +568,11 @@ ${articles.map(article => `  <url>
   server.on('error', (error: any) => {
     console.error('Server error:', error);
   });
+
+  // Proactively initialize database if configured
+  if (isD1Configured()) {
+    initTable().catch(e => console.error('Early DB init error:', e));
+  }
 }
 
 startServer();
