@@ -218,4 +218,16 @@ export default {
       return new Response(`Global Worker Error: ${globalError.message}\n${globalError.stack}`, { status: 500 });
     }
   },
+  async queue(batch: MessageBatch<any>, env: Env): Promise<void> {
+    console.log(`Processing ${batch.messages.length} messages from queue: ${batch.queue}`);
+    for (const message of batch.messages) {
+      console.log(`Processing message ${message.id}:`, message.body);
+      // Here you can add logic to save to D1 or perform background tasks
+      // Example: 
+      // const db = drizzle(env.DB);
+      // await db.insert(logs).values({ ...message.body });
+      
+      message.ack(); // Acknowledge message processing
+    }
+  },
 };
