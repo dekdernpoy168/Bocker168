@@ -3,7 +3,7 @@ import {
   Plus, Edit, Trash2, Save, X, FileText, Target, Upload,
   Type as TypeIcon, Link as LinkIcon, Search, Folder, Tag,
   Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2,
-  LayoutTemplate, Code, Database, Sparkles, Download, FileSpreadsheet, FileJson, FileCode
+  LayoutTemplate, Code, Database, Sparkles, Download, FileSpreadsheet, FileJson, FileCode, User
 } from 'lucide-react';
 import { Article } from '../types';
 import AIPromptModal from './AIPromptModal';
@@ -52,14 +52,36 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [articles, setArticles] = useState<Article[]>([]); 
   const [isLoading, setIsLoading] = useState(false);
   const [dbConfig, setDbConfig] = useState<{ d1Configured: boolean, fallbackMode: boolean }>({ d1Configured: true, fallbackMode: false });
+  const [activeTab, setActiveTab] = useState<'articles' | 'logs'>('articles');
+  const [logs, setLogs] = useState<any[]>([]);
+  const [isLoadingLogs, setIsLoadingLogs] = useState(false);
   const categories = ['บาคาร่า', 'คาสิโน', 'สูตรสล็อต'];
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchArticles();
+      if (activeTab === 'articles') {
+        fetchArticles();
+      } else {
+        fetchLogs();
+      }
       fetchConfigStatus();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, activeTab]);
+
+  const fetchLogs = async () => {
+    setIsLoadingLogs(true);
+    try {
+      const response = await fetch('/api/request-logs');
+      if (response.ok) {
+        const data = await response.json();
+        setLogs(data);
+      }
+    } catch (error) {
+      console.error('Error fetching logs:', error);
+    } finally {
+      setIsLoadingLogs(false);
+    }
+  };
 
   const fetchConfigStatus = async () => {
     try {
@@ -1160,7 +1182,35 @@ ${article.content?.replace(/<[^>]*>/g, '')}
               </div>
             </div>
 
-            {/* Section 7: Article Content */}
+            {/* Section 7: Author Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
+                  <User size={16} /> ชื่อผู้เขียน
+                </label>
+                <input 
+                  type="text" 
+                  value={currentArticle.author || ''}
+                  onChange={e => setCurrentArticle({...currentArticle, author: e.target.value})}
+                  className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
+                  placeholder="เช่น Bocker168 Admin"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
+                  <ImageIcon size={16} /> URL รูปโปรไฟล์ผู้เขียน
+                </label>
+                <input 
+                  type="text" 
+                  value={currentArticle.authorImage || ''}
+                  onChange={e => setCurrentArticle({...currentArticle, authorImage: e.target.value})}
+                  className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+
+            {/* Section 8: Article Content */}
             <div className="space-y-2">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                 <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
@@ -1298,8 +1348,30 @@ ${article.content?.replace(/<[^>]*>/g, '')}
       ) : (
         /* List Section (ตารางแสดงบทความ) */
         <div className="bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl shadow-black/50">
-          {/* ตัวกรองและค้นหา */}
-          <div className="p-6 border-b border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          {/* Tabs */}
+          <div className="flex border-b border-zinc-800">
+            <button
+              onClick={() => setActiveTab('articles')}
+              className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+                activeTab === 'articles' ? 'bg-zinc-900 text-red-500 border-b-2 border-red-500' : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              <FileCode size={18} /> บทความทั้งหมด
+            </button>
+            <button
+              onClick={() => setActiveTab('logs')}
+              className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+                activeTab === 'logs' ? 'bg-zinc-900 text-red-500 border-b-2 border-red-500' : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              <Database size={18} /> Request Logs (ระบบ)
+            </button>
+          </div>
+
+          {activeTab === 'articles' ? (
+            <>
+              {/* ตัวกรองและค้นหา */}
+              <div className="p-6 border-b border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
               {['all', 'published', 'draft'].map((status) => (
                 <button
@@ -1429,8 +1501,77 @@ ${article.content?.replace(/<[^>]*>/g, '')}
               </tbody>
             </table>
           </div>
+        </>
+      ) : (
+        /* Logs Viewer Section */
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <Database className="text-red-500" size={20} />
+              บันทึกการเข้าถึง (System Logs)
+            </h3>
+            <button 
+              onClick={fetchLogs}
+              disabled={isLoadingLogs}
+              className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-sm font-medium transition-colors border border-zinc-800 flex items-center gap-2"
+            >
+              {isLoadingLogs ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles size={16} className="text-amber-500" />}
+              รีเฟรชข้อมูล
+            </button>
+          </div>
+
+          <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+            {logs.length === 0 ? (
+              <div className="text-center py-12 text-zinc-500 bg-black/50 rounded-2xl border border-zinc-900">
+                <Search size={40} className="mx-auto mb-3 opacity-20" />
+                <p>ไม่พบข้อมูลการเข้าถึงในขณะนี้</p>
+              </div>
+            ) : (
+              logs.map((log) => (
+                <div key={log.id} className="bg-black/40 border border-zinc-900 rounded-xl p-4 hover:border-zinc-700 transition-colors">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-3">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                        log.method === 'GET' ? 'bg-blue-500/20 text-blue-400' : 
+                        log.method === 'POST' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
+                      }`}>
+                        {log.method}
+                      </span>
+                      <span className="text-zinc-200 text-sm font-mono truncate max-w-[200px] md:max-w-md" title={log.url}>
+                        {log.url}
+                      </span>
+                    </div>
+                    <span className="text-zinc-500 text-[10px] font-mono whitespace-nowrap">
+                      {new Date(log.timestamp).toLocaleString('th-TH')}
+                    </span>
+                  </div>
+                  <div className="mt-3 p-3 bg-zinc-950 rounded-lg border border-zinc-900 overflow-x-auto">
+                    <pre className="text-[10px] text-zinc-400 font-mono">
+                      {(() => {
+                        try {
+                          const h = JSON.parse(log.headers);
+                          return JSON.stringify({
+                            "user-agent": h["user-agent"],
+                            "referer": h["referer"],
+                            "ip": h["x-forwarded-for"] || h["x-real-ip"]
+                          }, null, 2);
+                        } catch (e) {
+                          return log.headers;
+                        }
+                      })()}
+                    </pre>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <p className="mt-6 text-[11px] text-zinc-600 text-center italic">
+            * ระบบจะบันทึกเฉพาะการเรียกดูหน้าเว็บหลัก ไม่บันทึกการโหลดไฟล์รูปภาพหรือไฟล์ระบบ
+          </p>
         </div>
       )}
+    </div>
+  )}
 
       {/* Preview Modal */}
       {isPreviewOpen && (

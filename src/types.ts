@@ -8,6 +8,7 @@ export interface Article {
   image?: string;
   status: 'published' | 'draft' | 'scheduled';
   author: string;
+  authorImage?: string;
   date: string;
   publishedAt?: string | Date | any;
   metaTitle?: string;

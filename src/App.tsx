@@ -37,7 +37,8 @@ import {
   Calendar,
   Flame,
   Activity,
-  Circle
+  Circle,
+  User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -1002,7 +1003,7 @@ function Bocker168Landing() {
               {currentArticle ? (
                 <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden">
                   <div className="p-8 md:p-12">
-                    <div className="flex items-center gap-4 mb-6">
+                    <div className="flex items-center gap-4 mb-6 flex-wrap">
                       <div className="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
                         {currentArticle.category}
                       </div>
@@ -1010,6 +1011,16 @@ function Bocker168Landing() {
                         <Calendar className="w-5 h-5" />
                         <span>{currentArticle.date}</span>
                       </div>
+                      {currentArticle.author && (
+                        <div className="flex items-center gap-2 text-zinc-400 text-sm">
+                          {currentArticle.authorImage ? (
+                            <img src={currentArticle.authorImage} alt={currentArticle.author} className="w-6 h-6 rounded-full object-cover border border-zinc-700" referrerPolicy="no-referrer" />
+                          ) : (
+                            <User className="w-5 h-5" />
+                          )}
+                          <span>{currentArticle.author}</span>
+                        </div>
+                      )}
                     </div>
                     
                     <h1 className="text-3xl md:text-4xl font-black text-red-500 mb-8 leading-tight">
@@ -1772,9 +1783,21 @@ function Bocker168Landing() {
                     </div>
                     
                     <div className="p-6 md:p-8 flex flex-col flex-grow">
-                      <div className="flex items-center gap-2 text-zinc-400 text-sm mb-4">
-                        <Calendar className="w-4 h-4" />
-                        <span>{article.date}</span>
+                      <div className="flex items-center gap-4 text-zinc-400 text-sm mb-4 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>{article.date}</span>
+                        </div>
+                        {article.author && (
+                          <div className="flex items-center gap-2">
+                            {article.authorImage ? (
+                              <img src={article.authorImage} alt={article.author} className="w-5 h-5 rounded-full object-cover border border-zinc-700" referrerPolicy="no-referrer" />
+                            ) : (
+                              <User className="w-4 h-4" />
+                            )}
+                            <span className="truncate max-w-[100px]">{article.author}</span>
+                          </div>
+                        )}
                       </div>
                       
                       <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors line-clamp-2">

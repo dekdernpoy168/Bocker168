@@ -20,6 +20,16 @@ async function startServer() {
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+  // Logging middleware
+  app.use((req, res, next) => {
+    // Log only non-static requests for analytics
+    const isStatic = req.url.includes('.') || req.url.startsWith('/@') || req.url.startsWith('/src');
+    if (!isStatic && isD1Configured()) {
+      logRequestToD1(req).catch(console.error);
+    }
+    next();
+  });
+
   // Helper to check if D1 is configured
   const isD1Configured = () => {
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
@@ -101,6 +111,7 @@ async function startServer() {
         image TEXT,
         status TEXT CHECK(status IN ('published', 'draft', 'scheduled')),
         author TEXT,
+        authorImage TEXT,
         date TEXT,
         metaTitle TEXT,
         metaDescription TEXT,
@@ -110,7 +121,48 @@ async function startServer() {
       );
     `;
     await queryD1(sql);
+    
+    // Attempt to add authorImage column if it doesn't exist (for existing databases)
+    try {
+      await queryD1(`ALTER TABLE articles ADD COLUMN authorImage TEXT;`);
+    } catch (e) {
+      // Ignore error if column already exists
+    }
+
+    // Create request_logs table
+    try {
+      await queryD1(`
+        CREATE TABLE IF NOT EXISTS request_logs (
+          id TEXT PRIMARY KEY,
+          url TEXT,
+          method TEXT,
+          headers TEXT,
+          timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+    } catch (e) {
+      console.error('Error creating request_logs table:', e);
+    }
   };
+
+  const logRequestToD1 = async (req: express.Request) => {
+    if (!isD1Configured()) return;
+    try {
+      const id = Math.random().toString(36).substring(2, 11);
+      const url = req.originalUrl || req.url;
+      const method = req.method;
+      const headers = JSON.stringify(req.headers);
+      
+      await queryD1(
+        'INSERT INTO request_logs (id, url, method, headers) VALUES (?, ?, ?, ?)',
+        [id, url, method, headers]
+      );
+    } catch (e) {
+      // Background logging should not crash the app
+      console.error('Logging error:', e);
+    }
+  };
+
 
   const getArticleBySlug = async (slug: string) => {
     try {
@@ -253,6 +305,19 @@ async function startServer() {
     }
   });
 
+  app.get('/api/request-logs', async (req, res) => {
+    try {
+      if (!isD1Configured()) {
+        return res.json([]);
+      }
+      const result = await queryD1('SELECT * FROM request_logs ORDER BY timestamp DESC LIMIT 50');
+      res.json(result.results || []);
+    } catch (error: any) {
+      console.error('Error fetching logs:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.post('/api/articles', async (req, res) => {
     console.log('POST /api/articles');
     try {
@@ -271,8 +336,8 @@ async function startServer() {
       }
 
       const sql = `
-        INSERT INTO articles (id, title, slug, content, excerpt, category, image, status, author, date, metaTitle, metaDescription, metaKeywords)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO articles (id, title, slug, content, excerpt, category, image, status, author, authorImage, date, metaTitle, metaDescription, metaKeywords)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           title = excluded.title,
           slug = excluded.slug,
@@ -282,6 +347,7 @@ async function startServer() {
           image = excluded.image,
           status = excluded.status,
           author = excluded.author,
+          authorImage = excluded.authorImage,
           date = excluded.date,
           metaTitle = excluded.metaTitle,
           metaDescription = excluded.metaDescription,
@@ -289,7 +355,7 @@ async function startServer() {
       `;
       const params = [
         article.id, article.title, article.slug, article.content, article.excerpt,
-        article.category, article.image, article.status, article.author, article.date,
+        article.category, article.image, article.status, article.author, article.authorImage, article.date,
         article.metaTitle, article.metaDescription, article.metaKeywords
       ];
       
@@ -344,6 +410,7 @@ async function startServer() {
           image TEXT,
           status TEXT CHECK(status IN ('published', 'draft', 'scheduled')),
           author TEXT,
+          authorImage TEXT,
           date TEXT,
           metaTitle TEXT,
           metaDescription TEXT,
@@ -353,6 +420,14 @@ async function startServer() {
         );
       `;
       await queryD1(sql);
+      
+      // Attempt to add authorImage column if it doesn't exist
+      try {
+        await queryD1(`ALTER TABLE articles ADD COLUMN authorImage TEXT;`);
+      } catch (e) {
+        // Ignore error
+      }
+      
       res.json({ success: true, message: 'Database initialized successfully' });
     } catch (error: any) {
       console.error('Error initializing database:', error);
