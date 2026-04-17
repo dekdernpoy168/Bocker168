@@ -5,7 +5,7 @@ import {
   Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2,
   LayoutTemplate, Code, Database, Sparkles, Download, FileSpreadsheet, FileJson, FileCode, User
 } from 'lucide-react';
-import { Article } from '../types';
+import { Article, Author } from '../types';
 import AIPromptModal from './AIPromptModal';
 import { generateAIContent } from '../lib/aiService';
 import ReactQuill from 'react-quill-new';
@@ -52,8 +52,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [articles, setArticles] = useState<Article[]>([]); 
   const [isLoading, setIsLoading] = useState(false);
   const [dbConfig, setDbConfig] = useState<{ d1Configured: boolean, fallbackMode: boolean }>({ d1Configured: true, fallbackMode: false });
-  const [activeTab, setActiveTab] = useState<'articles' | 'logs'>('articles');
+  const [activeTab, setActiveTab] = useState<'articles' | 'logs' | 'authors'>('articles');
   const [logs, setLogs] = useState<any[]>([]);
+  const [authors, setAuthors] = useState<Author[]>([]);
+  const [isEditingAuthor, setIsEditingAuthor] = useState(false);
+  const [currentAuthor, setCurrentAuthor] = useState<Partial<Author>>({});
+  const [isLoadingAuthors, setIsLoadingAuthors] = useState(false);
   const [isLoadingLogs, setIsLoadingLogs] = useState(false);
   const categories = ['บาคาร่า', 'คาสิโน', 'สูตรสล็อต'];
 
@@ -61,12 +65,70 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     if (isAuthenticated) {
       if (activeTab === 'articles') {
         fetchArticles();
-      } else {
+        fetchAuthors();
+      } else if (activeTab === 'logs') {
         fetchLogs();
+      } else if (activeTab === 'authors') {
+        fetchAuthors();
       }
       fetchConfigStatus();
     }
   }, [isAuthenticated, activeTab]);
+
+  const fetchAuthors = async () => {
+    setIsLoadingAuthors(true);
+    try {
+      const response = await fetch('/api/authors');
+      if (response.ok) {
+        const data = await response.json();
+        setAuthors(data);
+      }
+    } catch (error) {
+      console.error('Error fetching authors:', error);
+    } finally {
+      setIsLoadingAuthors(false);
+    }
+  };
+
+  const handleSaveAuthor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentAuthor.name) return;
+
+    const author: Author = {
+      id: currentAuthor.id || Date.now().toString(),
+      name: currentAuthor.name,
+      image: currentAuthor.image || '',
+      position: currentAuthor.position || '',
+      description: currentAuthor.description || '',
+    };
+
+    try {
+      const response = await fetch('/api/authors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(author),
+      });
+      if (response.ok) {
+        fetchAuthors();
+        setIsEditingAuthor(false);
+        setCurrentAuthor({});
+      }
+    } catch (error) {
+      console.error('Error saving author:', error);
+    }
+  };
+
+  const handleDeleteAuthor = async (id: string) => {
+    if (!window.confirm('ลบผู้เขียนท่านนี้ใช่หรือไม่?')) return;
+    try {
+      const response = await fetch(`/api/authors/${id}`, { method: 'DELETE' });
+      if (response.ok) {
+        fetchAuthors();
+      }
+    } catch (error) {
+      console.error('Error deleting author:', error);
+    }
+  };
 
   const fetchLogs = async () => {
     setIsLoadingLogs(true);
@@ -1183,30 +1245,103 @@ ${article.content?.replace(/<[^>]*>/g, '')}
             </div>
 
             {/* Section 7: Author Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
+            <div className="space-y-4 border border-zinc-800 p-6 rounded-2xl bg-zinc-900/20">
+              <div className="flex justify-between items-center">
                 <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
-                  <User size={16} /> ชื่อผู้เขียน
+                  <User size={16} /> ข้อมูลผู้เขียน
                 </label>
-                <input 
-                  type="text" 
-                  value={currentArticle.author || ''}
-                  onChange={e => setCurrentArticle({...currentArticle, author: e.target.value})}
-                  className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
-                  placeholder="เช่น Bocker168 Admin"
-                />
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab('authors'); setIsEditing(false); }}
+                  className="text-xs text-zinc-500 hover:text-red-500 transition-colors"
+                >
+                  + จัดการรายชื่อผู้เขียน
+                </button>
               </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-zinc-400 text-xs font-medium">เลือกผู้เขียนที่มีอยู่</label>
+                  <select 
+                    value={currentArticle.author || ''}
+                    onChange={e => {
+                      const selected = authors.find(a => a.name === e.target.value);
+                      if (selected) {
+                        setCurrentArticle({
+                          ...currentArticle,
+                          author: selected.name,
+                          authorImage: selected.image,
+                          authorPosition: selected.position,
+                          authorDescription: selected.description
+                        });
+                      } else {
+                        setCurrentArticle({
+                          ...currentArticle,
+                          author: e.target.value
+                        });
+                      }
+                    }}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
+                  >
+                    <option value="">เลือกผู้เขียน...</option>
+                    {authors.map(a => (
+                      <option key={a.id} value={a.name}>{a.name} ({a.position})</option>
+                    ))}
+                    <option value="custom">-- กรอกข้อมูลเอง --</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-zinc-400 text-xs font-medium">ชื่อผู้เขียน</label>
+                  <input 
+                    type="text" 
+                    value={currentArticle.author || ''}
+                    onChange={e => setCurrentArticle({...currentArticle, author: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
+                    placeholder="เช่น Bocker168 Admin"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-zinc-400 text-xs font-medium">ตำแหน่ง (Position)</label>
+                  <input 
+                    type="text" 
+                    value={currentArticle.authorPosition || ''}
+                    onChange={e => setCurrentArticle({...currentArticle, authorPosition: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
+                    placeholder="เช่น เซียนบาคาร่า, บรรณาธิการ"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-zinc-400 text-xs font-medium">คำอธิบายสั้นๆ (Description)</label>
+                  <input 
+                    type="text" 
+                    value={currentArticle.authorDescription || ''}
+                    onChange={e => setCurrentArticle({...currentArticle, authorDescription: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
+                    placeholder="ความถนัดหรือประวัติย่อ..."
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
-                  <ImageIcon size={16} /> URL รูปโปรไฟล์ผู้เขียน
+                <label className="text-zinc-400 text-xs font-medium flex items-center gap-2">
+                  <ImageIcon size={14} /> URL รูปโปรไฟล์ผู้เขียน
                 </label>
-                <input 
-                  type="text" 
-                  value={currentArticle.authorImage || ''}
-                  onChange={e => setCurrentArticle({...currentArticle, authorImage: e.target.value})}
-                  className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
-                  placeholder="https://..."
-                />
+                <div className="flex gap-4 items-center">
+                  <input 
+                    type="text" 
+                    value={currentArticle.authorImage || ''}
+                    onChange={e => setCurrentArticle({...currentArticle, authorImage: e.target.value})}
+                    className="flex-1 bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
+                    placeholder="https://..."
+                  />
+                  {currentArticle.authorImage && (
+                    <img src={currentArticle.authorImage} alt="Preview" className="w-10 h-10 rounded-full object-cover border border-zinc-700" referrerPolicy="no-referrer" />
+                  )}
+                </div>
               </div>
             </div>
 
@@ -1359,6 +1494,14 @@ ${article.content?.replace(/<[^>]*>/g, '')}
               <FileCode size={18} /> บทความทั้งหมด
             </button>
             <button
+              onClick={() => setActiveTab('authors')}
+              className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+                activeTab === 'authors' ? 'bg-zinc-900 text-red-500 border-b-2 border-red-500' : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              <User size={18} /> จัดการผู้เขียน
+            </button>
+            <button
               onClick={() => setActiveTab('logs')}
               className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all ${
                 activeTab === 'logs' ? 'bg-zinc-900 text-red-500 border-b-2 border-red-500' : 'text-zinc-500 hover:text-zinc-300'
@@ -1502,76 +1645,205 @@ ${article.content?.replace(/<[^>]*>/g, '')}
             </table>
           </div>
         </>
-      ) : (
-        /* Logs Viewer Section */
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <Database className="text-red-500" size={20} />
-              บันทึกการเข้าถึง (System Logs)
-            </h3>
-            <button 
-              onClick={fetchLogs}
-              disabled={isLoadingLogs}
-              className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-sm font-medium transition-colors border border-zinc-800 flex items-center gap-2"
-            >
-              {isLoadingLogs ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles size={16} className="text-amber-500" />}
-              รีเฟรชข้อมูล
-            </button>
-          </div>
-
-          <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-            {logs.length === 0 ? (
-              <div className="text-center py-12 text-zinc-500 bg-black/50 rounded-2xl border border-zinc-900">
-                <Search size={40} className="mx-auto mb-3 opacity-20" />
-                <p>ไม่พบข้อมูลการเข้าถึงในขณะนี้</p>
-              </div>
-            ) : (
-              logs.map((log) => (
-                <div key={log.id} className="bg-black/40 border border-zinc-900 rounded-xl p-4 hover:border-zinc-700 transition-colors">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                        log.method === 'GET' ? 'bg-blue-500/20 text-blue-400' : 
-                        log.method === 'POST' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
-                      }`}>
-                        {log.method}
-                      </span>
-                      <span className="text-zinc-200 text-sm font-mono truncate max-w-[200px] md:max-w-md" title={log.url}>
-                        {log.url}
-                      </span>
-                    </div>
-                    <span className="text-zinc-500 text-[10px] font-mono whitespace-nowrap">
-                      {new Date(log.timestamp).toLocaleString('th-TH')}
-                    </span>
-                  </div>
-                  <div className="mt-3 p-3 bg-zinc-950 rounded-lg border border-zinc-900 overflow-x-auto">
-                    <pre className="text-[10px] text-zinc-400 font-mono">
-                      {(() => {
-                        try {
-                          const h = JSON.parse(log.headers);
-                          return JSON.stringify({
-                            "user-agent": h["user-agent"],
-                            "referer": h["referer"],
-                            "ip": h["x-forwarded-for"] || h["x-real-ip"]
-                          }, null, 2);
-                        } catch (e) {
-                          return log.headers;
-                        }
-                      })()}
-                    </pre>
-                  </div>
+          ) : activeTab === 'authors' ? (
+            /* Authors Management Section */
+            <div className="p-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div>
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2 text-red-500">
+                    <User size={20} /> จัดการรายชื่อผู้เขียน
+                  </h3>
+                  <p className="text-zinc-500 text-sm mt-1">เพิ่ม แก้ไข และจัดการข้อมูลโปรไฟล์ของผู้เขียนบทความ</p>
                 </div>
-              ))
-            )}
-          </div>
-          <p className="mt-6 text-[11px] text-zinc-600 text-center italic">
-            * ระบบจะบันทึกเฉพาะการเรียกดูหน้าเว็บหลัก ไม่บันทึกการโหลดไฟล์รูปภาพหรือไฟล์ระบบ
-          </p>
+                {!isEditingAuthor && (
+                  <button 
+                    onClick={() => { setCurrentAuthor({}); setIsEditingAuthor(true); }}
+                    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-red-600/20"
+                  >
+                    <Plus size={16} /> เพิ่มผู้เขียนใหม่
+                  </button>
+                )}
+              </div>
+
+              {isEditingAuthor ? (
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 mb-8">
+                  <h4 className="text-white font-bold mb-6 flex items-center gap-2">
+                    {currentAuthor.id ? 'แก้ไขข้อมูลผู้เขียน' : 'เพิ่มผู้เขียนใหม่'}
+                  </h4>
+                  <form onSubmit={handleSaveAuthor} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">ชื่อผู้เขียน</label>
+                        <input 
+                          type="text" 
+                          value={currentAuthor.name || ''}
+                          onChange={e => setCurrentAuthor({...currentAuthor, name: e.target.value})}
+                          className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">ตำแหน่ง (Position)</label>
+                        <input 
+                          type="text" 
+                          value={currentAuthor.position || ''}
+                          onChange={e => setCurrentAuthor({...currentAuthor, position: e.target.value})}
+                          className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">URL รูปโปรไฟล์</label>
+                      <input 
+                        type="text" 
+                        value={currentAuthor.image || ''}
+                        onChange={e => setCurrentAuthor({...currentAuthor, image: e.target.value})}
+                        className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm"
+                        placeholder="https://..."
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">คำอธิบายสั้นๆ (Description)</label>
+                      <textarea 
+                        value={currentAuthor.description || ''}
+                        onChange={e => setCurrentAuthor({...currentAuthor, description: e.target.value})}
+                        className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm h-24 resize-none"
+                        placeholder="รายละเอียดเกี่ยวกับผู้เขียน..."
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4">
+                      <button 
+                        type="button" 
+                        onClick={() => setIsEditingAuthor(false)}
+                        className="px-6 py-2.5 text-zinc-400 hover:text-white transition-colors text-sm font-medium"
+                      >
+                        ยกเลิก
+                      </button>
+                      <button 
+                        type="submit"
+                        className="px-8 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition-all"
+                      >
+                        บันทึกข้อมูล
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {authors.length === 0 ? (
+                    <div className="col-span-full py-12 text-center text-zinc-500 border border-zinc-800 border-dashed rounded-3xl bg-zinc-900/10">
+                      <User size={40} className="mx-auto mb-3 opacity-20" />
+                      <p>ยังไม่มีข้อมูลผู้เขียน</p>
+                    </div>
+                  ) : (
+                    authors.map(a => (
+                      <div key={a.id} className="bg-zinc-900/30 border border-zinc-800 p-6 rounded-3xl hover:border-red-500/50 transition-all group">
+                        <div className="flex items-center gap-4 mb-4">
+                          <img 
+                            src={a.image || 'https://via.placeholder.com/150'} 
+                            alt={a.name} 
+                            className="w-16 h-16 rounded-full object-cover border-2 border-zinc-800 group-hover:border-red-500 transition-colors"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div>
+                            <h5 className="text-white font-bold">{a.name}</h5>
+                            <p className="text-red-500 text-xs font-medium">{a.position || 'Author'}</p>
+                          </div>
+                        </div>
+                        <p className="text-zinc-400 text-xs line-clamp-3 mb-6 h-12 leading-relaxed italic">{a.description || 'ไม่มีคำอธิบาย'}</p>
+                        <div className="flex gap-2 border-t border-zinc-800 pt-4">
+                          <button 
+                            onClick={() => { setCurrentAuthor(a); setIsEditingAuthor(true); }}
+                            className="flex-1 flex items-center justify-center gap-2 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-xl text-xs font-bold transition-all"
+                          >
+                            <Edit size={14} /> แก้ไข
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteAuthor(a.id)}
+                            className="flex-1 flex items-center justify-center gap-2 py-2 bg-zinc-900 hover:bg-red-500/10 text-zinc-400 hover:text-red-500 rounded-xl text-xs font-bold transition-all"
+                          >
+                            <Trash2 size={14} /> ลบ
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Logs Viewer Section */
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Database className="text-red-500" size={20} />
+                  บันทึกการเข้าถึง (System Logs)
+                </h3>
+                <button 
+                  onClick={fetchLogs}
+                  disabled={isLoadingLogs}
+                  className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-sm font-medium transition-colors border border-zinc-800 flex items-center gap-2"
+                >
+                  {isLoadingLogs ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles size={16} className="text-amber-500" />}
+                  รีเฟรชข้อมูล
+                </button>
+              </div>
+
+              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                {logs.length === 0 ? (
+                  <div className="text-center py-12 text-zinc-500 bg-black/50 rounded-2xl border border-zinc-900">
+                    <Search size={40} className="mx-auto mb-3 opacity-20" />
+                    <p>ไม่พบข้อมูลการเข้าถึงในขณะนี้</p>
+                  </div>
+                ) : (
+                  logs.map((log) => (
+                    <div key={log.id} className="bg-black/40 border border-zinc-900 rounded-xl p-4 hover:border-zinc-700 transition-colors">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-3">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                            log.method === 'GET' ? 'bg-blue-500/20 text-blue-400' : 
+                            log.method === 'POST' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
+                          }`}>
+                            {log.method}
+                          </span>
+                          <span className="text-zinc-200 text-sm font-mono truncate max-w-[200px] md:max-w-md" title={log.url}>
+                            {log.url}
+                          </span>
+                        </div>
+                        <span className="text-zinc-500 text-[10px] font-mono whitespace-nowrap">
+                          {new Date(log.timestamp).toLocaleString('th-TH')}
+                        </span>
+                      </div>
+                      <div className="mt-3 p-3 bg-zinc-950 rounded-lg border border-zinc-900 overflow-x-auto">
+                        <pre className="text-[10px] text-zinc-400 font-mono">
+                          {(() => {
+                            try {
+                              const h = JSON.parse(log.headers);
+                              return JSON.stringify({
+                                "user-agent": h["user-agent"],
+                                "referer": h["referer"],
+                                "ip": h["x-forwarded-for"] || h["x-real-ip"]
+                              }, null, 2);
+                            } catch (e) {
+                              return log.headers;
+                            }
+                          })()}
+                        </pre>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              <p className="mt-6 text-[11px] text-zinc-600 text-center italic">
+                * ระบบจะบันทึกเฉพาะการเรียกดูหน้าเว็บหลัก ไม่บันทึกการโหลดไฟล์รูปภาพหรือไฟล์ระบบ
+              </p>
+            </div>
+          )}
         </div>
       )}
-    </div>
-  )}
 
       {/* Preview Modal */}
       {isPreviewOpen && (

@@ -1,3 +1,12 @@
+export interface Author {
+  id: string;
+  name: string;
+  image?: string;
+  position?: string;
+  description?: string;
+  createdAt?: string | Date | any;
+}
+
 export interface Article {
   id: string;
   title: string;
@@ -9,6 +18,8 @@ export interface Article {
   status: 'published' | 'draft' | 'scheduled';
   author: string;
   authorImage?: string;
+  authorPosition?: string;
+  authorDescription?: string;
   date: string;
   publishedAt?: string | Date | any;
   metaTitle?: string;

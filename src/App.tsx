@@ -38,7 +38,14 @@ import {
   Flame,
   Activity,
   Circle,
-  User
+  User,
+  Share2,
+  Facebook,
+  Twitter,
+  Link as LinkIcon,
+  List,
+  Check,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -769,6 +776,34 @@ function Bocker168Landing() {
     return 'บาคาร่า, บาคาร่าออนไลน์, บาคาร่าเว็บตรง, สมัครบาคาร่า, คาสิโนสด, bocker168';
   };
 
+  const getTableOfContents = (content: string) => {
+    if (!content) return [];
+    const h2Matches = Array.from(content.matchAll(/<h2[^>]*>(.*?)<\/h2>/gis));
+    return h2Matches.map((match, index) => {
+      const text = match[1].replace(/<[^>]*>/g, '').trim();
+      const id = `heading-${index}`;
+      return { id, text, raw: match[0] };
+    });
+  };
+
+  const addIdsToHeadings = (content: string) => {
+    if (!content) return '';
+    let index = 0;
+    return content.replace(/<h2([^>]*)>(.*?)<\/h2>/gis, (match, attrs, text) => {
+      const id = `heading-${index++}`;
+      return `<h2 id="${id}"${attrs}>${text}</h2>`;
+    });
+  };
+
+  const lazyLoadImages = (content: string) => {
+    if (!content) return '';
+    return content.replace(/<img([^>]*)>/gis, (match, attrs) => {
+      // Avoid duplicate loading attributes
+      if (attrs.includes('loading=')) return match;
+      return `<img${attrs} loading="lazy">`;
+    });
+  };
+
   const splitArticleContent = (content: string) => {
     if (!content) return ['', ''];
     
@@ -813,6 +848,14 @@ function Bocker168Landing() {
         <meta property="og:description" content={getPageDescription()} />
         <meta property="og:type" content={isArticleDetail ? "article" : "website"} />
         <meta property="og:url" content={`https://hongkonglex.com${location.pathname}`} />
+        <meta property="og:image" content={isArticleDetail && currentArticle?.image ? currentArticle.image : "https://img2.pic.in.th/A2-Logo-Bocker-168.png"} />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={getPageTitle()} />
+        <meta name="twitter:description" content={getPageDescription()} />
+        <meta name="twitter:image" content={isArticleDetail && currentArticle?.image ? currentArticle.image : "https://img2.pic.in.th/A2-Logo-Bocker-168.png"} />
+        
         <link rel="canonical" href={`https://hongkonglex.com${location.pathname}`} />
         
         <script type="application/ld+json">
@@ -1026,9 +1069,86 @@ function Bocker168Landing() {
                     <h1 className="text-3xl md:text-4xl font-black text-red-500 mb-8 leading-tight">
                       {currentArticle.title}
                     </h1>
+
+                    {/* Meta TOC & Social Sharing */}
+                    <div className="flex flex-col lg:flex-row gap-8 mb-10">
+                      <div className="flex-1">
+                        {(() => {
+                          const content = currentArticle.content || (currentArticle as any).description || '';
+                          const toc = getTableOfContents(content);
+                          if (toc.length < 2) return null;
+                          return (
+                            <div className="bg-zinc-950/50 border border-zinc-800 rounded-2xl p-6">
+                              <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+                                <List className="w-5 h-5 text-red-500" />
+                                สารบัญบทความ
+                              </h3>
+                              <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                                {toc.map((item, i) => (
+                                  <li key={i}>
+                                    <a 
+                                      href={`#${item.id}`} 
+                                      className="text-zinc-400 hover:text-red-400 text-sm transition-colors flex items-start gap-2 py-1"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                                      }}
+                                    >
+                                      <span className="text-red-500/50 mt-0.5">•</span>
+                                      {item.text}
+                                    </a>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      
+                      <div className="lg:w-64 shrink-0">
+                        <div className="bg-zinc-950/50 border border-zinc-800 rounded-2xl p-6 text-center lg:text-left">
+                          <h3 className="text-white font-bold mb-4 flex items-center justify-center lg:justify-start gap-2">
+                            <Share2 className="w-5 h-5 text-red-500" />
+                            แชร์บทความนี้
+                          </h3>
+                          <div className="flex lg:flex-col gap-3 justify-center lg:justify-start">
+                            <a 
+                              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://hongkonglex.com${location.pathname}`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 lg:flex-none flex items-center justify-center lg:justify-start gap-3 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-[#1877F2] py-2.5 px-4 rounded-xl transition-all border border-[#1877F2]/20"
+                            >
+                              <Facebook className="w-5 h-5" />
+                              <span className="hidden lg:block font-bold text-sm">Facebook</span>
+                            </a>
+                            <a 
+                              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(currentArticle.title)}&url=${encodeURIComponent(`https://hongkonglex.com${location.pathname}`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 lg:flex-none flex items-center justify-center lg:justify-start gap-3 bg-white/5 hover:bg-white/10 text-white py-2.5 px-4 rounded-xl transition-all border border-white/10"
+                            >
+                              <Twitter className="w-5 h-5" />
+                              <span className="hidden lg:block font-bold text-sm">Twitter (X)</span>
+                            </a>
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText(`https://hongkonglex.com${location.pathname}`);
+                                alert('คัดลอกลิงก์เรียบร้อยแล้ว');
+                              }}
+                              className="flex-1 lg:flex-none flex items-center justify-center lg:justify-start gap-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-2.5 px-4 rounded-xl transition-all border border-zinc-700"
+                            >
+                              <LinkIcon className="w-5 h-5" />
+                              <span className="hidden lg:block font-bold text-sm">Coppy Link</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     
                     {(() => {
-                      const content = currentArticle.content || (currentArticle as any).description || '';
+                      let content = currentArticle.content || (currentArticle as any).description || '';
+                      content = addIdsToHeadings(content);
+                      content = lazyLoadImages(content);
                       const [part1, part2] = splitArticleContent(content);
                       
                       return (
@@ -1090,6 +1210,111 @@ function Bocker168Landing() {
                             className="max-w-none [&>h1]:text-red-500 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-red-500 [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-red-500 [&>h3]:mt-6 [&>h4]:text-lg [&>h4]:font-bold [&>h4]:text-red-500 [&>h4]:mt-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-amber-500 [&>b]:text-amber-500 [&>a]:text-sky-400 hover:[&>a]:text-sky-300 [&>a]:underline transition-colors [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
                             dangerouslySetInnerHTML={{ __html: part2 }}
                           />
+
+                          {/* Author Identity Card */}
+                          <div className="mt-16 p-6 sm:p-8 bg-black/40 border border-zinc-800 rounded-3xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 blur-[50px] -translate-y-1/2 translate-x-1/2 group-hover:bg-red-600/10 transition-all duration-700" />
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
+                              <div className="shrink-0">
+                                <img 
+                                  src={currentArticle.authorImage || 'https://img2.pic.in.th/A2-Logo-Bocker-168.png'} 
+                                  alt={currentArticle.author} 
+                                  className="w-24 h-24 rounded-full object-cover border-2 border-zinc-800 shadow-xl"
+                                  referrerPolicy="no-referrer"
+                                />
+                              </div>
+                              <div className="text-center sm:text-left">
+                                <div className="text-red-500 font-bold mb-1 uppercase tracking-widest text-[10px]">Article Author</div>
+                                <h3 className="text-2xl font-black text-white mb-1">{currentArticle.author || 'Admin Bocker168'}</h3>
+                                {currentArticle.authorPosition && (
+                                  <div className="text-amber-500 text-sm font-bold mb-3">{currentArticle.authorPosition}</div>
+                                )}
+                                <div className="text-zinc-400 text-sm leading-relaxed mb-4 max-w-2xl italic">
+                                  {currentArticle.authorDescription || 'ผู้เชี่ยวชาญด้านคาสิโนออนไลน์และบาคาร่า พร้อมแบ่งปันเทคนิคและประสบการณ์เพื่อช่วยให้คุณเอาชนะในทุกการเดิมพัน'}
+                                </div>
+                                <div className="flex items-center justify-center sm:justify-start gap-4">
+                                  <div className="text-zinc-500 text-[11px] font-mono flex items-center gap-1.5">
+                                    <Check className="w-3 h-3 text-green-500" /> Verified Content
+                                  </div>
+                                  <div className="text-zinc-500 text-[11px] font-mono flex items-center gap-1.5 border-l border-zinc-800 pl-4">
+                                    <Sparkles className="w-3 h-3 text-amber-500" /> Expert Insight
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Navigation Prev/Next */}
+                          {(() => {
+                            const sortedArticles = [...articles].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                            const currentIndex = sortedArticles.findIndex(a => a.id === currentArticle.id);
+                            const nextArticle = currentIndex > 0 ? sortedArticles[currentIndex - 1] : null;
+                            const prevArticle = currentIndex < sortedArticles.length - 1 ? sortedArticles[currentIndex + 1] : null;
+
+                            if (!prevArticle && !nextArticle) return null;
+
+                            return (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12 pt-12 border-t border-zinc-800">
+                                {prevArticle ? (
+                                  <Link to={`/article/${prevArticle.slug}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-left">
+                                    <div className="text-zinc-500 text-xs font-bold mb-2 flex items-center gap-1 group-hover:text-red-400 transition-colors">
+                                      <BookOpen size={14} /> บทความก่อนหน้า
+                                    </div>
+                                    <div className="text-white font-bold line-clamp-2 text-sm group-hover:text-red-500 transition-colors">
+                                      {prevArticle.title}
+                                    </div>
+                                  </Link>
+                                ) : <div />}
+                                
+                                {nextArticle && (
+                                  <Link to={`/article/${nextArticle.slug}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-right">
+                                    <div className="text-zinc-500 text-xs font-bold mb-2 flex items-center gap-1 justify-end group-hover:text-red-400 transition-colors">
+                                      บทความถัดไป <BookOpen size={14} />
+                                    </div>
+                                    <div className="text-white font-bold line-clamp-2 text-sm group-hover:text-red-500 transition-colors">
+                                      {nextArticle.title}
+                                    </div>
+                                  </Link>
+                                )}
+                              </div>
+                            );
+                          })()}
+
+                          {/* Related Articles */}
+                          {(() => {
+                            const related = articles
+                              .filter(a => a.id !== currentArticle.id && a.category === currentArticle.category)
+                              .slice(0, 3);
+                            
+                            if (related.length === 0) return null;
+
+                            return (
+                              <div className="mt-16">
+                                <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
+                                  <Flame className="w-8 h-8 text-red-500" />
+                                  บทความที่เกี่ยวข้อง
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                  {related.map(item => (
+                                    <Link key={item.id} to={`/article/${item.slug}`} className="group block group">
+                                      <div className="aspect-video rounded-xl overflow-hidden mb-4 border border-zinc-800">
+                                        <img 
+                                          src={item.image} 
+                                          alt={item.title} 
+                                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                          referrerPolicy="no-referrer"
+                                          loading="lazy"
+                                        />
+                                      </div>
+                                      <h4 className="text-zinc-300 font-bold text-sm line-clamp-2 group-hover:text-red-500 transition-colors">
+                                        {item.title}
+                                      </h4>
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })()}
                         </>
                       );
                     })()}

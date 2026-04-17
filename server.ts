@@ -100,6 +100,18 @@ async function startServer() {
 
   // Helper to initialize table
   const initTable = async () => {
+    // Create authors table
+    await queryD1(`
+      CREATE TABLE IF NOT EXISTS authors (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        image TEXT,
+        position TEXT,
+        description TEXT,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     const sql = `
       CREATE TABLE IF NOT EXISTS articles (
         id TEXT PRIMARY KEY,
@@ -112,6 +124,8 @@ async function startServer() {
         status TEXT CHECK(status IN ('published', 'draft', 'scheduled')),
         author TEXT,
         authorImage TEXT,
+        authorPosition TEXT,
+        authorDescription TEXT,
         date TEXT,
         metaTitle TEXT,
         metaDescription TEXT,
@@ -122,11 +136,19 @@ async function startServer() {
     `;
     await queryD1(sql);
     
-    // Attempt to add authorImage column if it doesn't exist (for existing databases)
-    try {
-      await queryD1(`ALTER TABLE articles ADD COLUMN authorImage TEXT;`);
-    } catch (e) {
-      // Ignore error if column already exists
+    // Attempt to add new columns if they don't exist (for existing databases)
+    const columnsToAdd = [
+      { name: 'authorImage', type: 'TEXT' },
+      { name: 'authorPosition', type: 'TEXT' },
+      { name: 'authorDescription', type: 'TEXT' }
+    ];
+
+    for (const col of columnsToAdd) {
+      try {
+        await queryD1(`ALTER TABLE articles ADD COLUMN ${col.name} ${col.type};`);
+      } catch (e) {
+        // Ignore error if column already exists
+      }
     }
 
     // Create request_logs table
@@ -354,8 +376,8 @@ async function startServer() {
       }
 
       const sql = `
-        INSERT INTO articles (id, title, slug, content, excerpt, category, image, status, author, authorImage, date, metaTitle, metaDescription, metaKeywords)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO articles (id, title, slug, content, excerpt, category, image, status, author, authorImage, authorPosition, authorDescription, date, metaTitle, metaDescription, metaKeywords)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           title = excluded.title,
           slug = excluded.slug,
@@ -366,6 +388,8 @@ async function startServer() {
           status = excluded.status,
           author = excluded.author,
           authorImage = excluded.authorImage,
+          authorPosition = excluded.authorPosition,
+          authorDescription = excluded.authorDescription,
           date = excluded.date,
           metaTitle = excluded.metaTitle,
           metaDescription = excluded.metaDescription,
@@ -373,7 +397,9 @@ async function startServer() {
       `;
       const params = [
         article.id, article.title, article.slug, article.content, article.excerpt,
-        article.category, article.image, article.status, article.author, article.authorImage, article.date,
+        article.category, article.image, article.status, article.author, article.authorImage,
+        article.authorPosition, article.authorDescription,
+        article.date,
         article.metaTitle, article.metaDescription, article.metaKeywords
       ];
       
@@ -407,6 +433,58 @@ async function startServer() {
       res.json({ success: true });
     } catch (error: any) {
       console.error('Error deleting article:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // --- Authors API ---
+
+  app.get('/api/authors', async (req, res) => {
+    console.log('GET /api/authors');
+    if (!isD1Configured()) return res.json([]);
+    try {
+      const result = await queryD1('SELECT * FROM authors ORDER BY name ASC');
+      res.json(result.results || []);
+    } catch (error: any) {
+      console.error('Error fetching authors:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/authors', express.json(), async (req, res) => {
+    console.log('POST /api/authors');
+    if (!isD1Configured()) return res.status(503).json({ error: 'D1 not configured' });
+    try {
+      const author = req.body;
+      if (!author.id || !author.name) {
+        return res.status(400).json({ error: 'Missing required fields: id, name' });
+      }
+
+      await queryD1(
+        `INSERT INTO authors (id, name, image, position, description) 
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           name = excluded.name,
+           image = excluded.image,
+           position = excluded.position,
+           description = excluded.description`,
+        [author.id, author.name, author.image, author.position, author.description]
+      );
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error saving author:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.delete('/api/authors/:id', async (req, res) => {
+    console.log('DELETE /api/authors', req.params.id);
+    if (!isD1Configured()) return res.status(503).json({ error: 'D1 not configured' });
+    try {
+      await queryD1('DELETE FROM authors WHERE id = ?', [req.params.id]);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error deleting author:', error);
       res.status(500).json({ error: error.message });
     }
   });
