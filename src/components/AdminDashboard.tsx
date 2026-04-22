@@ -92,7 +92,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
 
   const handleSaveAuthor = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentAuthor.name) return;
+    if (!currentAuthor.name) {
+      alert('กรุณากรอกชื่อผู้เขียน');
+      return;
+    }
 
     const author: Author = {
       id: currentAuthor.id || Date.now().toString(),
@@ -112,9 +115,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
         fetchAuthors();
         setIsEditingAuthor(false);
         setCurrentAuthor({});
+        alert('บันทึกข้อมูลผู้เขียนสำเร็จ');
+      } else {
+        const err = await response.json();
+        alert('บันทึกไม่สำเร็จ: ' + (err.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error saving author:', error);
+      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
     }
   };
 
