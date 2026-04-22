@@ -314,6 +314,9 @@ async function startServer() {
 
   // API Routes
   app.get('/api/config-status', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.json({
       d1Configured: isD1Configured(),
       fallbackMode: !isD1Configured()
@@ -321,6 +324,9 @@ async function startServer() {
   });
 
   app.get('/api/articles', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     console.log('GET /api/articles');
     try {
       if (!isD1Configured()) {
@@ -623,6 +629,9 @@ ${articles.map(article => `  <url>
         let template = await fs.readFile(path.resolve(process.cwd(), 'index.html'), 'utf-8');
         template = await vite.transformIndexHtml(url, template);
         template = await injectSEO(template, url);
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
       } catch (e) {
         vite.ssrFixStacktrace(e as Error);
@@ -636,6 +645,9 @@ ${articles.map(article => `  <url>
       try {
         let template = await fs.readFile(path.join(distPath, 'index.html'), 'utf-8');
         template = await injectSEO(template, req.originalUrl);
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         res.status(200).set({ 'Content-Type': 'text/html' }).send(template);
       } catch (error) {
         res.sendFile(path.join(distPath, 'index.html'));
