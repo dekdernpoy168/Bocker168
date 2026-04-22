@@ -778,9 +778,9 @@ function Bocker168Landing() {
 
   const getTableOfContents = (content: string) => {
     if (!content) return [];
-    const h2Matches = Array.from(content.matchAll(/<h2[^>]*>(.*?)<\/h2>/gis));
-    return h2Matches.map((match, index) => {
-      let text = match[1].replace(/<[^>]*>/g, '');
+    const hMatches = Array.from(content.matchAll(/<h([1-6])[^>]*>(.*?)<\/h\1>/gis));
+    return hMatches.map((match, index) => {
+      let text = match[2].replace(/<[^>]*>/g, '');
       // Remove HTML entities like &nbsp;
       text = text.replace(/&nbsp;/g, ' ')
                  .replace(/&amp;/g, '&')
@@ -790,16 +790,16 @@ function Bocker168Landing() {
                  .replace(/&#39;/g, "'")
                  .trim();
       const id = `heading-${index}`;
-      return { id, text, raw: match[0] };
+      return { id, text, raw: match[0], level: parseInt(match[1]) };
     });
   };
 
   const addIdsToHeadings = (content: string) => {
     if (!content) return '';
     let index = 0;
-    return content.replace(/<h2([^>]*)>(.*?)<\/h2>/gis, (match, attrs, text) => {
+    return content.replace(/<h([1-6])([^>]*)>(.*?)<\/h\1>/gis, (match, level, attrs, text) => {
       const id = `heading-${index++}`;
-      return `<h2 id="${id}"${attrs}>${text}</h2>`;
+      return `<h${level} id="${id}"${attrs}>${text}</h${level}>`;
     });
   };
 
