@@ -1466,12 +1466,6 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                 ยกเลิก
               </button>
               <button 
-                onClick={(e) => handleSave(e, 'draft')}
-                className="flex items-center gap-2 px-6 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-sm font-medium transition-colors border border-zinc-800"
-              >
-                <Save size={16} /> บันทึกฉบับร่าง
-              </button>
-              <button 
                 onClick={(e) => handleSave(e, 'published')}
                 className="flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold transition-colors shadow-lg shadow-red-600/20"
               >

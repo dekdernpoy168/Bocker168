@@ -1105,44 +1105,6 @@ function Bocker168Landing() {
                         })()}
                       </div>
                       
-                      <div className="lg:w-64 shrink-0">
-                        <div className="bg-zinc-950/50 border border-zinc-800 rounded-2xl p-6 text-center lg:text-left">
-                          <h3 className="text-white font-bold mb-4 flex items-center justify-center lg:justify-start gap-2">
-                            <Share2 className="w-5 h-5 text-red-500" />
-                            แชร์บทความนี้
-                          </h3>
-                          <div className="flex lg:flex-col gap-3 justify-center lg:justify-start">
-                            <a 
-                              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://hongkonglex.com${location.pathname}`)}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 lg:flex-none flex items-center justify-center lg:justify-start gap-3 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-[#1877F2] py-2.5 px-4 rounded-xl transition-all border border-[#1877F2]/20"
-                            >
-                              <Facebook className="w-5 h-5" />
-                              <span className="hidden lg:block font-bold text-sm">Facebook</span>
-                            </a>
-                            <a 
-                              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(currentArticle.title)}&url=${encodeURIComponent(`https://hongkonglex.com${location.pathname}`)}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 lg:flex-none flex items-center justify-center lg:justify-start gap-3 bg-white/5 hover:bg-white/10 text-white py-2.5 px-4 rounded-xl transition-all border border-white/10"
-                            >
-                              <Twitter className="w-5 h-5" />
-                              <span className="hidden lg:block font-bold text-sm">Twitter (X)</span>
-                            </a>
-                            <button 
-                              onClick={() => {
-                                navigator.clipboard.writeText(`https://hongkonglex.com${location.pathname}`);
-                                alert('คัดลอกลิงก์เรียบร้อยแล้ว');
-                              }}
-                              className="flex-1 lg:flex-none flex items-center justify-center lg:justify-start gap-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-2.5 px-4 rounded-xl transition-all border border-zinc-700"
-                            >
-                              <LinkIcon className="w-5 h-5" />
-                              <span className="hidden lg:block font-bold text-sm">Coppy Link</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                     
                     {(() => {
@@ -1315,6 +1277,44 @@ function Bocker168Landing() {
                               </div>
                             );
                           })()}
+
+                          {/* Share Article Bottom Section */}
+                          <div className="mt-16 bg-black/40 border border-zinc-800 rounded-3xl p-8 text-center max-w-2xl mx-auto">
+                            <h3 className="text-white font-bold mb-6 text-lg flex items-center justify-center gap-2">
+                              <Share2 className="w-5 h-5 text-red-500" />
+                              แชร์บทความนี้
+                            </h3>
+                            <div className="flex flex-wrap gap-4 justify-center">
+                              <a 
+                                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://hongkonglex.com${location.pathname}`)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-[#1877F2] py-3 px-6 rounded-xl transition-all border border-[#1877F2]/20 font-bold"
+                              >
+                                <Facebook className="w-5 h-5" />
+                                Facebook
+                              </a>
+                              <a 
+                                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(currentArticle.title)}&url=${encodeURIComponent(`https://hongkonglex.com${location.pathname}`)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 bg-white/5 hover:bg-white/10 text-white py-3 px-6 rounded-xl transition-all border border-white/10 font-bold"
+                              >
+                                <Twitter className="w-5 h-5" />
+                                Twitter (X)
+                              </a>
+                              <button 
+                                onClick={() => {
+                                  navigator.clipboard.writeText(`https://hongkonglex.com${location.pathname}`);
+                                  alert('คัดลอกลิงก์เรียบร้อยแล้ว');
+                                }}
+                                className="flex items-center gap-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-3 px-6 rounded-xl transition-all border border-zinc-700 font-bold"
+                              >
+                                <LinkIcon className="w-5 h-5" />
+                                Coppy Link
+                              </button>
+                            </div>
+                          </div>
                         </>
                       );
                     })()}
@@ -1978,7 +1978,7 @@ function Bocker168Landing() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
-              {articles.map((article, index) => (
+              {articles.filter(a => a.status !== 'draft').map((article, index) => (
                 <motion.div
                   key={article.id || index}
                   initial={{ opacity: 0, y: 30 }}
