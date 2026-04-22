@@ -78,7 +78,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const fetchAuthors = async () => {
     setIsLoadingAuthors(true);
     try {
-      const response = await fetch('/api/authors');
+      const response = await fetch(`/api/authors?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         setAuthors(data);

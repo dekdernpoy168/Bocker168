@@ -450,6 +450,9 @@ async function startServer() {
   // --- Authors API ---
 
   app.get('/api/authors', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     console.log('GET /api/authors');
     if (!isD1Configured()) return res.json([]);
     try {
