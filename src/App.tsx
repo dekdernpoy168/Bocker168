@@ -1084,7 +1084,7 @@ function Bocker168Landing() {
                         {(() => {
                           const content = currentArticle.content || (currentArticle as any).description || '';
                           const toc = getTableOfContents(content);
-                          if (toc.length < 2) return null;
+                          if (toc.length === 0) return null;
                           return (
                             <div className="bg-zinc-950/50 border border-zinc-800 rounded-2xl p-6">
                               <h3 className="text-white font-bold mb-4 flex items-center gap-2">
