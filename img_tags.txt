@@ -1,0 +1,18 @@
+808:    return content.replace(/<img([^>]*)>/gis, (match, attrs) => {
+811:      return `<img${attrs} loading="lazy">`;
+827:    // We use a non-greedy match for paragraph content and check for <img> tags.
+830:      if (!match[0].toLowerCase().includes('<img')) {
+987:              <img 
+1068:                            <img src={currentArticle.authorImage} alt={currentArticle.author} className="w-6 h-6 rounded-full object-cover border border-zinc-700" referrerPolicy="no-referrer" />
+1163:                                        <img src="https://img1.pic.in.th/images/QR-code-registerbocker168.png" alt="QR Code" className="w-full max-w-[200px] mx-auto h-auto rounded-lg hover:opacity-90 transition-opacity" referrerPolicy="no-referrer" />
+1189:                                <img 
+1271:                                        <img 
+1520:                <img 
+1626:                      <img 
+1794:                      <img 
+1800:                      <img 
+1850:                      <img 
+1902:                    <img 
+2004:                        <img 
+2027:                              <img src={article.authorImage} alt={article.author} className="w-5 h-5 rounded-full object-cover border border-zinc-700" referrerPolicy="no-referrer" />
+2143:              <img 

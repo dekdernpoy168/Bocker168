@@ -265,6 +265,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       metaKeywords: currentArticle.metaKeywords || '',
     };
 
+    const contentSize = new Blob([newArticle.content || '']).size;
+    if (contentSize > 800 * 1024) {
+      alert('เนื้อหาบทความมีขนาดใหญ่เกินไป (เกิน 800KB) กรุณาแบ่งเนื้อหาออกเป็นส่วนๆ');
+      return;
+    }
+
     try {
       const response = await fetch('/api/articles', {
         method: 'POST',

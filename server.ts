@@ -404,6 +404,10 @@ async function startServer() {
       ];
       
       try {
+        const contentSize = Buffer.byteLength(article.content || '');
+        if (contentSize > 800 * 1024) {
+          throw new Error('บทความมีขนาดใหญ่เกินไป กรุณาแบ่งเนื้อหาออกเป็นส่วนๆ หรือบีบอัดรูปภาพ');
+        }
         await queryD1(sql, params);
       } catch (error: any) {
         if (error.message.includes('no such table: articles')) {

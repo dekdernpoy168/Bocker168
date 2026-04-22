@@ -780,7 +780,15 @@ function Bocker168Landing() {
     if (!content) return [];
     const h2Matches = Array.from(content.matchAll(/<h2[^>]*>(.*?)<\/h2>/gis));
     return h2Matches.map((match, index) => {
-      const text = match[1].replace(/<[^>]*>/g, '').trim();
+      let text = match[1].replace(/<[^>]*>/g, '');
+      // Remove HTML entities like &nbsp;
+      text = text.replace(/&nbsp;/g, ' ')
+                 .replace(/&amp;/g, '&')
+                 .replace(/&lt;/g, '<')
+                 .replace(/&gt;/g, '>')
+                 .replace(/&quot;/g, '"')
+                 .replace(/&#39;/g, "'")
+                 .trim();
       const id = `heading-${index}`;
       return { id, text, raw: match[0] };
     });
@@ -1056,7 +1064,7 @@ function Bocker168Landing() {
                       </div>
                       {currentArticle.author && (
                         <div className="flex items-center gap-2 text-zinc-400 text-sm">
-                          {currentArticle.authorImage ? (
+                          {currentArticle.authorImage && currentArticle.authorImage.trim() !== '' ? (
                             <img src={currentArticle.authorImage} alt={currentArticle.author} className="w-6 h-6 rounded-full object-cover border border-zinc-700" referrerPolicy="no-referrer" />
                           ) : (
                             <User className="w-5 h-5" />
@@ -1261,7 +1269,7 @@ function Bocker168Landing() {
                                     <Link key={item.id} to={`/article/${item.slug}`} className="group block group">
                                       <div className="aspect-video rounded-xl overflow-hidden mb-4 border border-zinc-800">
                                         <img 
-                                          src={item.image} 
+                                          src={item.image || null} 
                                           alt={item.title} 
                                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                           referrerPolicy="no-referrer"
@@ -1615,12 +1623,14 @@ function Bocker168Landing() {
                   >
                     <div className="relative mb-8 group-hover:scale-105 transition-transform duration-500 w-full flex justify-center">
                       <div className="absolute inset-0 bg-amber-500/10 blur-[50px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      <img 
-                        src={feature.image} 
-                        alt={feature.title} 
-                        className="w-full max-w-[250px] h-auto aspect-square object-contain relative z-10 drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]"
-                        referrerPolicy="no-referrer"
-                      />
+                      {feature.image && (
+                        <img 
+                          src={feature.image} 
+                          alt={feature.title} 
+                          className="w-full max-w-[250px] h-auto aspect-square object-contain relative z-10 drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]"
+                          referrerPolicy="no-referrer"
+                        />
+                      )}
                     </div>
                     <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
                     <p className="text-zinc-400 text-lg leading-relaxed">
@@ -1784,13 +1794,13 @@ function Bocker168Landing() {
                       <div className={`absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/20 to-transparent z-10`} />
                       <div className={`absolute inset-0 bg-gradient-to-br ${cat.accent} opacity-20 group-hover:opacity-40 transition-opacity z-10`} />
                       <img 
-                        src={cat.image} 
+                        src={cat.image || null} 
                         alt={cat.title} 
                         className="w-full h-full object-contain object-bottom group-hover:scale-110 transition-transform duration-500 relative z-0"
                         referrerPolicy="no-referrer"
                       />
                       <img 
-                        src={cat.logo} 
+                        src={cat.logo || null} 
                         alt={`${cat.title} logo`} 
                         className="absolute top-4 left-4 w-12 h-12 z-20 rounded-full border border-zinc-700 bg-zinc-900 p-1"
                         referrerPolicy="no-referrer"
@@ -1840,7 +1850,7 @@ function Bocker168Landing() {
                   {step.image ? (
                     <div className="mb-6 rounded-2xl overflow-hidden border border-zinc-800 shadow-lg max-w-[280px] group-hover:border-red-500/50 transition-colors">
                       <img 
-                        src={step.image} 
+                        src={step.image || null} 
                         alt={step.title} 
                         className="w-full h-auto object-cover"
                         referrerPolicy="no-referrer"
@@ -1892,7 +1902,7 @@ function Bocker168Landing() {
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-600/10 via-transparent to-transparent" />
                   {promo.image ? (
                     <img 
-                      src={promo.image} 
+                      src={promo.image || null} 
                       alt={promo.title} 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       referrerPolicy="no-referrer"
@@ -1994,7 +2004,7 @@ function Bocker168Landing() {
                       </div>
                       {article.image ? (
                         <img 
-                          src={article.image} 
+                          src={article.image || null} 
                           alt={article.title} 
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                           referrerPolicy="no-referrer"
