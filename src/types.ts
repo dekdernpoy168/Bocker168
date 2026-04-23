@@ -2,9 +2,12 @@ export interface Author {
   id: string;
   name: string;
   image?: string;
+  avatar_url?: string;
   position?: string;
   description?: string;
+  bio?: string;
   createdAt?: string | Date | any;
+  created_at?: string | Date | any;
 }
 
 export interface Article {

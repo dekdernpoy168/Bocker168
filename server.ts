@@ -454,13 +454,26 @@ async function startServer() {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     console.log('GET /api/authors');
-    if (!isD1Configured()) return res.json([]);
+    if (!isD1Configured()) return res.json({ success: true, authors: [] });
     try {
-      const result = await queryD1('SELECT * FROM authors ORDER BY name ASC');
-      res.json(result.results || []);
+      const result = await queryD1(`
+        SELECT 
+          id, 
+          name, 
+          image AS avatar_url, 
+          position, 
+          description AS bio, 
+          createdAt AS created_at 
+        FROM authors 
+        ORDER BY createdAt DESC
+      `);
+      res.json({
+        success: true,
+        authors: result.results || []
+      });
     } catch (error: any) {
       console.error('Error fetching authors:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, error: error.message });
     }
   });
 
@@ -469,9 +482,12 @@ async function startServer() {
     if (!isD1Configured()) return res.status(503).json({ error: 'D1 not configured' });
     try {
       const author = req.body;
-      if (!author.id || !author.name) {
-        return res.status(400).json({ error: 'Missing required fields: id, name' });
+      if (!author.name) {
+        return res.status(400).json({ error: 'Missing required fields: name' });
       }
+
+      // Generate ID if not provided
+      const authorId = author.id || Date.now().toString();
 
       await queryD1(
         `INSERT INTO authors (id, name, image, position, description) 
@@ -481,7 +497,7 @@ async function startServer() {
            image = excluded.image,
            position = excluded.position,
            description = excluded.description`,
-        [author.id, author.name, author.image, author.position, author.description]
+        [authorId, author.name, author.image, author.position, author.description]
       );
       res.json({ success: true });
     } catch (error: any) {

@@ -77,14 +77,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
 
   const fetchAuthors = async () => {
     setIsLoadingAuthors(true);
+    console.log('[DEBUG] Fetching authors from API...');
     try {
       const response = await fetch(`/api/authors?t=${Date.now()}`);
-      if (response.ok) {
-        const data = await response.json();
-        setAuthors(data);
+      const data = await response.json();
+      console.log('[DEBUG] API Response for authors:', data);
+      
+      if (response.ok && data.success) {
+        setAuthors(data.authors || []);
+        console.log(`[DEBUG] Successfully loaded ${data.authors?.length || 0} authors`);
+      } else {
+        console.error('[ERROR] Failed to fetch authors:', data);
+        setAuthors([]); // Clear list on error to avoid showing stale mock data
       }
     } catch (error) {
-      console.error('Error fetching authors:', error);
+      console.error('[ERROR] Exception fetching authors:', error);
+      setAuthors([]);
     } finally {
       setIsLoadingAuthors(false);
     }
@@ -97,31 +105,37 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       return;
     }
 
-    const author: Author = {
-      id: currentAuthor.id || Date.now().toString(),
+    console.log('[DEBUG] Saving author:', currentAuthor);
+
+    // Prepare payload
+    const authorPayload = {
+      id: currentAuthor.id, // Server will generate if empty
       name: currentAuthor.name,
-      image: currentAuthor.image || '',
+      image: currentAuthor.image || currentAuthor.avatar_url || '',
       position: currentAuthor.position || '',
-      description: currentAuthor.description || '',
+      description: currentAuthor.description || currentAuthor.bio || '',
     };
 
     try {
       const response = await fetch('/api/authors', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(author),
+        body: JSON.stringify(authorPayload),
       });
-      if (response.ok) {
-        fetchAuthors();
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        console.log('[DEBUG] Author saved successfully');
+        await fetchAuthors(); // Refresh list
         setIsEditingAuthor(false);
         setCurrentAuthor({});
         alert('บันทึกข้อมูลผู้เขียนสำเร็จ');
       } else {
-        const err = await response.json();
-        alert('บันทึกไม่สำเร็จ: ' + (err.error || 'Unknown error'));
+        console.error('[ERROR] Save author failed:', result);
+        alert('บันทึกไม่สำเร็จ: ' + (result.error || 'Unknown error'));
       }
     } catch (error) {
-      console.error('Error saving author:', error);
+      console.error('[ERROR] Exception saving author:', error);
       alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
     }
   };
@@ -1751,7 +1765,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                       <div key={a.id} className="bg-zinc-900/30 border border-zinc-800 p-6 rounded-3xl hover:border-red-500/50 transition-all group">
                         <div className="flex items-center gap-4 mb-4">
                           <img 
-                            src={a.image || 'https://via.placeholder.com/150'} 
+                            src={a.avatar_url || 'https://via.placeholder.com/150'} 
                             alt={a.name} 
                             className="w-16 h-16 rounded-full object-cover border-2 border-zinc-800 group-hover:border-red-500 transition-colors"
                             referrerPolicy="no-referrer"
@@ -1761,10 +1775,18 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                             <p className="text-red-500 text-xs font-medium">{a.position || 'Author'}</p>
                           </div>
                         </div>
-                        <p className="text-zinc-400 text-xs line-clamp-3 mb-6 h-12 leading-relaxed italic">{a.description || 'ไม่มีคำอธิบาย'}</p>
+                        <p className="text-zinc-400 text-xs line-clamp-3 mb-6 h-12 leading-relaxed italic">{a.bio || 'ไม่มีคำอธิบาย'}</p>
                         <div className="flex gap-2 border-t border-zinc-800 pt-4">
                           <button 
-                            onClick={() => { setCurrentAuthor(a); setIsEditingAuthor(true); }}
+                            onClick={() => { 
+                              // Map aliases back to form fields for editing
+                              setCurrentAuthor({
+                                ...a,
+                                image: a.avatar_url,
+                                description: a.bio
+                              }); 
+                              setIsEditingAuthor(true); 
+                            }}
                             className="flex-1 flex items-center justify-center gap-2 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-xl text-xs font-bold transition-all"
                           >
                             <Edit size={14} /> แก้ไข
