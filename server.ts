@@ -141,6 +141,23 @@ async function startServer() {
       );
     `);
 
+    // Create pages table
+    await queryD1(`
+      CREATE TABLE IF NOT EXISTS pages (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        content TEXT NOT NULL,
+        excerpt TEXT,
+        image TEXT,
+        status TEXT CHECK(status IN ('published', 'draft', 'scheduled')),
+        metaTitle TEXT,
+        metaDescription TEXT,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     const sql = `
       CREATE TABLE IF NOT EXISTS articles (
         id TEXT PRIMARY KEY,
@@ -247,109 +264,87 @@ async function startServer() {
     }
   };
 
+  const getPageBySlug = async (slug: string) => {
+    try {
+      if (!isD1Configured()) return null;
+      const result = await queryD1('SELECT * FROM pages WHERE slug = ? LIMIT 1', [slug]);
+      return result.results?.[0];
+    } catch (error) {
+      console.error('Error fetching page by slug:', error);
+      return null;
+    }
+  };
+
   const injectSEO = async (template: string, url: string) => {
-    // Handle structure: /category/:categorySlug/:postSlug
-    const postMatch = url.match(/^\/category\/([^/]+)\/([^/]+)/);
-    const catSlug = postMatch ? postMatch[1] : null;
-    const postSlug = postMatch ? postMatch[2] : null;
+    const DOMAIN = 'https://hongkonglex.com';
+    const pathParts = url.split('?')[0].split('/').filter(Boolean);
     
-    // Legacy support or direct /article/:slug if any
-    const legacyMatch = url.match(/\/article\/([^\/\?]+)/);
-    const slug = postSlug || (legacyMatch ? legacyMatch[1] : null);
-    
+    // Default SEO
     let title = "บาคาร่าออนไลน์ Bocker168 เว็บตรงไม่ผ่านเอเย่นต์ ฝากถอนไม่มีขั้นต่ำ";
     let description = "Bocker168 บาคาร่าเว็บตรงไม่ผ่านเอเย่นต์ อันดับ 1 ฝากถอนออโต้ไม่มีขั้นต่ำ รองรับทรูวอเลท (True Wallet) คาสิโนสด SA Gaming, Sexy Baccarat สมัครวันนี้รับโปรโมชั่นพิเศษ";
     let keywords = "Bocker168, บาคาร่า, บาคาร่าออนไลน์, บาคาร่าเว็บตรง, สมัครบาคาร่า, บาคาร่าทรูวอเลท, บาคาร่าไม่มีขั้นต่ำ, คาสิโนออนไลน์, SA Gaming, Sexy Baccarat, เว็บบาคาร่าอันดับ1";
-    const canonical = `https://hongkonglex.com${url.split('?')[0]}`;
+    const canonical = `${DOMAIN}${url.split('?')[0]}`;
     let ogType = "website";
     let ogImage = "https://img2.pic.in.th/A2-Logo-Bocker-168.png";
-
     let bodyContent = "";
 
-    if (slug) {
-      const article = await getArticleBySlug(slug);
-      if (article) {
-        const mappedCat = CATEGORY_MAP[article.category] || article.category;
-        title = article.metaTitle || article.title;
-        description = article.metaDescription || article.excerpt || description;
-        keywords = article.metaKeywords || keywords;
-        ogType = "article";
-        ogImage = article.image || ogImage;
-        bodyContent = `
-          <div style="display:none">
-            <h1>${article.title}</h1>
-            <p>${article.excerpt || ''}</p>
-          </div>
-        `;
-        // JSON-LD Article
-        const jsonLdArticle = {
-          "@context": "https://schema.org",
-          "@type": "Article",
-          "headline": article.title,
-          "description": article.metaDescription || article.excerpt,
-          "image": article.image,
-          "author": {
-            "@type": "Person",
-            "name": article.author || "Bocker168 Admin",
-            "url": "https://hongkonglex.com"
-          },
-          "publisher": {
-            "@type": "Organization",
-            "name": "Bocker168",
-            "logo": {
-              "@type": "ImageObject",
-              "url": "https://img2.pic.in.th/A2-Logo-Bocker-168.png"
+    // 1. Check for Category Page /category/:slug
+    if (pathParts[0] === 'category' && pathParts[1]) {
+      const catSlug = decodeURIComponent(pathParts[1]);
+      const catName = REVERSE_CATEGORY_MAP[catSlug] || catSlug;
+      title = `${catName} - บทความและเทคนิคบาคาร่า Bocker168`;
+      description = `อ่านบทความทั้งหมดเกี่ยวกับ ${catName} เทคนิคการเล่นบาคาร่าและข่าวสารคาสิโนออนไลน์ที่ Bocker168`;
+    } 
+    // 2. Check for Single Slug (Page or Post)
+    else if (pathParts.length === 1) {
+      const slug = decodeURIComponent(pathParts[0]);
+      
+      // Try find Page first
+      const page = await getPageBySlug(slug);
+      if (page) {
+        title = page.metaTitle || `${page.title} - Bocker168`;
+        description = page.metaDescription || page.excerpt || description;
+        ogImage = page.image || ogImage;
+      } else {
+        // Try find Post
+        const article = await getArticleBySlug(slug);
+        if (article) {
+          title = article.metaTitle || article.title;
+          description = article.metaDescription || article.excerpt || description;
+          keywords = article.metaKeywords || keywords;
+          ogType = "article";
+          ogImage = article.image || ogImage;
+          
+          // JSON-LD Article
+          const jsonLdArticle = {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": article.title,
+            "description": article.metaDescription || article.excerpt,
+            "image": article.image,
+            "author": {
+              "@type": "Person",
+              "name": article.author || "Bocker168 Admin"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "Bocker168",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://img2.pic.in.th/A2-Logo-Bocker-168.png"
+              }
+            },
+            "datePublished": article.date,
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": canonical
             }
-          },
-          "datePublished": article.date,
-          "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": canonical
-          }
-        };
-        
-        return template
-          .replace('<div id="root"></div>', `<div id="root">${bodyContent}</div>`)
-          .replace(/<title>.*?<\/title>/i, `<title>${title.replace(/&/g, '&amp;')}</title>`)
-          .replace(/<meta\s+name=["']description["']\s+content=["'].*?["']\s*\/?>/i, `<meta name="description" content="${description.replace(/"/g, '&quot;')}" />`)
-          .replace(/<meta\s+name=["']keywords["']\s+content=["'].*?["']\s*\/?>/i, `<meta name="keywords" content="${keywords.replace(/"/g, '&quot;')}" />`)
-          .replace(/<meta\s+property=["']og:title["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:title" content="${title.replace(/"/g, '&quot;')}" />`)
-          .replace(/<meta\s+property=["']og:description["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:description" content="${description.replace(/"/g, '&quot;')}" />`)
-          .replace(/<meta\s+property=["']og:type["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:type" content="${ogType}" />`)
-          .replace(/<meta\s+property=["']og:url["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:url" content="${canonical}" />`)
-          .replace(/<meta\s+property=["']og:image["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:image" content="${ogImage}" />`)
-          .replace(/<link\s+rel=["']canonical["']\s+href=["'].*?["']\s*\/?>/i, `<link rel="canonical" href="${canonical}" />`)
-          .replace('</head>', `<script type="application/ld+json">${JSON.stringify(jsonLdArticle).replace(/</g, '\\u003c')}</script>\n</head>`);
+          };
+
+          template = template.replace('</head>', `<script type="application/ld+json">${JSON.stringify(jsonLdArticle).replace(/</g, '\\u003c')}</script>\n</head>`);
+        }
       }
     }
-
-    const defaultJsonLd = [
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "@id": "https://hongkonglex.com/#website",
-        "url": "https://hongkonglex.com/",
-        "name": "Bocker168",
-        "alternateName": "บาคาร่าออนไลน์ Bocker168",
-        "description": "เว็บไซต์บาคาร่าออนไลน์อันดับ 1 เว็บตรงไม่ผ่านเอเย่นต์ ปลอดภัย 100% ฝากถอนออโต้ ไม่มีขั้นต่ำ",
-        "inLanguage": "th-TH"
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "@id": "https://hongkonglex.com/#organization",
-        "name": "Bocker168",
-        "url": "https://hongkonglex.com/",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://img2.pic.in.th/A2-Logo-Bocker-168.png"
-        },
-        "sameAs": [
-          "https://www.facebook.com/bocker168",
-          "https://line.me/R/ti/p/@bocker168"
-        ]
-      }
-    ];
 
     return template
       .replace('<div id="root"></div>', `<div id="root">${bodyContent}</div>`)
@@ -360,8 +355,17 @@ async function startServer() {
       .replace(/<meta\s+property=["']og:description["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:description" content="${description.replace(/"/g, '&quot;')}" />`)
       .replace(/<meta\s+property=["']og:type["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:type" content="${ogType}" />`)
       .replace(/<meta\s+property=["']og:url["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:url" content="${canonical}" />`)
+      .replace(/<meta\s+property=["']og:image["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:image" content="${ogImage}" />`)
       .replace(/<link\s+rel=["']canonical["']\s+href=["'].*?["']\s*\/?>/i, `<link rel="canonical" href="${canonical}" />`)
-      .replace('</head>', `<script type="application/ld+json">${JSON.stringify(defaultJsonLd).replace(/</g, '\\u003c')}</script>\n</head>`);
+      .replace('</head>', `<script type="application/ld+json">${JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "url": DOMAIN + "/",
+        "name": "Bocker168",
+        "alternateName": "บาคาร่าออนไลน์ Bocker168",
+        "description": "เว็บไซต์บาคาร่าออนไลน์อันดับ 1 เว็บตรงไม่ผ่านเอเย่นต์",
+        "inLanguage": "th-TH"
+      }).replace(/</g, '\\u003c')}</script>\n</head>`);
   };
 
   // API Routes
@@ -495,6 +499,59 @@ async function startServer() {
       res.json({ success: true });
     } catch (error: any) {
       console.error('Error deleting article:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // --- Pages API ---
+  app.get('/api/pages', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    try {
+      if (!isD1Configured()) return res.json([]);
+      const result = await queryD1('SELECT * FROM pages ORDER BY createdAt DESC');
+      res.json(result.results || []);
+    } catch (error: any) {
+      console.error('Error fetching pages:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/pages', async (req, res) => {
+    try {
+      const page = req.body;
+      if (!isD1Configured()) return res.status(503).json({ error: 'D1 not configured' });
+
+      const sql = `
+        INSERT INTO pages (id, title, slug, content, excerpt, image, status, metaTitle, metaDescription)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          title = excluded.title,
+          slug = excluded.slug,
+          content = excluded.content,
+          excerpt = excluded.excerpt,
+          image = excluded.image,
+          status = excluded.status,
+          metaTitle = excluded.metaTitle,
+          metaDescription = excluded.metaDescription,
+          updatedAt = CURRENT_TIMESTAMP
+      `;
+      await queryD1(sql, [page.id, page.title, page.slug, page.content, page.excerpt, page.image, page.status, page.metaTitle, page.metaDescription]);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error saving page:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.delete('/api/pages/:id', async (req, res) => {
+    try {
+      if (!isD1Configured()) return res.status(503).json({ error: 'D1 not configured' });
+      await queryD1('DELETE FROM pages WHERE id = ?', [req.params.id]);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error deleting page:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -657,7 +714,7 @@ async function startServer() {
       if (!isD1Configured()) {
         articles = await getLocalArticles();
       } else {
-        const result = await queryD1('SELECT slug, date FROM articles');
+        const result = await queryD1('SELECT slug, date, status FROM articles WHERE status = ?', ['published']);
         articles = result.results || [];
       }
     } catch (error) {
@@ -666,15 +723,12 @@ async function startServer() {
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${articles.filter(a => a.status === 'published').map(article => {
-  const catSlug = CATEGORY_MAP[article.category] || 'all';
-  return `  <url>
-    <loc>${DOMAIN}/category/${catSlug}/${article.slug}</loc>
+${articles.map(article => `  <url>
+    <loc>${DOMAIN}/${article.slug}</loc>
     <lastmod>${article.date || today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-  </url>`;
-}).join('\n')}
+  </url>`).join('\n')}
 </urlset>`;
     res.header('Content-Type', 'application/xml');
     res.send(sitemap);
@@ -684,6 +738,17 @@ ${articles.filter(a => a.status === 'published').map(article => {
   app.get('/page-sitemap.xml', async (req, res) => {
     const DOMAIN = 'https://hongkonglex.com';
     const today = new Date().toISOString().split('T')[0];
+    
+    let dynamicPages: any[] = [];
+    try {
+      if (isD1Configured()) {
+        const result = await queryD1('SELECT slug FROM pages WHERE status = ?', ['published']);
+        dynamicPages = result.results || [];
+      }
+    } catch (error) {
+      console.error('Error fetching dynamic pages:', error);
+    }
+
     const staticRoutes = [
       { url: '/', priority: '1.0' },
       { url: '/features', priority: '0.9' },
@@ -692,13 +757,8 @@ ${articles.filter(a => a.status === 'published').map(article => {
       { url: '/articles', priority: '0.9' },
       { url: '/faq', priority: '0.8' },
       { url: '/contact', priority: '0.8' },
-      { url: '/register-guide', priority: '0.8' },
-      { url: '/deposit-withdraw-guide', priority: '0.8' },
-      { url: '/terms', priority: '0.7' },
-      { url: '/privacy', priority: '0.7' },
-      { url: '/cookies', priority: '0.7' },
-      { url: '/responsible-gambling', priority: '0.7' },
     ];
+
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticRoutes.map(route => `  <url>
@@ -706,6 +766,12 @@ ${staticRoutes.map(route => `  <url>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>${route.priority}</priority>
+  </url>`).join('\n')}
+${dynamicPages.map(p => `  <url>
+    <loc>${DOMAIN}/${p.slug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>`).join('\n')}
 </urlset>`;
     res.header('Content-Type', 'application/xml');

@@ -31,3 +31,17 @@ export interface Article {
   createdAt?: string | Date | any;
   updatedAt?: string | Date | any;
 }
+
+export interface WebPage {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  image?: string;
+  status: 'published' | 'draft' | 'scheduled';
+  metaTitle?: string;
+  metaDescription?: string;
+  createdAt?: string | Date | any;
+  updatedAt?: string | Date | any;
+}

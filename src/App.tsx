@@ -5,10 +5,13 @@
 
 import React, { useState, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-export class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
-  public state = { hasError: false };
-  public static getDerivedStateFromError(_: Error) { return { hasError: true }; }
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) { console.error(error, errorInfo); }
+export class ErrorBoundary extends Component<any, any> {
+  state = { hasError: false };
+  constructor(props: any) {
+    super(props);
+  }
+  public static getDerivedStateFromError() { return { hasError: true }; }
+  public componentDidCatch(error: any, errorInfo: any) { console.error(error, errorInfo); }
   public render() {
     if (this.state.hasError) return <div className="text-white p-20 text-center">เกิดข้อผิดพลาด กรุณารีเฟรชหน้าเว็บ</div>;
     return this.props.children;
@@ -596,7 +599,7 @@ const PromotionModal = ({
 
 import AdminDashboard from './components/AdminDashboard';
 
-const ArticleCard = ({ article, index }: { article: Article, index: number }) => {
+const ArticleCard = ({ article, index }: { article: Article, index: number, key?: any }) => {
   return (
     <motion.div
       key={article.id || index}
@@ -779,7 +782,9 @@ function Bocker168Landing() {
   };
 
   const [articles, setArticles] = useState<Article[]>([]);
+  const [pages, setPages] = useState<any[]>([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
+  const [isLoadingPages, setIsLoadingPages] = useState(false);
   const [articleError, setArticleError] = useState<string | null>(null);
   const [showArticleQR, setShowArticleQR] = useState(false);
 
@@ -793,24 +798,39 @@ function Bocker168Landing() {
           setArticleError(null);
         }
       } else {
-        // Silent fail for background polling, but set error state
         setArticleError('Unable to load articles at this time.');
       }
     } catch (error) {
-      // Graceful error handling
       setArticleError('Connection error while fetching articles.');
+    }
+  };
+
+  const fetchPages = async () => {
+    try {
+      setIsLoadingPages(true);
+      const response = await fetch(`/api/pages?t=${Date.now()}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPages(data);
+      }
+    } catch (error) {
+      console.error('Error fetching pages:', error);
+    } finally {
+      setIsLoadingPages(false);
     }
   };
 
   useEffect(() => {
     setIsLoadingArticles(true);
     fetchArticles().finally(() => setIsLoadingArticles(false));
+    fetchPages();
   }, []);
 
   useEffect(() => {
     // Re-fetch when admin dashboard is closed to ensure latest data
     if (!showAdmin) {
       fetchArticles();
+      fetchPages();
     }
   }, [showAdmin]);
 
@@ -830,29 +850,22 @@ function Bocker168Landing() {
   const isCategoryPage = !!categoryMatch;
   const urlCategorySlug = categoryMatch ? categoryMatch[1] : null;
 
-  // SEO & Redirect Handling
-  useEffect(() => {
-    // Check if we need to redirect Thai encoded category URL to English slug
-    if (urlCategorySlug) {
-      const decodedSlug = decodeURIComponent(urlCategorySlug);
-      if (CATEGORY_MAP[decodedSlug]) {
-        // This was a Thai category name used as a slug, redirect to English slug
-        window.location.replace(`/category/${CATEGORY_MAP[decodedSlug]}`);
-      }
-    }
-  }, [urlCategorySlug]);
+  // Slug Match (Flat routing /{slug})
+  const slugMatch = location.pathname.match(/^\/([^/]+)$/);
+  const potentialSlug = slugMatch ? decodeURIComponent(slugMatch[1]) : null;
 
-  const currentCategory = urlCategorySlug ? (REVERSE_CATEGORY_MAP[urlCategorySlug] || decodeURIComponent(urlCategorySlug)) : null;
-
-  const postMatch = location.pathname.match(/^\/category\/([^/]+)\/([^/]+)$/) || location.pathname.match(/^\/article\/([^/]+)$/);
-  const isPostDetail = !!postMatch;
-  const currentPostSlug = isPostDetail ? decodeURIComponent(postMatch[2] || postMatch[1]) : null;
-  const currentCategorySlugInUrl = isPostDetail ? (postMatch[2] ? postMatch[1] : null) : null;
+  // Reserved routes
+  const reservedRoutes = ['articles', 'faq', 'contact', 'baccarat', 'features', 'promotions', 'register-guide', 'deposit-withdraw-guide', 'terms', 'privacy', 'cookies', 'responsible-gambling', 'category', 'author', 'admin', 'dashboard', 'api'];
   
-  const authorMatch = location.pathname.match(/^\/author\/([^/]+)$/);
-  const isAuthorPage = !!authorMatch;
-  const currentAuthorSlug = isAuthorPage ? decodeURIComponent(authorMatch[1]) : null;
+  const isPotentialFlatRoute = potentialSlug && !reservedRoutes.includes(potentialSlug);
 
+  // Distinguish Article vs Page vs Other
+  const currentPage = isPotentialFlatRoute ? pages.find(p => (p.slug || p.id) === potentialSlug) : null;
+  const currentPost = isPotentialFlatRoute && !currentPage ? articles.find(a => (a.slug || a.id) === potentialSlug) : null;
+
+  const isPageDetail = !!currentPage;
+  const isPostDetail = !!currentPost; 
+  
   const isRegisterGuide = location.pathname.replace(/\/$/, '') === '/register-guide';
   const isDepositWithdrawGuide = location.pathname.replace(/\/$/, '') === '/deposit-withdraw-guide';
   const isTerms = location.pathname.replace(/\/$/, '') === '/terms';
@@ -860,7 +873,11 @@ function Bocker168Landing() {
   const isCookies = location.pathname.replace(/\/$/, '') === '/cookies';
   const isResponsibleGambling = location.pathname.replace(/\/$/, '') === '/responsible-gambling';
 
-  const currentPost = isPostDetail ? articles.find(a => (a.slug || a.title.replace(/\s+/g, '-').toLowerCase()) === currentPostSlug) : null;
+  const authorMatch = location.pathname.match(/^\/author\/([^/]+)$/);
+  const isAuthorPage = !!authorMatch;
+  const currentAuthorSlug = isAuthorPage ? decodeURIComponent(authorMatch[1]) : null;
+
+  const currentCategory = urlCategorySlug ? (REVERSE_CATEGORY_MAP[urlCategorySlug] || decodeURIComponent(urlCategorySlug)) : null;
 
   const getPageTitle = () => {
     if (isHome) return 'Bocker168 - บาคาร่าออนไลน์ เว็บตรงไม่ผ่านเอเย่นต์ ฝากถอนไม่มีขั้นต่ำ';
@@ -879,12 +896,18 @@ function Bocker168Landing() {
     if (isPostDetail && currentPost) {
       return currentPost.metaTitle || `${currentPost.title} - Bocker168`;
     }
+    if (isPageDetail && currentPage) {
+      return currentPage.metaTitle || `${currentPage.title} - Bocker168`;
+    }
     return 'Bocker168 - บาคาร่าออนไลน์';
   };
 
   const getPageDescription = () => {
     if (isPostDetail && currentPost) {
       return currentPost.metaDescription || currentPost.excerpt || (currentPost as any).description || 'อ่านบทความเกี่ยวกับบาคาร่าและคาสิโนออนไลน์ได้ที่ Bocker168';
+    }
+    if (isPageDetail && currentPage) {
+      return currentPage.metaDescription || currentPage.excerpt || 'Bocker168 บาคาร่าออนไลน์ อันดับ 1';
     }
     return 'เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม';
   };
@@ -1159,6 +1182,30 @@ function Bocker168Landing() {
 
       <main className={!isHome ? "pt-56 lg:pt-24" : ""}>
       
+      {/* --- Page Detail Section --- */}
+      {isPageDetail && currentPage && (
+        <section className="py-24 relative bg-[#050505] min-h-[70vh]">
+          <div className="container mx-auto px-4 pt-20 lg:pt-0">
+            <div className="max-w-4xl mx-auto">
+              <div className="mb-12">
+                <h1 className="text-4xl md:text-6xl font-black text-white mb-8 leading-tight">
+                  {currentPage.title}
+                </h1>
+                {currentPage.image && (
+                  <div className="rounded-[2.5rem] overflow-hidden border border-zinc-800 shadow-2xl mb-12">
+                    <img src={currentPage.image} alt={currentPage.title} className="w-full h-auto object-cover" referrerPolicy="no-referrer" />
+                  </div>
+                )}
+              </div>
+              <div 
+                className="prose prose-invert prose-red max-w-none prose-lg prose-p:text-zinc-400 prose-p:leading-loose prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-red-500 hover:prose-a:text-red-400 prose-img:rounded-3xl [&>img]:rounded-3xl [&>img]:shadow-2xl [&>img]:my-10"
+                dangerouslySetInnerHTML={{ __html: currentPage.content }}
+              />
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* --- Article Detail Section --- */}
       {isPostDetail && (
         <section className="py-24 relative bg-[#050505] min-h-screen">

@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/d1';
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 import { sql, eq, desc } from 'drizzle-orm';
 
-// 1) Define the articles table
+// 1) Define the tables
 const articles = sqliteTable('articles', {
   id: text('id').primaryKey(),
   title: text('title').notNull(),
@@ -17,6 +17,20 @@ const articles = sqliteTable('articles', {
   metaTitle: text('metaTitle'),
   metaDescription: text('metaDescription'),
   metaKeywords: text('metaKeywords'),
+  createdAt: text('createdAt').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text('updatedAt').default(sql`CURRENT_TIMESTAMP`),
+});
+
+const pages = sqliteTable('pages', {
+  id: text('id').primaryKey(),
+  title: text('title').notNull(),
+  slug: text('slug').notNull().unique(),
+  content: text('content').notNull(),
+  excerpt: text('excerpt'),
+  image: text('image'),
+  status: text('status'), // 'published', 'draft', 'scheduled'
+  metaTitle: text('metaTitle'),
+  metaDescription: text('metaDescription'),
   createdAt: text('createdAt').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updatedAt').default(sql`CURRENT_TIMESTAMP`),
 });
@@ -52,6 +66,19 @@ export default {
           }
         }
 
+        // Route to get all pages
+        if (url.pathname === '/api/pages' && request.method === 'GET') {
+          try {
+            const allPages = await db.select().from(pages).orderBy(desc(pages.createdAt)).limit(100).all();
+            return Response.json(allPages);
+          } catch (error: any) {
+            if (error.message.includes('no such table')) {
+               return Response.json([]);
+            }
+            return new Response(error.message, { status: 500 });
+          }
+        }
+
         // Route to add/update an article
         if (url.pathname === '/api/articles' && request.method === 'POST') {
           try {
@@ -72,7 +99,34 @@ export default {
                 date = excluded.date,
                 metaTitle = excluded.metaTitle,
                 metaDescription = excluded.metaDescription,
-                metaKeywords = excluded.metaKeywords
+                metaKeywords = excluded.metaKeywords,
+                updatedAt = CURRENT_TIMESTAMP
+            `);
+            
+            return Response.json({ success: true });
+          } catch (error: any) {
+            return new Response(error.message, { status: 500 });
+          }
+        }
+
+        // Route to add/update a page
+        if (url.pathname === '/api/pages' && request.method === 'POST') {
+          try {
+            const pageData = await request.json() as any;
+            
+            await db.run(sql`
+              INSERT INTO pages (id, title, slug, content, excerpt, image, status, metaTitle, metaDescription)
+              VALUES (${pageData.id}, ${pageData.title}, ${pageData.slug}, ${pageData.content}, ${pageData.excerpt}, ${pageData.image}, ${pageData.status}, ${pageData.metaTitle}, ${pageData.metaDescription})
+              ON CONFLICT(id) DO UPDATE SET
+                title = excluded.title,
+                slug = excluded.slug,
+                content = excluded.content,
+                excerpt = excluded.excerpt,
+                image = excluded.image,
+                status = excluded.status,
+                metaTitle = excluded.metaTitle,
+                metaDescription = excluded.metaDescription,
+                updatedAt = CURRENT_TIMESTAMP
             `);
             
             return Response.json({ success: true });
@@ -86,6 +140,16 @@ export default {
           const id = url.pathname.split('/').pop();
           if (id) {
             await db.delete(articles).where(eq(articles.id, id)).run();
+            return Response.json({ success: true });
+          }
+          return new Response('ID missing', { status: 400 });
+        }
+
+        // Route to delete a page
+        if (url.pathname.startsWith('/api/pages/') && request.method === 'DELETE') {
+          const id = url.pathname.split('/').pop();
+          if (id) {
+            await db.delete(pages).where(eq(pages.id, id)).run();
             return Response.json({ success: true });
           }
           return new Response('ID missing', { status: 400 });
@@ -113,6 +177,21 @@ export default {
               metaTitle TEXT,
               metaDescription TEXT,
               metaKeywords TEXT,
+              createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+              updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+          `);
+          await db.run(sql`
+            CREATE TABLE IF NOT EXISTS pages (
+              id TEXT PRIMARY KEY,
+              title TEXT NOT NULL,
+              slug TEXT UNIQUE NOT NULL,
+              content TEXT NOT NULL,
+              excerpt TEXT,
+              image TEXT,
+              status TEXT,
+              metaTitle TEXT,
+              metaDescription TEXT,
               createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
               updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
             )

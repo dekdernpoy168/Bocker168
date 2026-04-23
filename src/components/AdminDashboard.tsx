@@ -5,7 +5,7 @@ import {
   Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2,
   LayoutTemplate, Code, Database, Sparkles, Download, FileSpreadsheet, FileJson, FileCode, User
 } from 'lucide-react';
-import { Article, Author } from '../types';
+import { Article, Author, WebPage } from '../types';
 import AIPromptModal from './AIPromptModal';
 import { generateAIContent } from '../lib/aiService';
 import ReactQuill from 'react-quill-new';
@@ -42,6 +42,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [isExcerptModalOpen, setIsExcerptModalOpen] = useState(false);
   const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false);
   const [currentArticle, setCurrentArticle] = useState<Partial<Article>>({});
+  const [pages, setPages] = useState<WebPage[]>([]);
+  const [currentWebPage, setCurrentWebPage] = useState<Partial<WebPage>>({});
+  const [isLoadingPages, setIsLoadingPages] = useState(false);
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: keyof Article; direction: 'asc' | 'desc' }>({ key: 'date', direction: 'desc' });
@@ -52,7 +55,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [articles, setArticles] = useState<Article[]>([]); 
   const [isLoading, setIsLoading] = useState(false);
   const [dbConfig, setDbConfig] = useState<{ d1Configured: boolean, fallbackMode: boolean }>({ d1Configured: true, fallbackMode: false });
-  const [activeTab, setActiveTab] = useState<'articles' | 'logs' | 'authors'>('articles');
+  const [activeTab, setActiveTab] = useState<'articles' | 'pages' | 'logs' | 'authors'>('articles');
   const [logs, setLogs] = useState<any[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [isEditingAuthor, setIsEditingAuthor] = useState(false);
@@ -74,6 +77,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       if (activeTab === 'articles') {
         fetchArticles();
         fetchAuthors();
+      } else if (activeTab === 'pages') {
+        fetchPages();
       } else if (activeTab === 'logs') {
         fetchLogs();
       } else if (activeTab === 'authors') {
@@ -88,7 +93,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     console.log('[DEBUG] Fetching authors from API...');
     try {
       const response = await fetch(`/api/authors?t=${Date.now()}`);
-      const data = await response.json();
+      const data = await response.json() as any;
       console.log('[DEBUG] API Response for authors:', data);
       
       if (response.ok && data.success) {
@@ -130,7 +135,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(authorPayload),
       });
-      const result = await response.json();
+      const result = await response.json() as any;
       
       if (response.ok && result.success) {
         console.log('[DEBUG] Author saved successfully');
@@ -205,6 +210,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     }
   };
 
+  const fetchPages = async () => {
+    setIsLoadingPages(true);
+    try {
+      const response = await fetch(`/api/pages?t=${Date.now()}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPages(data);
+      }
+    } catch (error) {
+      console.error('Error fetching pages:', error);
+    } finally {
+      setIsLoadingPages(false);
+    }
+  };
+
   const initDatabase = async () => {
     if (!window.confirm('ต้องการสร้างตารางใน D1 Database ใช่หรือไม่?')) return;
     try {
@@ -227,6 +247,53 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       direction = 'desc';
     }
     setSortConfig({ key, direction });
+  };
+
+  const handleSavePage = async (e: React.FormEvent, status: 'published' | 'draft') => {
+    e.preventDefault();
+    if (!currentWebPage.title || !currentWebPage.content) {
+      alert('กรุณากรอกหัวข้อและเนื้อหา');
+      return;
+    }
+    const newPage: WebPage = {
+      id: currentWebPage.id || Date.now().toString(),
+      title: currentWebPage.title || '',
+      slug: currentWebPage.slug || currentWebPage.title?.toLowerCase().replace(/\s+/g, '-') || '',
+      content: currentWebPage.content || '',
+      excerpt: currentWebPage.excerpt || '',
+      image: currentWebPage.image || '',
+      status: status,
+      metaTitle: currentWebPage.metaTitle || '',
+      metaDescription: currentWebPage.metaDescription || '',
+    };
+    try {
+      const response = await fetch('/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPage),
+      });
+      if (response.ok) {
+        fetchPages();
+        setIsEditing(false); // Reuse isEditing for simplicity, or have isEditingPage
+        setCurrentWebPage({});
+        alert('บันทึกหน้าเรียบร้อยแล้ว');
+      }
+    } catch (error) {
+      console.error('Error saving page:', error);
+      alert('เกิดข้อผิดพลาดในการบันทึก');
+    }
+  };
+
+  const handleDeletePage = async (id: string) => {
+    if (!window.confirm("ยืนยันการลบหน้านี้?")) return;
+    try {
+      const response = await fetch(`/api/pages/${id}`, { method: 'DELETE' });
+      if (response.ok) {
+        fetchPages();
+      }
+    } catch (error) {
+      console.error('Error deleting page:', error);
+    }
   };
 
   const filteredArticles = articles
@@ -900,10 +967,18 @@ ${article.content?.replace(/<[^>]*>/g, '')}
           </div>
 
           <button 
-            onClick={() => { setIsEditing(true); setCurrentArticle({}); }}
+            onClick={() => { 
+              if (activeTab === 'pages') {
+                setIsEditing(true);
+                setCurrentWebPage({});
+              } else {
+                setIsEditing(true); 
+                setCurrentArticle({}); 
+              }
+            }}
             className="bg-red-600 text-white px-8 py-3 rounded-full font-black hover:bg-red-700 transition-colors flex items-center shadow-lg shadow-red-600/20"
           >
-            <Plus size={20} className="mr-2" /> เพิ่มบทความใหม่
+            <Plus size={20} className="mr-2" /> {activeTab === 'pages' ? 'เพิ่มหน้าใหม่' : 'เพิ่มบทความใหม่'}
           </button>
         </div>
       </div>
@@ -1028,29 +1103,32 @@ ${article.content?.replace(/<[^>]*>/g, '')}
         </div>
       )}
 
-      {/* Editor Section (ฟอร์มเพิ่ม/แก้ไขบทความ) */}
+      {/* Editor Section (ฟอร์มเพิ่ม/แก้ไขบทความ หรือ หน้า) */}
       {isEditing ? (
         <div className="bg-zinc-950 border border-zinc-800 p-6 md:p-8 rounded-2xl mb-12 shadow-2xl shadow-black/50">
           {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-zinc-800">
             <div>
               <h2 className="text-2xl font-bold text-red-500 mb-1">
-                {currentArticle.id ? 'แก้ไขบทความ' : 'สร้างบทความใหม่'}
+                {activeTab === 'pages' 
+                  ? (currentWebPage.id ? 'แก้ไขหน้า' : 'สร้างหน้าใหม่')
+                  : (currentArticle.id ? 'แก้ไขบทความ' : 'สร้างบทความใหม่')
+                }
               </h2>
               <p className="text-sm text-zinc-400">จัดการเนื้อหาและสถานะการเผยแพร่</p>
             </div>
             <div className="flex items-center gap-3 mt-4 md:mt-0">
               <button 
-                onClick={(e) => handleSave(e, 'draft')}
+                onClick={(e) => activeTab === 'pages' ? handleSavePage(e, 'draft') : handleSave(e, 'draft')}
                 className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-sm font-medium transition-colors border border-zinc-800"
               >
                 <Save size={16} /> บันทึกฉบับร่าง
               </button>
               <button 
-                onClick={(e) => handleSave(e, 'published')}
+                onClick={(e) => activeTab === 'pages' ? handleSavePage(e, 'published') : handleSave(e, 'published')}
                 className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold transition-colors"
               >
-                <Check size={16} /> เผยแพร่บทความ
+                <Check size={16} /> เผยแพร่{activeTab === 'pages' ? 'หน้า' : 'บทความ'}
               </button>
               <button onClick={() => setIsEditing(false)} className="ml-2 text-zinc-500 hover:text-zinc-300 transition-colors">
                 <X size={24} />
@@ -1058,7 +1136,113 @@ ${article.content?.replace(/<[^>]*>/g, '')}
             </div>
           </div>
 
-          <form className="space-y-6">
+          {activeTab === 'pages' ? (
+            /* PAGE EDITOR */
+            <form className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
+                    <TypeIcon size={16} /> หัวข้อหน้า (Title)
+                  </label>
+                  <input 
+                    type="text" 
+                    value={currentWebPage.title || ''}
+                    onChange={e => setCurrentWebPage({...currentWebPage, title: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
+                    placeholder="เช่น เกี่ยวกับเรา, ติดต่อเรา..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
+                    <LinkIcon size={16} /> URL Slug (EN)
+                  </label>
+                  <input 
+                    type="text" 
+                    value={currentWebPage.slug || ''}
+                    onChange={e => setCurrentWebPage({...currentWebPage, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all font-mono"
+                    placeholder="เช่น about-us"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
+                  <ImageIcon size={16} /> URL รูปภาพหน้าปก (Featured Image)
+                </label>
+                <input 
+                  type="text" 
+                  value={currentWebPage.image || ''}
+                  onChange={e => setCurrentWebPage({...currentWebPage, image: e.target.value})}
+                  className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
+                  <FileText size={16} /> คำโปรยย่อ (Excerpt)
+                </label>
+                <textarea 
+                  value={currentWebPage.excerpt || ''}
+                  onChange={e => setCurrentWebPage({...currentWebPage, excerpt: e.target.value})}
+                  className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all h-20"
+                  placeholder="รายละเอียดสั้นๆ สำหรับแสดงในผลการค้นหา..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
+                  <Code size={16} /> เนื้อหา (Content)
+                </label>
+                <div className="border border-zinc-800 rounded-xl overflow-hidden bg-black">
+                  <ReactQuill 
+                    theme="snow"
+                    value={currentWebPage.content || ''}
+                    onChange={(val) => setCurrentWebPage({...currentWebPage, content: val})}
+                    modules={quillModules}
+                    className="text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-zinc-900/20 border border-zinc-800 rounded-2xl mt-8">
+                <div className="space-y-2">
+                  <label className="text-red-500 text-sm font-medium">Meta Title</label>
+                  <input 
+                    type="text" 
+                    value={currentWebPage.metaTitle || ''}
+                    onChange={e => setCurrentWebPage({...currentWebPage, metaTitle: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 outline-none text-sm transition-all"
+                    placeholder="Meta Title สำหรับ SEO"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-red-500 text-sm font-medium">Meta Description</label>
+                  <textarea 
+                    value={currentWebPage.metaDescription || ''}
+                    onChange={e => setCurrentWebPage({...currentWebPage, metaDescription: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 outline-none text-sm transition-all h-20"
+                    placeholder="Meta Description สำหรับ SEO"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-4 mt-8">
+                <button type="button" onClick={() => setIsEditing(false)} className="px-6 py-2.5 text-zinc-400 hover:text-white transition-colors">
+                  ยกเลิก
+                </button>
+                <button 
+                  onClick={(e) => handleSavePage(e, 'published')}
+                  className="px-8 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-all shadow-lg shadow-red-600/20"
+                >
+                  บันทึกหน้า
+                </button>
+              </div>
+            </form>
+          ) : (
+            /* ARTICLE EDITOR */
+            <form className="space-y-6">
             {/* Section 1: Upload */}
             <div className="border border-zinc-800 rounded-xl p-4 flex flex-col md:flex-row justify-between items-center bg-zinc-900/30">
               <div className="flex items-start gap-3 mb-4 md:mb-0">
@@ -1509,9 +1693,10 @@ ${article.content?.replace(/<[^>]*>/g, '')}
               </button>
             </div>
           </form>
-        </div>
-      ) : (
-        /* List Section (ตารางแสดงบทความ) */
+        )}
+      </div>
+    ) : (
+      /* List Section (ตารางแสดงบทความ) */
         <div className="bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl shadow-black/50">
           {/* Tabs */}
           <div className="flex border-b border-zinc-800">
@@ -1522,6 +1707,14 @@ ${article.content?.replace(/<[^>]*>/g, '')}
               }`}
             >
               <FileCode size={18} /> บทความทั้งหมด
+            </button>
+            <button
+              onClick={() => setActiveTab('pages')}
+              className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+                activeTab === 'pages' ? 'bg-zinc-900 text-red-500 border-b-2 border-red-500' : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              <LayoutTemplate size={18} /> หน้า (Pages)
             </button>
             <button
               onClick={() => setActiveTab('authors')}
@@ -1537,11 +1730,11 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                 activeTab === 'logs' ? 'bg-zinc-900 text-red-500 border-b-2 border-red-500' : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              <Database size={18} /> Request Logs (ระบบ)
+              <Database size={18} /> Request Logs
             </button>
           </div>
 
-          {activeTab === 'articles' ? (
+          {activeTab === 'articles' && (
             <>
               {/* ตัวกรองและค้นหา */}
               <div className="p-6 border-b border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -1675,211 +1868,261 @@ ${article.content?.replace(/<[^>]*>/g, '')}
             </table>
           </div>
         </>
-          ) : activeTab === 'authors' ? (
-            /* Authors Management Section */
-            <div className="p-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                <div>
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2 text-red-500">
-                    <User size={20} /> จัดการรายชื่อผู้เขียน
-                  </h3>
-                  <p className="text-zinc-500 text-sm mt-1">เพิ่ม แก้ไข และจัดการข้อมูลโปรไฟล์ของผู้เขียนบทความ</p>
-                </div>
-                {!isEditingAuthor && (
-                  <button 
-                    onClick={() => { setCurrentAuthor({}); setIsEditingAuthor(true); }}
-                    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-red-600/20"
-                  >
-                    <Plus size={16} /> เพิ่มผู้เขียนใหม่
-                  </button>
+      )}
+
+      {activeTab === 'pages' && (
+        <div className="p-6">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-black/50 text-red-500 text-sm uppercase tracking-wider border-b border-zinc-800">
+                  <th className="p-4 font-bold">ชื่อหน้า</th>
+                  <th className="p-4 font-bold">Slug</th>
+                  <th className="p-4 font-bold">สถานะ</th>
+                  <th className="p-4 font-bold text-right">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-900">
+                {pages.map(page => (
+                  <tr key={page.id} className="hover:bg-zinc-900/50 transition-colors">
+                    <td className="p-4">
+                      <div className="font-bold text-white">{page.title}</div>
+                    </td>
+                    <td className="p-4 font-mono text-zinc-500 text-xs">{page.slug}</td>
+                    <td className="p-4">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                        page.status === 'published' ? 'bg-green-500/10 text-green-500' : 'bg-zinc-800 text-zinc-500'
+                      }`}>
+                        {page.status}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <div className="flex justify-end gap-2 text-zinc-400">
+                        <button onClick={() => { setIsEditing(true); setCurrentWebPage(page); }} className="hover:text-amber-500 transition-colors bg-zinc-900 p-2 rounded-lg">
+                          <Edit size={16} />
+                        </button>
+                        <button onClick={() => handleDeletePage(page.id)} className="hover:text-red-500 transition-colors bg-zinc-900 p-2 rounded-lg">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {pages.length === 0 && !isLoadingPages && (
+                  <tr>
+                    <td colSpan={4} className="p-12 text-center text-zinc-500">ยังไม่มีข้อมูลหน้า</td>
+                  </tr>
                 )}
-              </div>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
-              {isEditingAuthor ? (
-                <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 mb-8">
-                  <h4 className="text-white font-bold mb-6 flex items-center gap-2">
-                    {currentAuthor.id ? 'แก้ไขข้อมูลผู้เขียน' : 'เพิ่มผู้เขียนใหม่'}
-                  </h4>
-                  <form onSubmit={handleSaveAuthor} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">ชื่อผู้เขียน</label>
-                        <input 
-                          type="text" 
-                          value={currentAuthor.name || ''}
-                          onChange={e => setCurrentAuthor({...currentAuthor, name: e.target.value})}
-                          className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">ตำแหน่ง (Position)</label>
-                        <input 
-                          type="text" 
-                          value={currentAuthor.position || ''}
-                          onChange={e => setCurrentAuthor({...currentAuthor, position: e.target.value})}
-                          className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">URL รูปโปรไฟล์</label>
-                      <input 
-                        type="text" 
-                        value={currentAuthor.image || ''}
-                        onChange={e => setCurrentAuthor({...currentAuthor, image: e.target.value})}
-                        className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm"
-                        placeholder="https://..."
-                      />
-                    </div>
+      {activeTab === 'authors' && (
+        <div className="p-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div>
+              <h3 className="text-xl font-bold text-white flex items-center gap-2 text-red-500">
+                <User size={20} /> จัดการรายชื่อผู้เขียน
+              </h3>
+              <p className="text-zinc-500 text-sm mt-1">เพิ่ม แก้ไข และจัดการข้อมูลโปรไฟล์ของผู้เขียนบทความ</p>
+            </div>
+            {!isEditingAuthor && (
+              <button 
+                onClick={() => { setCurrentAuthor({}); setIsEditingAuthor(true); }}
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-red-600/20"
+              >
+                <Plus size={16} /> เพิ่มผู้เขียนใหม่
+              </button>
+            )}
+          </div>
 
-                    <div className="space-y-2">
-                      <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">คำอธิบายสั้นๆ (Description)</label>
-                      <textarea 
-                        value={currentAuthor.description || ''}
-                        onChange={e => setCurrentAuthor({...currentAuthor, description: e.target.value})}
-                        className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm h-24 resize-none"
-                        placeholder="รายละเอียดเกี่ยวกับผู้เขียน..."
-                      />
-                    </div>
-
-                    <div className="flex justify-end gap-3 pt-4">
-                      <button 
-                        type="button" 
-                        onClick={() => setIsEditingAuthor(false)}
-                        className="px-6 py-2.5 text-zinc-400 hover:text-white transition-colors text-sm font-medium"
-                      >
-                        ยกเลิก
-                      </button>
-                      <button 
-                        type="submit"
-                        className="px-8 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition-all"
-                      >
-                        บันทึกข้อมูล
-                      </button>
-                    </div>
-                  </form>
+          {isEditingAuthor ? (
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 mb-8">
+              <h4 className="text-white font-bold mb-6 flex items-center gap-2">
+                {currentAuthor.id ? 'แก้ไขข้อมูลผู้เขียน' : 'เพิ่มผู้เขียนใหม่'}
+              </h4>
+              <form onSubmit={handleSaveAuthor} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">ชื่อผู้เขียน</label>
+                    <input 
+                      type="text" 
+                      value={currentAuthor.name || ''}
+                      onChange={e => setCurrentAuthor({...currentAuthor, name: e.target.value})}
+                      className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">ตำแหน่ง (Position)</label>
+                    <input 
+                      type="text" 
+                      value={currentAuthor.position || ''}
+                      onChange={e => setCurrentAuthor({...currentAuthor, position: e.target.value})}
+                      className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm"
+                    />
+                  </div>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {authors.length === 0 ? (
-                    <div className="col-span-full py-12 text-center text-zinc-500 border border-zinc-800 border-dashed rounded-3xl bg-zinc-900/10">
-                      <User size={40} className="mx-auto mb-3 opacity-20" />
-                      <p>ยังไม่มีข้อมูลผู้เขียน</p>
-                    </div>
-                  ) : (
-                    authors.map(a => (
-                      <div key={a.id} className="bg-zinc-900/30 border border-zinc-800 p-6 rounded-3xl hover:border-red-500/50 transition-all group">
-                        <div className="flex items-center gap-4 mb-4">
-                          <img 
-                            src={a.avatar_url || 'https://via.placeholder.com/150'} 
-                            alt={a.name} 
-                            className="w-16 h-16 rounded-full object-cover border-2 border-zinc-800 group-hover:border-red-500 transition-colors"
-                            referrerPolicy="no-referrer"
-                          />
-                          <div>
-                            <h5 className="text-white font-bold">{a.name}</h5>
-                            <p className="text-red-500 text-xs font-medium">{a.position || 'Author'}</p>
-                          </div>
-                        </div>
-                        <p className="text-zinc-400 text-xs line-clamp-3 mb-6 h-12 leading-relaxed italic">{a.bio || 'ไม่มีคำอธิบาย'}</p>
-                        <div className="flex gap-2 border-t border-zinc-800 pt-4">
-                          <button 
-                            onClick={() => { 
-                              // Map aliases back to form fields for editing
-                              setCurrentAuthor({
-                                ...a,
-                                image: a.avatar_url,
-                                description: a.bio
-                              }); 
-                              setIsEditingAuthor(true); 
-                            }}
-                            className="flex-1 flex items-center justify-center gap-2 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-xl text-xs font-bold transition-all"
-                          >
-                            <Edit size={14} /> แก้ไข
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteAuthor(a.id)}
-                            className="flex-1 flex items-center justify-center gap-2 py-2 bg-zinc-900 hover:bg-red-500/10 text-zinc-400 hover:text-red-500 rounded-xl text-xs font-bold transition-all"
-                          >
-                            <Trash2 size={14} /> ลบ
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
+                
+                <div className="space-y-2">
+                  <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">URL รูปโปรไฟล์</label>
+                  <input 
+                    type="text" 
+                    value={currentAuthor.image || ''}
+                    onChange={e => setCurrentAuthor({...currentAuthor, image: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm"
+                    placeholder="https://..."
+                  />
                 </div>
-              )}
+
+                <div className="space-y-2">
+                  <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">คำอธิบายสั้นๆ (Description)</label>
+                  <textarea 
+                    value={currentAuthor.description || ''}
+                    onChange={e => setCurrentAuthor({...currentAuthor, description: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm h-24 resize-none"
+                    placeholder="รายละเอียดเกี่ยวกับผู้เขียน..."
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsEditingAuthor(false)}
+                    className="px-6 py-2.5 text-zinc-400 hover:text-white transition-colors text-sm font-medium"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button 
+                    type="submit"
+                    className="px-8 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition-all"
+                  >
+                    บันทึกข้อมูล
+                  </button>
+                </div>
+              </form>
             </div>
           ) : (
-            /* Logs Viewer Section */
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Database className="text-red-500" size={20} />
-                  บันทึกการเข้าถึง (System Logs)
-                </h3>
-                <button 
-                  onClick={fetchLogs}
-                  disabled={isLoadingLogs}
-                  className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-sm font-medium transition-colors border border-zinc-800 flex items-center gap-2"
-                >
-                  {isLoadingLogs ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles size={16} className="text-amber-500" />}
-                  รีเฟรชข้อมูล
-                </button>
-              </div>
-
-              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                {logs.length === 0 ? (
-                  <div className="text-center py-12 text-zinc-500 bg-black/50 rounded-2xl border border-zinc-900">
-                    <Search size={40} className="mx-auto mb-3 opacity-20" />
-                    <p>ไม่พบข้อมูลการเข้าถึงในขณะนี้</p>
-                  </div>
-                ) : (
-                  logs.map((log) => (
-                    <div key={log.id} className="bg-black/40 border border-zinc-900 rounded-xl p-4 hover:border-zinc-700 transition-colors">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-3">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                            log.method === 'GET' ? 'bg-blue-500/20 text-blue-400' : 
-                            log.method === 'POST' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
-                          }`}>
-                            {log.method}
-                          </span>
-                          <span className="text-zinc-200 text-sm font-mono truncate max-w-[200px] md:max-w-md" title={log.url}>
-                            {log.url}
-                          </span>
-                        </div>
-                        <span className="text-zinc-500 text-[10px] font-mono whitespace-nowrap">
-                          {new Date(log.timestamp).toLocaleString('th-TH')}
-                        </span>
-                      </div>
-                      <div className="mt-3 p-3 bg-zinc-950 rounded-lg border border-zinc-900 overflow-x-auto">
-                        <pre className="text-[10px] text-zinc-400 font-mono">
-                          {(() => {
-                            try {
-                              const h = JSON.parse(log.headers);
-                              return JSON.stringify({
-                                "user-agent": h["user-agent"],
-                                "referer": h["referer"],
-                                "ip": h["x-forwarded-for"] || h["x-real-ip"]
-                              }, null, 2);
-                            } catch (e) {
-                              return log.headers;
-                            }
-                          })()}
-                        </pre>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {authors.length === 0 && !isLoadingAuthors ? (
+                <div className="col-span-full py-12 text-center text-zinc-500 border border-zinc-800 border-dashed rounded-3xl bg-zinc-900/10">
+                  <User size={40} className="mx-auto mb-3 opacity-20" />
+                  <p>ยังไม่มีข้อมูลผู้เขียน</p>
+                </div>
+              ) : (
+                authors.map(a => (
+                  <div key={a.id} className="bg-zinc-900/30 border border-zinc-800 p-6 rounded-3xl hover:border-red-500/50 transition-all group">
+                    <div className="flex items-center gap-4 mb-4">
+                      <img 
+                        src={a.avatar_url || a.image || 'https://via.placeholder.com/150'} 
+                        alt={a.name} 
+                        className="w-16 h-16 rounded-full object-cover border-2 border-zinc-800 group-hover:border-red-500 transition-colors"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div>
+                        <h5 className="text-white font-bold">{a.name}</h5>
+                        <p className="text-red-500 text-xs font-medium">{a.position || 'Author'}</p>
                       </div>
                     </div>
-                  ))
-                )}
-              </div>
-              <p className="mt-6 text-[11px] text-zinc-600 text-center italic">
-                * ระบบจะบันทึกเฉพาะการเรียกดูหน้าเว็บหลัก ไม่บันทึกการโหลดไฟล์รูปภาพหรือไฟล์ระบบ
-              </p>
+                    <p className="text-zinc-400 text-xs line-clamp-3 mb-6 h-12 leading-relaxed italic">{a.bio || a.description || 'ไม่มีคำอธิบาย'}</p>
+                    <div className="flex gap-2 border-t border-zinc-800 pt-4">
+                      <button 
+                        onClick={() => { 
+                          setCurrentAuthor({
+                            ...a,
+                            image: a.avatar_url || a.image,
+                            description: a.bio || a.description
+                          }); 
+                          setIsEditingAuthor(true); 
+                        }}
+                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-xl text-xs font-bold transition-all"
+                      >
+                        <Edit size={14} /> แก้ไข
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteAuthor(a.id)}
+                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-zinc-900 hover:bg-red-500/10 text-zinc-400 hover:text-red-500 rounded-xl text-xs font-bold transition-all"
+                      >
+                        <Trash2 size={14} /> ลบ
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab === 'logs' && (
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <Database className="text-red-500" size={20} />
+              บันทึกการเข้าถึง (System Logs)
+            </h3>
+            <button 
+              onClick={fetchLogs}
+              disabled={isLoadingLogs}
+              className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-sm font-medium transition-colors border border-zinc-800 flex items-center gap-2"
+            >
+              {isLoadingLogs ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles size={16} className="text-amber-500" />}
+              รีเฟรชข้อมูล
+            </button>
+          </div>
+
+          <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+            {logs.length === 0 && !isLoadingLogs ? (
+              <div className="text-center py-12 text-zinc-500 bg-black/50 rounded-2xl border border-zinc-900">
+                <Search size={40} className="mx-auto mb-3 opacity-20" />
+                <p>ไม่พบข้อมูลการเข้าถึงในขณะนี้</p>
+              </div>
+            ) : (
+              logs.map((log) => (
+                <div key={log.id} className="bg-black/40 border border-zinc-900 rounded-xl p-4 hover:border-zinc-700 transition-colors">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-3">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                        log.method === 'GET' ? 'bg-blue-500/20 text-blue-400' : 
+                        log.method === 'POST' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
+                      }`}>
+                        {log.method}
+                      </span>
+                      <span className="text-zinc-200 text-sm font-mono truncate max-w-[200px] md:max-w-md" title={log.url}>
+                        {log.url}
+                      </span>
+                    </div>
+                    <span className="text-zinc-500 text-[10px] font-mono whitespace-nowrap">
+                      {new Date(log.timestamp).toLocaleString('th-TH')}
+                    </span>
+                  </div>
+                  <div className="mt-3 p-3 bg-zinc-950 rounded-lg border border-zinc-900 overflow-x-auto">
+                    <pre className="text-[10px] text-zinc-400 font-mono">
+                      {(() => {
+                        try {
+                          const h = JSON.parse(log.headers);
+                          return JSON.stringify({
+                            "user-agent": h["user-agent"],
+                            "referer": h["referer"],
+                            "ip": h["x-forwarded-for"] || h["x-real-ip"]
+                          }, null, 2);
+                        } catch (e) {
+                          return log.headers;
+                        }
+                      })()}
+                    </pre>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <p className="mt-6 text-[11px] text-zinc-600 text-center italic">
+            * ระบบจะบันทึกเฉพาะการเรียกดูหน้าเว็บหลัก ไม่บันทึกการโหลดไฟล์รูปภาพหรือไฟล์ระบบ
+          </p>
+        </div>
+      )}
         </div>
       )}
 
