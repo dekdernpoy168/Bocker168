@@ -503,6 +503,11 @@ async function startServer() {
         Bucket: bucketName,
       });
 
+      let formattedPublicUrl = publicUrl.trim();
+      if (formattedPublicUrl && !/^https?:\/\//i.test(formattedPublicUrl)) {
+        formattedPublicUrl = `https://${formattedPublicUrl}`;
+      }
+
       const response = await s3Client.send(command);
       const images = (response.Contents || [])
         .filter(obj => {
@@ -511,7 +516,7 @@ async function startServer() {
         })
         .map(obj => ({
           key: obj.Key,
-          url: publicUrl ? `${publicUrl.replace(/\/$/, '')}/${obj.Key}` : null,
+          url: formattedPublicUrl && obj.Key ? `${formattedPublicUrl.replace(/\/$/, '')}/${obj.Key.split('/').map(encodeURIComponent).join('/')}` : null,
           size: obj.Size,
           lastModified: obj.LastModified,
         }));
