@@ -141,6 +141,46 @@ async function startServer() {
       );
     `);
 
+    // Create categories table
+    await queryD1(`
+      CREATE TABLE IF NOT EXISTS categories (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        description TEXT,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Seed categories if empty
+    try {
+      const catCountResult = await queryD1('SELECT COUNT(*) as count FROM categories');
+      const count = catCountResult.results[0].count;
+      
+      if (count === 0) {
+        console.log('[D1] Seeding initial categories...');
+        const initialCategories = [
+          { id: 'cat-1', name: 'บาคาร่า', slug: 'baccarat', description: 'บทความเกี่ยวกับบาคาร่า ทั้งวิธีการเล่นและพื้นฐาน' },
+          { id: 'cat-2', name: 'วิธีเล่นเบื้องต้น', slug: 'beginner-guide', description: 'คู่มือการเล่นคาสิโนออนไลน์สำหรับมือใหม่' },
+          { id: 'cat-3', name: 'สูตรบาคาร่า', slug: 'baccarat-strategy', description: 'รวมสูตรบาคาร่าที่ใช้งานได้จริง เทคนิคการเอาชนะ' },
+          { id: 'cat-4', name: 'ทริคระดับเซียน', slug: 'expert-tips', description: 'เทคนิคขั้นสูงจากเหล่าเซียนบาคาร่า' },
+          { id: 'cat-5', name: 'ข่าวสารคาสิโน', slug: 'casino-news', description: 'เกาะติดข่าวสารวงการคาสิโนและโปรโมชั่นใหม่ๆ' },
+          { id: 'cat-6', name: 'เทคนิคการเดินเงิน', slug: 'money-management', description: 'สอนการบริหารจัดการเงินและทุนในการเดิมพัน' },
+          { id: 'cat-7', name: 'เคล็ดลับการเล่น', slug: 'playing-tips', description: 'เคล็ดลับเล็กๆ น้อยๆ ที่จะช่วยให้คุณเล่นได้ดีขึ้น' }
+        ];
+
+        for (const cat of initialCategories) {
+          await queryD1(
+            'INSERT INTO categories (id, name, slug, description) VALUES (?, ?, ?, ?)',
+            [cat.id, cat.name, cat.slug, cat.description]
+          );
+        }
+      }
+    } catch (e) {
+      console.error('Error seeding categories:', e);
+    }
+
     // Create pages table
     await queryD1(`
       CREATE TABLE IF NOT EXISTS pages (
@@ -279,6 +319,21 @@ async function startServer() {
     const DOMAIN = 'https://hongkonglex.com';
     const pathParts = url.split('?')[0].split('/').filter(Boolean);
     
+    // Dynamic Category Map
+    let dynamicReverseMap = REVERSE_CATEGORY_MAP;
+    if (isD1Configured()) {
+      try {
+        const catResult = await queryD1('SELECT name, slug FROM categories');
+        if (catResult.results?.length > 0) {
+          const revMap: any = {};
+          catResult.results.forEach((c: any) => {
+            revMap[c.slug] = c.name;
+          });
+          dynamicReverseMap = revMap;
+        }
+      } catch (e) {}
+    }
+
     // Default SEO
     let title = "บาคาร่าออนไลน์ Bocker168 เว็บตรงไม่ผ่านเอเย่นต์ ฝากถอนไม่มีขั้นต่ำ";
     let description = "Bocker168 บาคาร่าเว็บตรงไม่ผ่านเอเย่นต์ อันดับ 1 ฝากถอนออโต้ไม่มีขั้นต่ำ รองรับทรูวอเลท (True Wallet) คาสิโนสด SA Gaming, Sexy Baccarat สมัครวันนี้รับโปรโมชั่นพิเศษ";
@@ -291,7 +346,7 @@ async function startServer() {
     // 1. Check for Category Page /category/:slug
     if (pathParts[0] === 'category' && pathParts[1]) {
       const catSlug = decodeURIComponent(pathParts[1]);
-      const catName = REVERSE_CATEGORY_MAP[catSlug] || catSlug;
+      const catName = dynamicReverseMap[catSlug] || catSlug;
       title = `${catName} - บทความและเทคนิคบาคาร่า Bocker168`;
       description = `อ่านบทความทั้งหมดเกี่ยวกับ ${catName} เทคนิคการเล่นบาคาร่าและข่าวสารคาสิโนออนไลน์ที่ Bocker168`;
     } 
@@ -627,6 +682,61 @@ async function startServer() {
     }
   });
 
+  // --- Categories API ---
+
+  app.get('/api/categories', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    console.log('GET /api/categories');
+    if (!isD1Configured()) return res.json([]);
+    try {
+      const result = await queryD1('SELECT * FROM categories ORDER BY name ASC');
+      res.json(result.results || []);
+    } catch (error: any) {
+      if (error.message.includes('no such table: categories')) {
+          await initTable();
+          const result = await queryD1('SELECT * FROM categories ORDER BY name ASC');
+          return res.json(result.results || []);
+      }
+      console.error('Error fetching categories:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/categories', async (req, res) => {
+    if (!isD1Configured()) return res.status(503).json({ error: 'D1 not configured' });
+    try {
+      const category = req.body;
+      const categoryId = category.id || `cat-${Date.now()}`;
+      const sql = `
+        INSERT INTO categories (id, name, slug, description)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          name = excluded.name,
+          slug = excluded.slug,
+          description = excluded.description,
+          updatedAt = CURRENT_TIMESTAMP
+      `;
+      await queryD1(sql, [categoryId, category.name, category.slug, category.description]);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error saving category:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.delete('/api/categories/:id', async (req, res) => {
+    if (!isD1Configured()) return res.status(503).json({ error: 'D1 not configured' });
+    try {
+      await queryD1('DELETE FROM categories WHERE id = ?', [req.params.id]);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error deleting category:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Initialize Table Route (One-time setup)
   app.post('/api/init-db', async (req, res) => {
     try {
@@ -795,16 +905,25 @@ ${dynamicPages.map(p => `  <url>
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${categories.map(cat => {
-  const slug = CATEGORY_MAP[cat] || cat;
+${await Promise.all(categories.map(async cat => {
+  let slug = cat;
+  try {
+    if (isD1Configured()) {
+      const result = await queryD1('SELECT slug FROM categories WHERE name = ? LIMIT 1', [cat]);
+      if (result.results?.[0]) slug = result.results[0].slug;
+    } else {
+      slug = CATEGORY_MAP[cat] || cat;
+    }
+  } catch (e) {}
+  
   return `  <url>
     <loc>${DOMAIN}/category/${slug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`;
-}).join('\n')}
-</urlset>`;
+}))}
+</urlset>`.replace(/>\n\s*</g, '><');
     res.header('Content-Type', 'application/xml');
     res.send(sitemap);
   });

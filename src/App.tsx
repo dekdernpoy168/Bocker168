@@ -5,11 +5,8 @@
 
 import React, { useState, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-export class ErrorBoundary extends Component<any, any> {
+export class ErrorBoundary extends React.Component<any, { hasError: boolean }> {
   state = { hasError: false };
-  constructor(props: any) {
-    super(props);
-  }
   public static getDerivedStateFromError() { return { hasError: true }; }
   public componentDidCatch(error: any, errorInfo: any) { console.error(error, errorInfo); }
   public render() {
@@ -599,7 +596,7 @@ const PromotionModal = ({
 
 import AdminDashboard from './components/AdminDashboard';
 
-const ArticleCard = ({ article, index }: { article: Article, index: number, key?: any }) => {
+const ArticleCard = ({ article, index, dynamicCategoryMap }: { article: Article, index: number, dynamicCategoryMap: Record<string, string>, key?: any }) => {
   return (
     <motion.div
       key={article.id || index}
@@ -609,7 +606,7 @@ const ArticleCard = ({ article, index }: { article: Article, index: number, key?
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className="group bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden hover:border-red-600/30 transition-all duration-500 flex flex-col"
     >
-      <Link to={`/category/${encodeURIComponent(CATEGORY_MAP[article.category] || article.category)}/${encodeURIComponent(article.slug || article.title.replace(/\s+/g, '-').toLowerCase())}`} 
+      <Link to={`/category/${encodeURIComponent(dynamicCategoryMap[article.category] || article.category)}/${encodeURIComponent(article.slug || article.title.replace(/\s+/g, '-').toLowerCase())}`} 
         className="flex flex-col h-full">
         <div className="h-56 overflow-hidden relative">
           <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
@@ -783,6 +780,9 @@ function Bocker168Landing() {
 
   const [articles, setArticles] = useState<Article[]>([]);
   const [pages, setPages] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [dynamicCategoryMap, setDynamicCategoryMap] = useState<Record<string, string>>(CATEGORY_MAP);
+  const [dynamicReverseCategoryMap, setDynamicReverseCategoryMap] = useState<Record<string, string>>(REVERSE_CATEGORY_MAP);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
   const [isLoadingPages, setIsLoadingPages] = useState(false);
   const [articleError, setArticleError] = useState<string | null>(null);
@@ -820,10 +820,33 @@ function Bocker168Landing() {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`/api/categories?t=${Date.now()}`);
+      if (response.ok) {
+        const data = await response.json() as any;
+        setCategories(data);
+        if (data && (data as any).length > 0) {
+          const map: Record<string, string> = {};
+          const revMap: Record<string, string> = {};
+          (data as any).forEach((cat: any) => {
+            map[cat.name] = cat.slug;
+            revMap[cat.slug] = cat.name;
+          });
+          setDynamicCategoryMap(map);
+          setDynamicReverseCategoryMap(revMap);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
   useEffect(() => {
     setIsLoadingArticles(true);
     fetchArticles().finally(() => setIsLoadingArticles(false));
     fetchPages();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -831,6 +854,7 @@ function Bocker168Landing() {
     if (!showAdmin) {
       fetchArticles();
       fetchPages();
+      fetchCategories();
     }
   }, [showAdmin]);
 
@@ -877,7 +901,7 @@ function Bocker168Landing() {
   const isAuthorPage = !!authorMatch;
   const currentAuthorSlug = isAuthorPage ? decodeURIComponent(authorMatch[1]) : null;
 
-  const currentCategory = urlCategorySlug ? (REVERSE_CATEGORY_MAP[urlCategorySlug] || decodeURIComponent(urlCategorySlug)) : null;
+  const currentCategory = urlCategorySlug ? (dynamicReverseCategoryMap[urlCategorySlug] || decodeURIComponent(urlCategorySlug)) : null;
 
   const getPageTitle = () => {
     if (isHome) return 'Bocker168 - บาคาร่าออนไลน์ เว็บตรงไม่ผ่านเอเย่นต์ ฝากถอนไม่มีขั้นต่ำ';
@@ -1391,7 +1415,7 @@ function Bocker168Landing() {
                             return (
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12 pt-12 border-t border-zinc-800">
                                 {prevArticle ? (
-                                  <Link to={`/category/${CATEGORY_MAP[prevArticle.category] || prevArticle.category}/${prevArticle.slug || prevArticle.title.replace(/\s+/g, '-').toLowerCase()}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-left">
+                                  <Link to={`/category/${dynamicCategoryMap[prevArticle.category] || prevArticle.category}/${prevArticle.slug || prevArticle.title.replace(/\s+/g, '-').toLowerCase()}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-left">
                                     <div className="text-zinc-500 text-xs font-bold mb-2 flex items-center gap-1 group-hover:text-red-400 transition-colors">
                                       <BookOpen size={14} /> บทความก่อนหน้า
                                     </div>
@@ -1402,7 +1426,7 @@ function Bocker168Landing() {
                                 ) : <div />}
                                 
                                 {nextArticle && (
-                                  <Link to={`/category/${CATEGORY_MAP[nextArticle.category] || nextArticle.category}/${nextArticle.slug || nextArticle.title.replace(/\s+/g, '-').toLowerCase()}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-right">
+                                  <Link to={`/category/${dynamicCategoryMap[nextArticle.category] || nextArticle.category}/${nextArticle.slug || nextArticle.title.replace(/\s+/g, '-').toLowerCase()}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-right">
                                     <div className="text-zinc-500 text-xs font-bold mb-2 flex items-center gap-1 justify-end group-hover:text-red-400 transition-colors">
                                       บทความถัดไป <BookOpen size={14} />
                                     </div>
@@ -1431,7 +1455,7 @@ function Bocker168Landing() {
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                   {related.map(item => (
-                                    <Link key={item.id} to={`/category/${CATEGORY_MAP[item.category] || item.category}/${item.slug || item.title.replace(/\s+/g, '-').toLowerCase()}`} className="group block group">
+                                    <Link key={item.id} to={`/category/${dynamicCategoryMap[item.category] || item.category}/${item.slug || item.title.replace(/\s+/g, '-').toLowerCase()}`} className="group block group">
                                       <div className="aspect-video rounded-xl overflow-hidden mb-4 border border-zinc-800">
                                         <img 
                                           src={item.image || null} 
@@ -1514,7 +1538,7 @@ function Bocker168Landing() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {articles
                 .filter(a => a.category === currentCategory && a.status !== 'draft')
-                .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} />)}
+                .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} dynamicCategoryMap={dynamicCategoryMap} />)}
             </div>
             {articles.filter(a => a.category === currentCategory && a.status !== 'draft').length === 0 && (
               <div className="text-center py-20 bg-zinc-900/40 border border-zinc-800/50 rounded-3xl">
@@ -1535,10 +1559,10 @@ function Bocker168Landing() {
               </h1>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {articles
-                  .filter(a => (a.author === currentAuthorSlug || a.author === REVERSE_CATEGORY_MAP[currentAuthorSlug!]) && a.status !== 'draft')
-                  .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} />)}
+                  .filter(a => (a.author === currentAuthorSlug || a.author === dynamicReverseCategoryMap[currentAuthorSlug!]) && a.status !== 'draft')
+                  .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} dynamicCategoryMap={dynamicCategoryMap} />)}
               </div>
-              {articles.filter(a => (a.author === currentAuthorSlug || a.author === REVERSE_CATEGORY_MAP[currentAuthorSlug!]) && a.status !== 'draft').length === 0 && (
+              {articles.filter(a => (a.author === currentAuthorSlug || a.author === dynamicReverseCategoryMap[currentAuthorSlug!]) && a.status !== 'draft').length === 0 && (
                 <div className="text-center py-20 bg-zinc-900/40 border border-zinc-800/50 rounded-3xl">
                   <h2 className="text-2xl font-bold text-white mb-4">ยังไม่มีบทความจากผู้เขียนท่านนี้</h2>
                 </div>
@@ -2204,7 +2228,7 @@ function Bocker168Landing() {
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                    {articles
                      .filter(a => a.status !== 'draft' && a.category === category)
-                     .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} />)}
+                     .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} dynamicCategoryMap={dynamicCategoryMap} />)}
                  </div>
                </div>
              ))}

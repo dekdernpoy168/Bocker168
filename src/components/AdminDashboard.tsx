@@ -3,9 +3,9 @@ import {
   Plus, Edit, Trash2, Save, X, FileText, Target, Upload,
   Type as TypeIcon, Link as LinkIcon, Search, Folder, Tag,
   Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2,
-  LayoutTemplate, Code, Database, Sparkles, Download, FileSpreadsheet, FileJson, FileCode, User
+  LayoutTemplate, Code, Database, Sparkles, Download, FileSpreadsheet, FileJson, FileCode, User, List
 } from 'lucide-react';
-import { Article, Author, WebPage } from '../types';
+import { Article, Author, WebPage, Category } from '../types';
 import AIPromptModal from './AIPromptModal';
 import { generateAIContent } from '../lib/aiService';
 import ReactQuill from 'react-quill-new';
@@ -55,34 +55,32 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [articles, setArticles] = useState<Article[]>([]); 
   const [isLoading, setIsLoading] = useState(false);
   const [dbConfig, setDbConfig] = useState<{ d1Configured: boolean, fallbackMode: boolean }>({ d1Configured: true, fallbackMode: false });
-  const [activeTab, setActiveTab] = useState<'articles' | 'pages' | 'logs' | 'authors'>('articles');
+  const [activeTab, setActiveTab] = useState<'articles' | 'pages' | 'logs' | 'authors' | 'categories'>('articles');
   const [logs, setLogs] = useState<any[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [isEditingAuthor, setIsEditingAuthor] = useState(false);
   const [currentAuthor, setCurrentAuthor] = useState<Partial<Author>>({});
   const [isLoadingAuthors, setIsLoadingAuthors] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isEditingCategory, setIsEditingCategory] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState<Partial<Category>>({});
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isLoadingLogs, setIsLoadingLogs] = useState(false);
-  const categories = [
-    'บาคาร่า', 
-    'วิธีเล่นเบื้องต้น', 
-    'สูตรบาคาร่า', 
-    'ทริคระดับเซียน',
-    'ข่าวสารคาสิโน',
-    'เทคนิคการเดินเงิน',
-    'เคล็ดลับการเล่น'
-  ];
 
   useEffect(() => {
     if (isAuthenticated) {
       if (activeTab === 'articles') {
         fetchArticles();
         fetchAuthors();
+        fetchCategories();
       } else if (activeTab === 'pages') {
         fetchPages();
       } else if (activeTab === 'logs') {
         fetchLogs();
       } else if (activeTab === 'authors') {
         fetchAuthors();
+      } else if (activeTab === 'categories') {
+        fetchCategories();
       }
       fetchConfigStatus();
     }
@@ -154,14 +152,67 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   };
 
   const handleDeleteAuthor = async (id: string) => {
-    if (!window.confirm('ลบผู้เขียนท่านนี้ใช่หรือไม่?')) return;
+    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบผู้เขียนท่านนี้?')) return;
     try {
       const response = await fetch(`/api/authors/${id}`, { method: 'DELETE' });
       if (response.ok) {
+        alert('ลบผู้เขียนสำเร็จ');
         fetchAuthors();
       }
     } catch (error) {
-      console.error('Error deleting author:', error);
+      console.error('Delete author error:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    setIsLoadingCategories(true);
+    try {
+      const response = await fetch('/api/categories');
+      const data = await response.json();
+      if (response.ok) {
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    } finally {
+      setIsLoadingCategories(false);
+    }
+  };
+
+  const handleSaveCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentCategory.name || !currentCategory.slug) {
+      alert('กรุณากรอกชื่อและ Slug');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(currentCategory),
+      });
+      if (response.ok) {
+        await fetchCategories();
+        setIsEditingCategory(false);
+        setCurrentCategory({});
+        alert('บันทึกหมวดหมู่สำเร็จ');
+      }
+    } catch (error) {
+      console.error('Error saving category:', error);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (!confirm('ยืนยันการลบหมวดหมู่?')) return;
+    try {
+      const response = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+      if (response.ok) {
+        fetchCategories();
+        alert('ลบหมวดหมู่สำเร็จ');
+      }
+    } catch (error) {
+      console.error('Error deleting category:', error);
     }
   };
 
@@ -1400,12 +1451,12 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                 >
                   <option value="">เลือกหมวดหมู่...</option>
                   {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat.id} value={cat.name}>{cat.name}</option>
                   ))}
                 </select>
                 <input 
                   type="text" 
-                  value={!categories.includes(currentArticle.category || '') ? currentArticle.category || '' : ''}
+                  value={!categories.some(c => c.name === currentArticle.category) ? currentArticle.category || '' : ''}
                   onChange={e => setCurrentArticle({...currentArticle, category: e.target.value})}
                   className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm mt-2 transition-all"
                   placeholder="หรือพิมพ์ชื่อหมวดหมู่ใหม่ที่นี่..."
@@ -1723,6 +1774,14 @@ ${article.content?.replace(/<[^>]*>/g, '')}
               }`}
             >
               <User size={18} /> จัดการผู้เขียน
+            </button>
+            <button
+              onClick={() => setActiveTab('categories')}
+              className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+                activeTab === 'categories' ? 'bg-zinc-900 text-red-500 border-b-2 border-red-500' : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              <Folder size={18} /> หมวดหมู่
             </button>
             <button
               onClick={() => setActiveTab('logs')}
@@ -2121,6 +2180,121 @@ ${article.content?.replace(/<[^>]*>/g, '')}
           <p className="mt-6 text-[11px] text-zinc-600 text-center italic">
             * ระบบจะบันทึกเฉพาะการเรียกดูหน้าเว็บหลัก ไม่บันทึกการโหลดไฟล์รูปภาพหรือไฟล์ระบบ
           </p>
+        </div>
+      )}
+
+      {activeTab === 'categories' && (
+        <div className="p-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div>
+              <h3 className="text-xl font-bold text-white flex items-center gap-2 text-red-500">
+                <Folder size={20} /> จัดการหมวดหมู่
+              </h3>
+              <p className="text-zinc-500 text-sm mt-1">เพิ่ม แก้ไข และจัดการหมวดหมู่ของบทความ</p>
+            </div>
+            {!isEditingCategory && (
+              <button 
+                onClick={() => { setCurrentCategory({}); setIsEditingCategory(true); }}
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-red-600/20"
+              >
+                <Plus size={16} /> เพิ่มหมวดหมู่ใหม่
+              </button>
+            )}
+          </div>
+
+          {isEditingCategory ? (
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 mb-8">
+              <h4 className="text-white font-bold mb-6 flex items-center gap-2">
+                {currentCategory.id ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่ใหม่'}
+              </h4>
+              <form onSubmit={handleSaveCategory} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">ชื่อหมวดหมู่</label>
+                    <input 
+                      type="text" 
+                      value={currentCategory.name || ''}
+                      onChange={e => setCurrentCategory({...currentCategory, name: e.target.value})}
+                      className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">Slug (ลิ้งค์)</label>
+                    <input 
+                      type="text" 
+                      value={currentCategory.slug || ''}
+                      onChange={e => setCurrentCategory({...currentCategory, slug: e.target.value})}
+                      className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm"
+                      required
+                      placeholder="เช่น baccarat"
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">คำอธิบาย</label>
+                  <textarea 
+                    value={currentCategory.description || ''}
+                    onChange={e => setCurrentCategory({...currentCategory, description: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm h-24 resize-none"
+                    placeholder="รายละเอียดหมวดหมู่..."
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsEditingCategory(false)}
+                    className="px-6 py-2.5 text-zinc-400 hover:text-white transition-colors text-sm font-medium"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button 
+                    type="submit"
+                    className="px-8 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition-all"
+                  >
+                    บันทึกข้อมูล
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <div className="overflow-x-auto bg-black/30 border border-zinc-900 rounded-2xl">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-zinc-900">
+                    <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-widest">ชื่อหมวดหมู่</th>
+                    <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-widest">Slug</th>
+                    <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-widest text-right">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-900">
+                  {categories.map(cat => (
+                    <tr key={cat.id} className="hover:bg-zinc-900/40 transition-colors group">
+                      <td className="p-4 text-sm font-bold text-white">{cat.name}</td>
+                      <td className="p-4"><code className="text-xs text-red-500 bg-red-500/5 px-2 py-1 rounded">{cat.slug}</code></td>
+                      <td className="p-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => { setCurrentCategory(cat); setIsEditingCategory(true); }} className="p-2 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-lg transition-all">
+                            <Edit size={16} />
+                          </button>
+                          <button onClick={() => handleDeleteCategory(cat.id)} className="p-2 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {categories.length === 0 && !isLoadingCategories && (
+                    <tr>
+                      <td colSpan={3} className="p-12 text-center text-zinc-600 italic">ไม่พบข้อมูลหมวดหมู่</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
         </div>

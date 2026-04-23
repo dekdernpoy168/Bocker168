@@ -45,3 +45,12 @@ export interface WebPage {
   createdAt?: string | Date | any;
   updatedAt?: string | Date | any;
 }
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  createdAt?: string | Date | any;
+  updatedAt?: string | Date | any;
+}
