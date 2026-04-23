@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, Component, ErrorInfo, ReactNode } from 'react';
+import React, { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 export class ErrorBoundary extends Component<any, any> {
   constructor(props: any) {
@@ -348,6 +348,24 @@ interface FAQItemProps {
 }
 
 const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => {
+  const itemRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && itemRef.current) {
+      // Allow animation to calculate height and open slightly before checking/scrolling
+      const timer = setTimeout(() => {
+        if (!itemRef.current) return;
+        const rect = itemRef.current.getBoundingClientRect();
+        // If bottom of the expanded item is pushed outside the viewport or top is above viewport
+        if (rect.bottom > window.innerHeight || rect.top < 80) {
+           const y = rect.top + window.scrollY - 100; // offset for better visibility
+           window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }, 250);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   const faqId = faq.question
     .toLowerCase()
     .replace(/\s+/g, '-')
@@ -355,7 +373,7 @@ const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => {
     .replace(/(^-|-$)/g, '');
     
   return (
-  <div className="border-b border-zinc-800 last:border-0">
+  <div ref={itemRef} className="border-b border-zinc-800 last:border-0">
     <button 
       onClick={onClick}
       aria-expanded={isOpen}
