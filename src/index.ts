@@ -13,6 +13,9 @@ const articles = sqliteTable('articles', {
   image: text('image'),
   status: text('status'), // 'published', 'draft', 'scheduled'
   author: text('author'),
+  authorImage: text('authorImage'),
+  authorPosition: text('authorPosition'),
+  authorDescription: text('authorDescription'),
   date: text('date'),
   metaTitle: text('metaTitle'),
   metaDescription: text('metaDescription'),
@@ -87,8 +90,8 @@ export default {
             const article = await request.json() as any;
             
             await db.run(sql`
-              INSERT INTO articles (id, title, slug, content, excerpt, category, image, status, author, date, metaTitle, metaDescription, metaKeywords)
-              VALUES (${article.id}, ${article.title}, ${article.slug}, ${article.content}, ${article.excerpt}, ${article.category}, ${article.image}, ${article.status}, ${article.author}, ${article.date}, ${article.metaTitle}, ${article.metaDescription}, ${article.metaKeywords})
+              INSERT INTO articles (id, title, slug, content, excerpt, category, image, status, author, authorImage, authorPosition, authorDescription, date, metaTitle, metaDescription, metaKeywords)
+              VALUES (${article.id}, ${article.title}, ${article.slug}, ${article.content}, ${article.excerpt}, ${article.category}, ${article.image}, ${article.status}, ${article.author}, ${article.authorImage}, ${article.authorPosition}, ${article.authorDescription}, ${article.date}, ${article.metaTitle}, ${article.metaDescription}, ${article.metaKeywords})
               ON CONFLICT(id) DO UPDATE SET
                 title = excluded.title,
                 slug = excluded.slug,
@@ -98,6 +101,9 @@ export default {
                 image = excluded.image,
                 status = excluded.status,
                 author = excluded.author,
+                authorImage = excluded.authorImage,
+                authorPosition = excluded.authorPosition,
+                authorDescription = excluded.authorDescription,
                 date = excluded.date,
                 metaTitle = excluded.metaTitle,
                 metaDescription = excluded.metaDescription,
@@ -161,8 +167,9 @@ export default {
         if (url.pathname === '/api/r2/images' && request.method === 'GET') {
           try {
             if (!env.R2_IMAGES) {
-              return new Response(JSON.stringify({ error: 'R2 binding is missing or incomplete' }), { 
-                status: 500,
+              console.warn('R2 binding (R2_IMAGES) is missing. Returning empty image list.');
+              return new Response(JSON.stringify([]), { 
+                status: 200,
                 headers: { 'Content-Type': 'application/json' }
               });
             }
@@ -217,6 +224,9 @@ export default {
               image TEXT,
               status TEXT,
               author TEXT,
+              authorImage TEXT,
+              authorPosition TEXT,
+              authorDescription TEXT,
               date TEXT,
               metaTitle TEXT,
               metaDescription TEXT,
@@ -240,7 +250,113 @@ export default {
               updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
             )
           `);
+          await db.run(sql`
+            CREATE TABLE IF NOT EXISTS authors (
+              id TEXT PRIMARY KEY,
+              name TEXT NOT NULL,
+              image TEXT,
+              position TEXT,
+              description TEXT,
+              createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+          `);
+          await db.run(sql`
+            CREATE TABLE IF NOT EXISTS categories (
+              id TEXT PRIMARY KEY,
+              name TEXT NOT NULL,
+              slug TEXT UNIQUE NOT NULL,
+              description TEXT,
+              createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+          `);
+
+          // Attempt migrations for legacy DBs
+          try { await db.run(sql`ALTER TABLE articles ADD COLUMN authorImage TEXT;`); } catch(e){}
+          try { await db.run(sql`ALTER TABLE articles ADD COLUMN authorPosition TEXT;`); } catch(e){}
+          try { await db.run(sql`ALTER TABLE articles ADD COLUMN authorDescription TEXT;`); } catch(e){}
+
           return Response.json({ success: true, message: 'Database initialized successfully' });
+        }
+
+        // --- Categories API ---
+        if (url.pathname === '/api/categories') {
+          if (request.method === 'GET') {
+            try {
+              const result = await env.DB.prepare('SELECT * FROM categories ORDER BY createdAt DESC').all();
+              return Response.json(result.results || []);
+            } catch (error: any) {
+              if (error.message.includes('no such table')) return Response.json([]);
+              return new Response(error.message, { status: 500 });
+            }
+          }
+          if (request.method === 'POST') {
+            try {
+              const cat = await request.json() as any;
+              await db.run(sql`
+                INSERT INTO categories (id, name, slug, description)
+                VALUES (${cat.id}, ${cat.name}, ${cat.slug}, ${cat.description})
+                ON CONFLICT(id) DO UPDATE SET
+                  name = excluded.name,
+                  slug = excluded.slug,
+                  description = excluded.description
+              `);
+              return Response.json({ success: true });
+            } catch (error: any) {
+              return new Response(error.message, { status: 500 });
+            }
+          }
+        }
+        if (url.pathname.startsWith('/api/categories/') && request.method === 'DELETE') {
+          const id = url.pathname.split('/').pop();
+          if (id) {
+            await db.run(sql`DELETE FROM categories WHERE id = ${id}`);
+            return Response.json({ success: true });
+          }
+        }
+
+        // --- Authors API ---
+        if (url.pathname === '/api/authors') {
+          if (request.method === 'GET') {
+            try {
+              const result = await env.DB.prepare(`
+                SELECT 
+                  id, name, image, position, description, createdAt,
+                  image as avatar_url,
+                  description as bio,
+                  createdAt as created_at
+                FROM authors
+                ORDER BY createdAt DESC
+              `).all();
+              return Response.json({ success: true, authors: result.results || [] });
+            } catch (error: any) {
+              if (error.message.includes('no such table')) return Response.json({ success: true, authors: [] });
+              return new Response(error.message, { status: 500 });
+            }
+          }
+          if (request.method === 'POST') {
+            try {
+              const author = await request.json() as any;
+              await db.run(sql`
+                INSERT INTO authors (id, name, image, position, description)
+                VALUES (${author.id}, ${author.name}, ${author.image}, ${author.position}, ${author.description})
+                ON CONFLICT(id) DO UPDATE SET
+                  name = excluded.name,
+                  image = excluded.image,
+                  position = excluded.position,
+                  description = excluded.description
+              `);
+              return Response.json({ success: true });
+            } catch (error: any) {
+              return new Response(error.message, { status: 500 });
+            }
+          }
+        }
+        if (url.pathname.startsWith('/api/authors/') && request.method === 'DELETE') {
+          const id = url.pathname.split('/').pop();
+          if (id) {
+            await db.run(sql`DELETE FROM authors WHERE id = ${id}`);
+            return Response.json({ success: true });
+          }
         }
       }
 
