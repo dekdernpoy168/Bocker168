@@ -3,8 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+export class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
+  public state = { hasError: false };
+  public static getDerivedStateFromError(_: Error) { return { hasError: true }; }
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) { console.error(error, errorInfo); }
+  public render() {
+    if (this.state.hasError) return <div className="text-white p-20 text-center">เกิดข้อผิดพลาด กรุณารีเฟรชหน้าเว็บ</div>;
+    return this.props.children;
+  }
+}
 import { 
   Menu, 
   X, 
@@ -573,68 +582,81 @@ const PromotionModal = ({
 
 import AdminDashboard from './components/AdminDashboard';
 
-const ArticleCard = ({ article, index }: { article: Article, index: number }) => (
-  <motion.div
-    key={article.id || index}
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-100px" }}
-    transition={{ duration: 0.5, delay: index * 0.1 }}
-    className="group bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden hover:border-red-600/30 transition-all duration-500 flex flex-col"
-  >
-    <Link to={`/category/${article.category}/${article.slug || article.title.replace(/\s+/g, '-').toLowerCase()}`} className="flex flex-col h-full">
-      <div className="h-56 overflow-hidden relative">
-        <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
-          {article.category}
-        </div>
-        {article.image ? (
-          <img 
-            src={article.image || null} 
-            alt={article.title} 
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-            <BookOpen className="w-12 h-12 text-zinc-700" />
+const ArticleCard = ({ article, index }: { article: Article, index: number }) => {
+  const CATEGORY_MAP: Record<string, string> = {
+    'บาคาร่า': 'baccarat',
+    'วิธีเล่นเบื้องต้น': 'beginner-guide',
+    'สูตรบาคาร่า': 'baccarat-strategy',
+    'ทริคระดับเซียน': 'expert-tips'
+  };
+
+  return (
+    <motion.div
+      key={article.id || index}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="group bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden hover:border-red-600/30 transition-all duration-500 flex flex-col"
+    >
+      <Link to={`/category/${encodeURIComponent(CATEGORY_MAP[article.category] || article.category)}/${encodeURIComponent(article.slug || article.title.replace(/\s+/g, '-').toLowerCase())}`} 
+        className="flex flex-col h-full">
+        <div className="h-56 overflow-hidden relative">
+          <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
+            {article.category}
           </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-80" />
-      </div>
-      
-      <div className="p-6 md:p-8 flex flex-col flex-grow">
-        <div className="flex items-center gap-4 text-zinc-400 text-sm mb-4 flex-wrap">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            <span>{article.date}</span>
-          </div>
-          {article.author && (
-            <div className="flex items-center gap-2">
-              {article.authorImage ? (
-                <img src={article.authorImage} alt={article.author} className="w-5 h-5 rounded-full object-cover border border-zinc-700" referrerPolicy="no-referrer" />
-              ) : (
-                <User className="w-4 h-4" />
-              )}
-              <span className="truncate max-w-[100px]">{article.author}</span>
+          {article.image ? (
+            <img 
+              src={article.image || null} 
+              alt={article.title} 
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+              <BookOpen className="w-12 h-12 text-zinc-700" />
             </div>
           )}
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-80" />
         </div>
         
-        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors line-clamp-2">
-          {article.title}
-        </h3>
-        
-        <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
-          {article.excerpt || (article as any).description}
-        </p>
+        <div className="p-6 md:p-8 flex flex-col flex-grow">
+          <div className="flex items-center gap-4 text-zinc-400 text-sm mb-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              <span>{article.date}</span>
+            </div>
+            {article.author && (
+              <div className="flex items-center gap-2">
+                {article.authorImage ? (
+                  <img src={article.authorImage} alt={article.author} className="w-5 h-5 rounded-full object-cover border border-zinc-700" referrerPolicy="no-referrer" />
+                ) : (
+                  <User className="w-4 h-4" />
+                )}
+                <span className="truncate max-w-[100px]">{article.author}</span>
+              </div>
+            )}
+          </div>
+          
+          <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors line-clamp-2">
+            {article.title}
+          </h3>
+          
+          <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
+            {article.excerpt || (article as any).description}
+          </p>
+          
+          <div className="flex items-center gap-2 text-red-500 font-bold text-sm group/btn mt-auto w-fit">
+            อ่านเพิ่มเติม
+            <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+};
 
-        <div className="text-red-500 font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
-          อ่านต่อ <ArrowRight size={16} />
-        </div>
-      </div>
-    </Link>
-  </motion.div>
-);
+
 
 export default function App() {
   return (
@@ -797,13 +819,26 @@ function Bocker168Landing() {
   const isContact = location.pathname.replace(/\/$/, '') === '/contact';
   
   // New status checks
+  const CATEGORY_MAP: Record<string, string> = {
+    'บาคาร่า': 'baccarat',
+    'วิธีเล่นเบื้องต้น': 'beginner-guide',
+    'สูตรบาคาร่า': 'baccarat-strategy',
+    'ทริคระดับเซียน': 'expert-tips'
+  };
+
+  const REVERSE_CATEGORY_MAP: Record<string, string> = Object.fromEntries(
+    Object.entries(CATEGORY_MAP).map(([k, v]) => [v, k])
+  );
+
   const categoryMatch = location.pathname.match(/^\/category\/([^/]+)$/);
   const isCategoryPage = !!categoryMatch;
-  const currentCategory = categoryMatch ? decodeURIComponent(categoryMatch[1]) : null;
+  const urlCategorySlug = categoryMatch ? categoryMatch[1] : null;
+  const currentCategory = urlCategorySlug ? (REVERSE_CATEGORY_MAP[urlCategorySlug] || decodeURIComponent(urlCategorySlug)) : null;
 
   const postMatch = location.pathname.match(/^\/category\/([^/]+)\/([^/]+)$/);
   const isPostDetail = !!postMatch;
   const currentPostSlug = isPostDetail ? decodeURIComponent(postMatch[2]) : null;
+  const currentCategorySlugInUrl = isPostDetail ? postMatch[1] : null;
 
   const isRegisterGuide = location.pathname.replace(/\/$/, '') === '/register-guide';
   const isDepositWithdrawGuide = location.pathname.replace(/\/$/, '') === '/deposit-withdraw-guide';
@@ -1121,38 +1156,38 @@ function Bocker168Landing() {
                 กลับไปหน้าบทความ
               </Link>
               
-              {currentArticle ? (
+              {currentPost ? (
                 <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden">
                   <div className="p-8 md:p-12">
                     <div className="flex items-center gap-4 mb-6 flex-wrap">
                       <div className="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
-                        {currentArticle.category}
+                        {currentPost.category}
                       </div>
                       <div className="flex items-center gap-2 text-zinc-400 text-sm">
                         <Calendar className="w-5 h-5" />
-                        <span>{currentArticle.date}</span>
+                        <span>{currentPost.date}</span>
                       </div>
-                      {currentArticle.author && (
+                      {currentPost.author && (
                         <div className="flex items-center gap-2 text-zinc-400 text-sm">
-                          {currentArticle.authorImage && currentArticle.authorImage.trim() !== '' ? (
-                            <img src={currentArticle.authorImage} alt={currentArticle.author} className="w-6 h-6 rounded-full object-cover border border-zinc-700" referrerPolicy="no-referrer" />
+                          {currentPost.authorImage && currentPost.authorImage.trim() !== '' ? (
+                            <img src={currentPost.authorImage} alt={currentPost.author} className="w-6 h-6 rounded-full object-cover border border-zinc-700" referrerPolicy="no-referrer" />
                           ) : (
                             <User className="w-5 h-5" />
                           )}
-                          <span>{currentArticle.author}</span>
+                          <span>{currentPost.author}</span>
                         </div>
                       )}
                     </div>
                     
                     <h1 className="text-3xl md:text-4xl font-black text-red-500 mb-8 leading-tight">
-                      {currentArticle.title}
+                      {currentPost.title}
                     </h1>
 
                     {/* Meta TOC & Social Sharing */}
                     <div className="flex flex-col lg:flex-row gap-8 mb-10">
                       <div className="flex-1">
                         {(() => {
-                          const content = currentArticle.content || (currentArticle as any).description || '';
+                          const content = currentPost.content || (currentPost as any).description || '';
                           const toc = getTableOfContents(content);
                           if (toc.length === 0) return null;
                           return (
@@ -1186,7 +1221,7 @@ function Bocker168Landing() {
                     </div>
                     
                     {(() => {
-                      let content = currentArticle.content || (currentArticle as any).description || '';
+                      let content = currentPost.content || (currentPost as any).description || '';
                       content = addIdsToHeadings(content);
                       content = lazyLoadImages(content);
                       const [part1, part2] = splitArticleContent(content);
@@ -1265,12 +1300,12 @@ function Bocker168Landing() {
                               </div>
                               <div className="text-center sm:text-left">
                                 <div className="text-red-500 font-bold mb-1 uppercase tracking-widest text-[10px]">Article Author</div>
-                                <h3 className="text-2xl font-black text-white mb-1">{currentArticle.author || 'Admin Bocker168'}</h3>
-                                {currentArticle.authorPosition && (
-                                  <div className="text-amber-500 text-sm font-bold mb-3">{currentArticle.authorPosition}</div>
+                                <h3 className="text-2xl font-black text-white mb-1">{currentPost.author || 'Admin Bocker168'}</h3>
+                                {currentPost.authorPosition && (
+                                  <div className="text-amber-500 text-sm font-bold mb-3">{currentPost.authorPosition}</div>
                                 )}
                                 <div className="text-zinc-400 text-sm leading-relaxed mb-4 max-w-2xl italic">
-                                  {currentArticle.authorDescription || 'ผู้เชี่ยวชาญด้านคาสิโนออนไลน์และบาคาร่า พร้อมแบ่งปันเทคนิคและประสบการณ์เพื่อช่วยให้คุณเอาชนะในทุกการเดิมพัน'}
+                                  {currentPost.authorDescription || 'ผู้เชี่ยวชาญด้านคาสิโนออนไลน์และบาคาร่า พร้อมแบ่งปันเทคนิคและประสบการณ์เพื่อช่วยให้คุณเอาชนะในทุกการเดิมพัน'}
                                 </div>
                                 <div className="flex items-center justify-center sm:justify-start gap-4">
                                   <div className="text-zinc-500 text-[11px] font-mono flex items-center gap-1.5">
@@ -1373,7 +1408,7 @@ function Bocker168Landing() {
                                 Facebook
                               </a>
                               <a 
-                                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(currentArticle.title)}&url=${encodeURIComponent(`https://hongkonglex.com${location.pathname}`)}`}
+                                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(currentPost.title)}&url=${encodeURIComponent(`https://hongkonglex.com${location.pathname}`)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-3 bg-white/5 hover:bg-white/10 text-white py-3 px-6 rounded-xl transition-all border border-white/10 font-bold"
@@ -2077,71 +2112,20 @@ function Bocker168Landing() {
               <p className="text-zinc-400">บทความใหม่ๆ จะถูกอัปเดตและแสดงผลที่นี่เร็วๆ นี้</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
-              {articles.filter(a => a.status !== 'draft').map((article, index) => (
-                <motion.div
-                  key={article.id || index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="group bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden hover:border-red-600/30 transition-all duration-500 flex flex-col"
-                >
-                  <Link to={`/article/${article.slug || article.title.replace(/\s+/g, '-').toLowerCase()}`} className="flex flex-col h-full">
-                    <div className="h-56 overflow-hidden relative">
-                      <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
-                        {article.category}
-                      </div>
-                      {article.image ? (
-                        <img 
-                          src={article.image || null} 
-                          alt={article.title} 
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                          <BookOpen className="w-12 h-12 text-zinc-700" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-80" />
-                    </div>
-                    
-                    <div className="p-6 md:p-8 flex flex-col flex-grow">
-                      <div className="flex items-center gap-4 text-zinc-400 text-sm mb-4 flex-wrap">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>{article.date}</span>
-                        </div>
-                        {article.author && (
-                          <div className="flex items-center gap-2">
-                            {article.authorImage ? (
-                              <img src={article.authorImage} alt={article.author} className="w-5 h-5 rounded-full object-cover border border-zinc-700" referrerPolicy="no-referrer" />
-                            ) : (
-                              <User className="w-4 h-4" />
-                            )}
-                            <span className="truncate max-w-[100px]">{article.author}</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors line-clamp-2">
-                        {article.title}
-                      </h3>
-                      
-                      <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
-                        {article.excerpt || (article as any).description}
-                      </p>
-                      
-                      <div className="flex items-center gap-2 text-red-500 font-bold text-sm group/btn mt-auto w-fit">
-                        อ่านเพิ่มเติม
-                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
+           <div className="space-y-16 mt-16">
+             {Array.from(new Set(articles.filter(a => a.status !== 'draft').map(a => a.category))).map(category => (
+               <div key={category}>
+                 <h2 className="text-2xl font-bold text-white mb-8 border-l-4 border-red-600 pl-4">
+                   {category}
+                 </h2>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                   {articles
+                     .filter(a => a.status !== 'draft' && a.category === category)
+                     .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} />)}
+                 </div>
+               </div>
+             ))}
+           </div>
           )}
           
           <div className="mt-16 text-center">
