@@ -722,6 +722,9 @@ function Bocker168Landing() {
     }
   }, [showAdmin]);
 
+  // --- Routes ---
+  // ... existing code ...
+
   const isHome = location.pathname === '/';
   const isFeatures = location.pathname === '/features';
   const isBaccarat = location.pathname === '/baccarat';
@@ -729,16 +732,24 @@ function Bocker168Landing() {
   const isArticles = location.pathname.replace(/\/$/, '') === '/articles';
   const isFaq = location.pathname.replace(/\/$/, '') === '/faq';
   const isContact = location.pathname.replace(/\/$/, '') === '/contact';
+  
+  // New status checks
+  const categoryMatch = location.pathname.match(/^\/category\/([^/]+)$/);
+  const isCategoryPage = !!categoryMatch;
+  const currentCategory = categoryMatch ? decodeURIComponent(categoryMatch[1]) : null;
+
+  const postMatch = location.pathname.match(/^\/category\/([^/]+)\/([^/]+)$/);
+  const isPostDetail = !!postMatch;
+  const currentPostSlug = isPostDetail ? decodeURIComponent(postMatch[2]) : null;
+
   const isRegisterGuide = location.pathname.replace(/\/$/, '') === '/register-guide';
   const isDepositWithdrawGuide = location.pathname.replace(/\/$/, '') === '/deposit-withdraw-guide';
   const isTerms = location.pathname.replace(/\/$/, '') === '/terms';
   const isPrivacy = location.pathname.replace(/\/$/, '') === '/privacy';
   const isCookies = location.pathname.replace(/\/$/, '') === '/cookies';
   const isResponsibleGambling = location.pathname.replace(/\/$/, '') === '/responsible-gambling';
-  
-  const isArticleDetail = location.pathname.startsWith('/article/');
-  const articleSlug = isArticleDetail ? decodeURIComponent(location.pathname.split('/article/')[1]) : null;
-  const currentArticle = articleSlug ? articles.find(a => (a.slug || a.title.replace(/\s+/g, '-').toLowerCase()) === articleSlug) : null;
+
+  const currentPost = isPostDetail ? articles.find(a => (a.slug || a.title.replace(/\s+/g, '-').toLowerCase()) === currentPostSlug) : null;
 
   const getPageTitle = () => {
     if (isHome) return 'Bocker168 - บาคาร่าออนไลน์ เว็บตรงไม่ผ่านเอเย่นต์ ฝากถอนไม่มีขั้นต่ำ';
@@ -754,21 +765,21 @@ function Bocker168Landing() {
     if (isPrivacy) return 'นโยบายความเป็นส่วนตัว - Bocker168';
     if (isCookies) return 'นโยบายคุกกี้ - Bocker168';
     if (isResponsibleGambling) return 'ความรับผิดชอบต่อสังคม - Bocker168';
-    if (isArticleDetail && currentArticle) {
-      return currentArticle.metaTitle || `${currentArticle.title} - Bocker168`;
+    if (isPostDetail && currentPost) {
+      return currentPost.metaTitle || `${currentPost.title} - Bocker168`;
     }
     return 'Bocker168 - บาคาร่าออนไลน์';
   };
 
   const getPageDescription = () => {
-    if (isArticleDetail && currentArticle) {
-      return currentArticle.metaDescription || currentArticle.excerpt || (currentArticle as any).description || 'อ่านบทความเกี่ยวกับบาคาร่าและคาสิโนออนไลน์ได้ที่ Bocker168';
+    if (isPostDetail && currentPost) {
+      return currentPost.metaDescription || currentPost.excerpt || (currentPost as any).description || 'อ่านบทความเกี่ยวกับบาคาร่าและคาสิโนออนไลน์ได้ที่ Bocker168';
     }
     return 'เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม';
   };
 
   const getPageKeywords = () => {
-    if (isArticleDetail && currentArticle && currentArticle.metaKeywords) return currentArticle.metaKeywords;
+    if (isPostDetail && currentPost && currentPost.metaKeywords) return currentPost.metaKeywords;
     return 'บาคาร่า, บาคาร่าออนไลน์, บาคาร่าเว็บตรง, สมัครบาคาร่า, คาสิโนสด, bocker168';
   };
 
@@ -850,15 +861,15 @@ function Bocker168Landing() {
         <meta name="keywords" content={getPageKeywords()} />
         <meta property="og:title" content={getPageTitle()} />
         <meta property="og:description" content={getPageDescription()} />
-        <meta property="og:type" content={isArticleDetail ? "article" : "website"} />
+        <meta property="og:type" content={isPostDetail ? "article" : "website"} />
         <meta property="og:url" content={`https://hongkonglex.com${location.pathname}`} />
-        <meta property="og:image" content={isArticleDetail && currentArticle?.image ? currentArticle.image : "https://img2.pic.in.th/A2-Logo-Bocker-168.png"} />
+        <meta property="og:image" content={isPostDetail && currentPost?.image ? currentPost.image : "https://img2.pic.in.th/A2-Logo-Bocker-168.png"} />
         
         {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={getPageTitle()} />
         <meta name="twitter:description" content={getPageDescription()} />
-        <meta name="twitter:image" content={isArticleDetail && currentArticle?.image ? currentArticle.image : "https://img2.pic.in.th/A2-Logo-Bocker-168.png"} />
+        <meta name="twitter:image" content={isPostDetail && currentPost?.image ? currentPost.image : "https://img2.pic.in.th/A2-Logo-Bocker-168.png"} />
         
         <link rel="canonical" href={`https://hongkonglex.com${location.pathname}`} />
         
@@ -930,19 +941,19 @@ function Bocker168Landing() {
           ])}
         </script>
 
-        {isArticleDetail && currentArticle && (
+        {isPostDetail && currentPost && (
           <script type="application/ld+json">
             {JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Article",
-              "headline": currentArticle.metaTitle || currentArticle.title,
-              "description": currentArticle.metaDescription || currentArticle.excerpt || (currentArticle as any).description,
-              "abstract": currentArticle.excerpt || currentArticle.metaDescription,
-              "articleSection": currentArticle.category,
-              "image": currentArticle.image || "https://img2.pic.in.th/A2-Logo-Bocker-168.png",
+              "headline": currentPost.metaTitle || currentPost.title,
+              "description": currentPost.metaDescription || currentPost.excerpt || (currentPost as any).description,
+              "abstract": currentPost.excerpt || currentPost.metaDescription,
+              "articleSection": currentPost.category,
+              "image": currentPost.image || "https://img2.pic.in.th/A2-Logo-Bocker-168.png",
               "author": {
                 "@type": "Person",
-                "name": currentArticle.author || "Admin Bocker168",
+                "name": currentPost.author || "Admin Bocker168",
                 "url": "https://hongkonglex.com"
               },
               "publisher": {
@@ -953,13 +964,13 @@ function Bocker168Landing() {
                   "url": "https://img2.pic.in.th/A2-Logo-Bocker-168.png"
                 }
               },
-              "datePublished": currentArticle.date || currentArticle.createdAt || new Date().toISOString(),
-              "dateModified": currentArticle.updatedAt || currentArticle.date || currentArticle.createdAt || new Date().toISOString(),
+              "datePublished": currentPost.date || currentPost.createdAt || new Date().toISOString(),
+              "dateModified": currentPost.updatedAt || currentPost.date || currentPost.createdAt || new Date().toISOString(),
               "mainEntityOfPage": {
                 "@type": "WebPage",
-                "@id": `https://hongkonglex.com/article/${currentArticle.slug}`
+                "@id": `https://hongkonglex.com/category/${currentPost.category}/${currentPost.slug}`
               },
-              "keywords": currentArticle.metaKeywords || "บาคาร่า, สูตรบาคาร่า"
+              "keywords": currentPost.metaKeywords || "บาคาร่า, สูตรบาคาร่า"
             })}
           </script>
         )}
@@ -1038,7 +1049,7 @@ function Bocker168Landing() {
       <main className={!isHome ? "pt-56 lg:pt-24" : ""}>
       
       {/* --- Article Detail Section --- */}
-      {isArticleDetail && (
+      {isPostDetail && (
         <section className="py-24 relative bg-[#050505] min-h-screen">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
@@ -1183,8 +1194,8 @@ function Bocker168Landing() {
                             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
                               <div className="shrink-0">
                                 <img 
-                                  src={currentArticle.authorImage || 'https://img2.pic.in.th/A2-Logo-Bocker-168.png'} 
-                                  alt={currentArticle.author} 
+                                  src={currentPost.authorImage || 'https://img2.pic.in.th/A2-Logo-Bocker-168.png'} 
+                                  alt={currentPost.author} 
                                   className="w-24 h-24 rounded-full object-cover border-2 border-zinc-800 shadow-xl"
                                   referrerPolicy="no-referrer"
                                 />
@@ -1213,7 +1224,7 @@ function Bocker168Landing() {
                           {/* Navigation Prev/Next */}
                           {(() => {
                             const sortedArticles = [...articles].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                            const currentIndex = sortedArticles.findIndex(a => a.id === currentArticle.id);
+                            const currentIndex = sortedArticles.findIndex(a => a.id === currentPost.id);
                             const nextArticle = currentIndex > 0 ? sortedArticles[currentIndex - 1] : null;
                             const prevArticle = currentIndex < sortedArticles.length - 1 ? sortedArticles[currentIndex + 1] : null;
 
@@ -1222,7 +1233,7 @@ function Bocker168Landing() {
                             return (
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12 pt-12 border-t border-zinc-800">
                                 {prevArticle ? (
-                                  <Link to={`/article/${prevArticle.slug}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-left">
+                                  <Link to={`/category/${prevArticle.category}/${prevArticle.slug}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-left">
                                     <div className="text-zinc-500 text-xs font-bold mb-2 flex items-center gap-1 group-hover:text-red-400 transition-colors">
                                       <BookOpen size={14} /> บทความก่อนหน้า
                                     </div>
@@ -1233,7 +1244,7 @@ function Bocker168Landing() {
                                 ) : <div />}
                                 
                                 {nextArticle && (
-                                  <Link to={`/article/${nextArticle.slug}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-right">
+                                  <Link to={`/category/${nextArticle.category}/${nextArticle.slug}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-right">
                                     <div className="text-zinc-500 text-xs font-bold mb-2 flex items-center gap-1 justify-end group-hover:text-red-400 transition-colors">
                                       บทความถัดไป <BookOpen size={14} />
                                     </div>
@@ -1249,7 +1260,7 @@ function Bocker168Landing() {
                           {/* Related Articles */}
                           {(() => {
                             const related = articles
-                              .filter(a => a.id !== currentArticle.id && a.category === currentArticle.category)
+                              .filter(a => a.id !== currentPost.id && a.category === currentPost.category)
                               .slice(0, 3);
                             
                             if (related.length === 0) return null;
@@ -1262,7 +1273,7 @@ function Bocker168Landing() {
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                   {related.map(item => (
-                                    <Link key={item.id} to={`/article/${item.slug}`} className="group block group">
+                                    <Link key={item.id} to={`/category/${item.category}/${item.slug}`} className="group block group">
                                       <div className="aspect-video rounded-xl overflow-hidden mb-4 border border-zinc-800">
                                         <img 
                                           src={item.image || null} 
