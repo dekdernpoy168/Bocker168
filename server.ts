@@ -12,6 +12,20 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ARTICLES_FILE = path.join(process.cwd(), 'articles_local.json');
 
+const CATEGORY_MAP: Record<string, string> = {
+  'บาคาร่า': 'baccarat',
+  'วิธีเล่นเบื้องต้น': 'beginner-guide',
+  'สูตรบาคาร่า': 'baccarat-strategy',
+  'ทริคระดับเซียน': 'expert-tips',
+  'ข่าวสารคาสิโน': 'casino-news',
+  'เทคนิคการเดินเงิน': 'money-management',
+  'เคล็ดลับการเล่น': 'playing-tips'
+};
+
+const REVERSE_CATEGORY_MAP: Record<string, string> = Object.fromEntries(
+  Object.entries(CATEGORY_MAP).map(([k, v]) => [v, k])
+);
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -19,6 +33,21 @@ async function startServer() {
   app.use(cors());
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+  // 301 Redirects for Category URLs (Thai to English)
+  app.use((req, res, next) => {
+    const categoryMatch = req.url.match(/^\/category\/([^/]+)(\/.*)?$/);
+    if (categoryMatch) {
+      const decodedCat = decodeURIComponent(categoryMatch[1]);
+      if (CATEGORY_MAP[decodedCat]) {
+        const rest = categoryMatch[2] || '';
+        const newUrl = `/category/${CATEGORY_MAP[decodedCat]}${rest}`;
+        console.log(`[SEO] Redirecting 301: ${req.url} -> ${newUrl}`);
+        return res.redirect(301, newUrl);
+      }
+    }
+    next();
+  });
 
   // Logging middleware
   app.use((req, res, next) => {
@@ -219,18 +248,82 @@ async function startServer() {
   };
 
   const injectSEO = async (template: string, url: string) => {
-    const articleMatch = url.match(/\/article\/([^\/\?]+)/);
-    const slug = articleMatch ? articleMatch[1] : null;
+    // Handle structure: /category/:categorySlug/:postSlug
+    const postMatch = url.match(/^\/category\/([^/]+)\/([^/]+)/);
+    const catSlug = postMatch ? postMatch[1] : null;
+    const postSlug = postMatch ? postMatch[2] : null;
+    
+    // Legacy support or direct /article/:slug if any
+    const legacyMatch = url.match(/\/article\/([^\/\?]+)/);
+    const slug = postSlug || (legacyMatch ? legacyMatch[1] : null);
     
     let title = "บาคาร่าออนไลน์ Bocker168 เว็บตรงไม่ผ่านเอเย่นต์ ฝากถอนไม่มีขั้นต่ำ";
     let description = "Bocker168 บาคาร่าเว็บตรงไม่ผ่านเอเย่นต์ อันดับ 1 ฝากถอนออโต้ไม่มีขั้นต่ำ รองรับทรูวอเลท (True Wallet) คาสิโนสด SA Gaming, Sexy Baccarat สมัครวันนี้รับโปรโมชั่นพิเศษ";
     let keywords = "Bocker168, บาคาร่า, บาคาร่าออนไลน์, บาคาร่าเว็บตรง, สมัครบาคาร่า, บาคาร่าทรูวอเลท, บาคาร่าไม่มีขั้นต่ำ, คาสิโนออนไลน์, SA Gaming, Sexy Baccarat, เว็บบาคาร่าอันดับ1";
-    let canonical = `https://hongkonglex.com${url.split('?')[0]}`;
+    const canonical = `https://hongkonglex.com${url.split('?')[0]}`;
     let ogType = "website";
+    let ogImage = "https://img2.pic.in.th/A2-Logo-Bocker-168.png";
 
     let bodyContent = "";
 
-    const jsonLd = [
+    if (slug) {
+      const article = await getArticleBySlug(slug);
+      if (article) {
+        const mappedCat = CATEGORY_MAP[article.category] || article.category;
+        title = article.metaTitle || article.title;
+        description = article.metaDescription || article.excerpt || description;
+        keywords = article.metaKeywords || keywords;
+        ogType = "article";
+        ogImage = article.image || ogImage;
+        bodyContent = `
+          <div style="display:none">
+            <h1>${article.title}</h1>
+            <p>${article.excerpt || ''}</p>
+          </div>
+        `;
+        // JSON-LD Article
+        const jsonLdArticle = {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": article.title,
+          "description": article.metaDescription || article.excerpt,
+          "image": article.image,
+          "author": {
+            "@type": "Person",
+            "name": article.author || "Bocker168 Admin",
+            "url": "https://hongkonglex.com"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Bocker168",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://img2.pic.in.th/A2-Logo-Bocker-168.png"
+            }
+          },
+          "datePublished": article.date,
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": canonical
+          }
+        };
+        
+        return template
+          .replace('<div id="root"></div>', `<div id="root">${bodyContent}</div>`)
+          .replace(/<title>.*?<\/title>/i, `<title>${title.replace(/&/g, '&amp;')}</title>`)
+          .replace(/<meta\s+name=["']description["']\s+content=["'].*?["']\s*\/?>/i, `<meta name="description" content="${description.replace(/"/g, '&quot;')}" />`)
+          .replace(/<meta\s+name=["']keywords["']\s+content=["'].*?["']\s*\/?>/i, `<meta name="keywords" content="${keywords.replace(/"/g, '&quot;')}" />`)
+          .replace(/<meta\s+property=["']og:title["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:title" content="${title.replace(/"/g, '&quot;')}" />`)
+          .replace(/<meta\s+property=["']og:description["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:description" content="${description.replace(/"/g, '&quot;')}" />`)
+          .replace(/<meta\s+property=["']og:type["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:type" content="${ogType}" />`)
+          .replace(/<meta\s+property=["']og:url["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:url" content="${canonical}" />`)
+          .replace(/<meta\s+property=["']og:image["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:image" content="${ogImage}" />`)
+          .replace(/<link\s+rel=["']canonical["']\s+href=["'].*?["']\s*\/?>/i, `<link rel="canonical" href="${canonical}" />`)
+          .replace('</head>', `<script type="application/ld+json">${JSON.stringify(jsonLdArticle).replace(/</g, '\\u003c')}</script>\n</head>`);
+      }
+    }
+
+    const defaultJsonLd = [
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
@@ -258,47 +351,6 @@ async function startServer() {
       }
     ];
 
-    if (slug) {
-      const article = await getArticleBySlug(slug);
-      if (article) {
-        title = article.metaTitle || article.title;
-        description = article.metaDescription || article.excerpt || description;
-        keywords = article.metaKeywords || keywords;
-        ogType = "article";
-        bodyContent = `
-          <div style="display:none">
-            <h1>${article.title}</h1>
-            <p>${article.excerpt || ''}</p>
-          </div>
-        `;
-        jsonLd.push({
-          "@context": "https://schema.org",
-          "@type": "Article",
-          "headline": article.title,
-          "description": article.metaDescription || article.excerpt,
-          "image": article.image,
-          "author": {
-            "@type": "Person",
-            "name": "Bocker168 Admin",
-            "url": "https://hongkonglex.com"
-          },
-          "publisher": {
-            "@type": "Organization",
-            "name": "Bocker168",
-            "logo": {
-              "@type": "ImageObject",
-              "url": "https://img2.pic.in.th/A2-Logo-Bocker-168.png"
-            }
-          },
-          "datePublished": article.date,
-          "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": canonical
-          }
-        } as any);
-      }
-    }
-
     return template
       .replace('<div id="root"></div>', `<div id="root">${bodyContent}</div>`)
       .replace(/<title>.*?<\/title>/i, `<title>${title.replace(/&/g, '&amp;')}</title>`)
@@ -309,7 +361,7 @@ async function startServer() {
       .replace(/<meta\s+property=["']og:type["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:type" content="${ogType}" />`)
       .replace(/<meta\s+property=["']og:url["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:url" content="${canonical}" />`)
       .replace(/<link\s+rel=["']canonical["']\s+href=["'].*?["']\s*\/?>/i, `<link rel="canonical" href="${canonical}" />`)
-      .replace('</head>', `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, '\\u003c')}</script>\n</head>`);
+      .replace('</head>', `<script type="application/ld+json">${JSON.stringify(defaultJsonLd).replace(/</g, '\\u003c')}</script>\n</head>`);
   };
 
   // API Routes
@@ -614,12 +666,15 @@ async function startServer() {
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${articles.map(article => `  <url>
-    <loc>${DOMAIN}/category/all/${article.slug}</loc>
+${articles.filter(a => a.status === 'published').map(article => {
+  const catSlug = CATEGORY_MAP[article.category] || 'all';
+  return `  <url>
+    <loc>${DOMAIN}/category/${catSlug}/${article.slug}</loc>
     <lastmod>${article.date || today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-  </url>`).join('\n')}
+  </url>`;
+}).join('\n')}
 </urlset>`;
     res.header('Content-Type', 'application/xml');
     res.send(sitemap);
@@ -665,7 +720,7 @@ ${staticRoutes.map(route => `  <url>
     let categories: string[] = [];
     try {
       if (isD1Configured()) {
-        const result = await queryD1('SELECT DISTINCT category FROM articles WHERE category IS NOT NULL');
+        const result = await queryD1('SELECT DISTINCT category FROM articles WHERE category IS NOT NULL AND status = "published"');
         categories = (result.results || []).map((r: any) => r.category);
       }
     } catch (error) {
@@ -674,12 +729,15 @@ ${staticRoutes.map(route => `  <url>
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${categories.map(cat => `  <url>
-    <loc>${DOMAIN}/category/${cat}</loc>
+${categories.map(cat => {
+  const slug = CATEGORY_MAP[cat] || cat;
+  return `  <url>
+    <loc>${DOMAIN}/category/${slug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-  </url>`).join('\n')}
+  </url>`;
+}).join('\n')}
 </urlset>`;
     res.header('Content-Type', 'application/xml');
     res.send(sitemap);

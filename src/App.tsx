@@ -68,6 +68,20 @@ import { Article } from './types';
 
 // --- Constants & Data ---
 
+const CATEGORY_MAP: Record<string, string> = {
+  'บาคาร่า': 'baccarat',
+  'วิธีเล่นเบื้องต้น': 'beginner-guide',
+  'สูตรบาคาร่า': 'baccarat-strategy',
+  'ทริคระดับเซียน': 'expert-tips',
+  'ข่าวสารคาสิโน': 'casino-news',
+  'เทคนิคการเดินเงิน': 'money-management',
+  'เคล็ดลับการเล่น': 'playing-tips'
+};
+
+const REVERSE_CATEGORY_MAP: Record<string, string> = Object.fromEntries(
+  Object.entries(CATEGORY_MAP).map(([k, v]) => [v, k])
+);
+
 const MENU_ITEMS = [
   { label: 'หน้าแรก', path: '/' },
   { label: 'บาคาร่าออนไลน์', path: '/baccarat' },
@@ -583,13 +597,6 @@ const PromotionModal = ({
 import AdminDashboard from './components/AdminDashboard';
 
 const ArticleCard = ({ article, index }: { article: Article, index: number }) => {
-  const CATEGORY_MAP: Record<string, string> = {
-    'บาคาร่า': 'baccarat',
-    'วิธีเล่นเบื้องต้น': 'beginner-guide',
-    'สูตรบาคาร่า': 'baccarat-strategy',
-    'ทริคระดับเซียน': 'expert-tips'
-  };
-
   return (
     <motion.div
       key={article.id || index}
@@ -819,26 +826,32 @@ function Bocker168Landing() {
   const isContact = location.pathname.replace(/\/$/, '') === '/contact';
   
   // New status checks
-  const CATEGORY_MAP: Record<string, string> = {
-    'บาคาร่า': 'baccarat',
-    'วิธีเล่นเบื้องต้น': 'beginner-guide',
-    'สูตรบาคาร่า': 'baccarat-strategy',
-    'ทริคระดับเซียน': 'expert-tips'
-  };
-
-  const REVERSE_CATEGORY_MAP: Record<string, string> = Object.fromEntries(
-    Object.entries(CATEGORY_MAP).map(([k, v]) => [v, k])
-  );
-
   const categoryMatch = location.pathname.match(/^\/category\/([^/]+)$/);
   const isCategoryPage = !!categoryMatch;
   const urlCategorySlug = categoryMatch ? categoryMatch[1] : null;
+
+  // SEO & Redirect Handling
+  useEffect(() => {
+    // Check if we need to redirect Thai encoded category URL to English slug
+    if (urlCategorySlug) {
+      const decodedSlug = decodeURIComponent(urlCategorySlug);
+      if (CATEGORY_MAP[decodedSlug]) {
+        // This was a Thai category name used as a slug, redirect to English slug
+        window.location.replace(`/category/${CATEGORY_MAP[decodedSlug]}`);
+      }
+    }
+  }, [urlCategorySlug]);
+
   const currentCategory = urlCategorySlug ? (REVERSE_CATEGORY_MAP[urlCategorySlug] || decodeURIComponent(urlCategorySlug)) : null;
 
-  const postMatch = location.pathname.match(/^\/category\/([^/]+)\/([^/]+)$/);
+  const postMatch = location.pathname.match(/^\/category\/([^/]+)\/([^/]+)$/) || location.pathname.match(/^\/article\/([^/]+)$/);
   const isPostDetail = !!postMatch;
-  const currentPostSlug = isPostDetail ? decodeURIComponent(postMatch[2]) : null;
-  const currentCategorySlugInUrl = isPostDetail ? postMatch[1] : null;
+  const currentPostSlug = isPostDetail ? decodeURIComponent(postMatch[2] || postMatch[1]) : null;
+  const currentCategorySlugInUrl = isPostDetail ? (postMatch[2] ? postMatch[1] : null) : null;
+  
+  const authorMatch = location.pathname.match(/^\/author\/([^/]+)$/);
+  const isAuthorPage = !!authorMatch;
+  const currentAuthorSlug = isAuthorPage ? decodeURIComponent(authorMatch[1]) : null;
 
   const isRegisterGuide = location.pathname.replace(/\/$/, '') === '/register-guide';
   const isDepositWithdrawGuide = location.pathname.replace(/\/$/, '') === '/deposit-withdraw-guide';
@@ -1331,7 +1344,7 @@ function Bocker168Landing() {
                             return (
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12 pt-12 border-t border-zinc-800">
                                 {prevArticle ? (
-                                  <Link to={`/category/${prevArticle.category}/${prevArticle.slug}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-left">
+                                  <Link to={`/category/${CATEGORY_MAP[prevArticle.category] || prevArticle.category}/${prevArticle.slug || prevArticle.title.replace(/\s+/g, '-').toLowerCase()}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-left">
                                     <div className="text-zinc-500 text-xs font-bold mb-2 flex items-center gap-1 group-hover:text-red-400 transition-colors">
                                       <BookOpen size={14} /> บทความก่อนหน้า
                                     </div>
@@ -1342,7 +1355,7 @@ function Bocker168Landing() {
                                 ) : <div />}
                                 
                                 {nextArticle && (
-                                  <Link to={`/category/${nextArticle.category}/${nextArticle.slug}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-right">
+                                  <Link to={`/category/${CATEGORY_MAP[nextArticle.category] || nextArticle.category}/${nextArticle.slug || nextArticle.title.replace(/\s+/g, '-').toLowerCase()}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-right">
                                     <div className="text-zinc-500 text-xs font-bold mb-2 flex items-center gap-1 justify-end group-hover:text-red-400 transition-colors">
                                       บทความถัดไป <BookOpen size={14} />
                                     </div>
@@ -1371,7 +1384,7 @@ function Bocker168Landing() {
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                   {related.map(item => (
-                                    <Link key={item.id} to={`/category/${item.category}/${item.slug}`} className="group block group">
+                                    <Link key={item.id} to={`/category/${CATEGORY_MAP[item.category] || item.category}/${item.slug || item.title.replace(/\s+/g, '-').toLowerCase()}`} className="group block group">
                                       <div className="aspect-video rounded-xl overflow-hidden mb-4 border border-zinc-800">
                                         <img 
                                           src={item.image || null} 
@@ -1461,6 +1474,29 @@ function Bocker168Landing() {
                 <h2 className="text-2xl font-bold text-white mb-4">ยังไม่มีบทความในหมวดหมู่นี้</h2>
               </div>
             )}
+          </div>
+        </section>
+      )}
+
+      {/* --- Author Page Section --- */}
+      {isAuthorPage && (
+        <section className="py-24 relative bg-[#050505] min-h-screen">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <h1 className="text-3xl md:text-5xl font-black text-white mb-12">
+                ผู้เขียน: <span className="text-red-500">{currentAuthorSlug}</span>
+              </h1>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {articles
+                  .filter(a => (a.author === currentAuthorSlug || a.author === REVERSE_CATEGORY_MAP[currentAuthorSlug!]) && a.status !== 'draft')
+                  .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} />)}
+              </div>
+              {articles.filter(a => (a.author === currentAuthorSlug || a.author === REVERSE_CATEGORY_MAP[currentAuthorSlug!]) && a.status !== 'draft').length === 0 && (
+                <div className="text-center py-20 bg-zinc-900/40 border border-zinc-800/50 rounded-3xl">
+                  <h2 className="text-2xl font-bold text-white mb-4">ยังไม่มีบทความจากผู้เขียนท่านนี้</h2>
+                </div>
+              )}
+            </div>
           </div>
         </section>
       )}

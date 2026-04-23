@@ -59,7 +59,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [currentAuthor, setCurrentAuthor] = useState<Partial<Author>>({});
   const [isLoadingAuthors, setIsLoadingAuthors] = useState(false);
   const [isLoadingLogs, setIsLoadingLogs] = useState(false);
-  const categories = ['บาคาร่า', 'คาสิโน', 'สูตรสล็อต'];
+  const categories = [
+    'บาคาร่า', 
+    'วิธีเล่นเบื้องต้น', 
+    'สูตรบาคาร่า', 
+    'ทริคระดับเซียน',
+    'ข่าวสารคาสิโน',
+    'เทคนิคการเดินเงิน',
+    'เคล็ดลับการเล่น'
+  ];
 
   useEffect(() => {
     if (isAuthenticated) {
