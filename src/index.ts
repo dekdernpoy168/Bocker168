@@ -39,6 +39,8 @@ const pages = sqliteTable('pages', {
 export interface Env {
   DB: D1Database;
   ASSETS: { fetch: (request: Request) => Promise<Response> };
+  R2_IMAGES: R2Bucket;
+  R2_PUBLIC_URL: string;
 }
 
 export default {
@@ -153,6 +155,48 @@ export default {
             return Response.json({ success: true });
           }
           return new Response('ID missing', { status: 400 });
+        }
+
+        // Route to list R2 images
+        if (url.pathname === '/api/r2/images' && request.method === 'GET') {
+          try {
+            if (!env.R2_IMAGES) {
+              return new Response(JSON.stringify({ error: 'R2 binding is missing or incomplete' }), { 
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+              });
+            }
+
+            const publicUrl = env.R2_PUBLIC_URL || '';
+            let formattedPublicUrl = publicUrl.trim();
+            if (formattedPublicUrl && !/^https?:\/\//i.test(formattedPublicUrl)) {
+              formattedPublicUrl = `https://${formattedPublicUrl}`;
+            }
+
+            const listed = await env.R2_IMAGES.list();
+            
+            const images = listed.objects
+              .filter(obj => {
+                const ext = obj.key?.toLowerCase().split('.').pop();
+                return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext || '');
+              })
+              .map(obj => ({
+                key: obj.key,
+                url: formattedPublicUrl && obj.key ? `${formattedPublicUrl.replace(/\/$/, '')}/${obj.key.split('/').map(encodeURIComponent).join('/')}` : null,
+                size: obj.size,
+                lastModified: obj.uploaded,
+              }));
+
+            return new Response(JSON.stringify(images), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } catch (error: any) {
+             return new Response(JSON.stringify({ error: error.message }), { 
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+             });
+          }
         }
 
         // Route to check config status

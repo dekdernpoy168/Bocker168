@@ -39,6 +39,15 @@
       }
     ]
   },
+  "r2_buckets": [
+    {
+      "binding": "R2_IMAGES",
+      "bucket_name": "bocker168-images"
+    }
+  ],
+  "vars": {
+    "R2_PUBLIC_URL": "https://img.hongkonglex.com"
+  },
   "d1_databases": [
     {
       "binding": "DB",
