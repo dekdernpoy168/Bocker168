@@ -5,13 +5,16 @@
 
 import React, { useState, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-export class ErrorBoundary extends React.Component<any, { hasError: boolean }> {
-  state = { hasError: false };
+export class ErrorBoundary extends Component<any, any> {
+  constructor(props: any) {
+    super(props);
+    (this as any).state = { hasError: false };
+  }
   public static getDerivedStateFromError() { return { hasError: true }; }
   public componentDidCatch(error: any, errorInfo: any) { console.error(error, errorInfo); }
   public render() {
-    if (this.state.hasError) return <div className="text-white p-20 text-center">เกิดข้อผิดพลาด กรุณารีเฟรชหน้าเว็บ</div>;
-    return this.props.children;
+    if ((this as any).state.hasError) return <div className="text-white p-20 text-center font-bold py-32 bg-zinc-900/50 rounded-3xl m-8 border border-zinc-800">เกิดข้อผิดพลาด กรุณารีเฟรชหน้าเว็บ</div>;
+    return (this as any).props.children;
   }
 }
 import { 
@@ -597,6 +600,9 @@ const PromotionModal = ({
 import AdminDashboard from './components/AdminDashboard';
 
 const ArticleCard = ({ article, index, dynamicCategoryMap }: { article: Article, index: number, dynamicCategoryMap: Record<string, string>, key?: any }) => {
+  const postSlug = article.slug || article.title.replace(/\s+/g, '-').toLowerCase();
+  const categorySlug = dynamicCategoryMap[article.category] || article.category;
+
   return (
     <motion.div
       key={article.id || index}
@@ -606,12 +612,15 @@ const ArticleCard = ({ article, index, dynamicCategoryMap }: { article: Article,
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className="group bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden hover:border-red-600/30 transition-all duration-500 flex flex-col"
     >
-      <Link to={`/category/${encodeURIComponent(dynamicCategoryMap[article.category] || article.category)}/${encodeURIComponent(article.slug || article.title.replace(/\s+/g, '-').toLowerCase())}`} 
-        className="flex flex-col h-full">
-        <div className="h-56 overflow-hidden relative">
-          <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
-            {article.category}
-          </div>
+      <div className="flex flex-col h-full relative">
+        <Link 
+          to={`/category/${encodeURIComponent(categorySlug)}`}
+          className="absolute top-4 left-4 z-20 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full hover:bg-red-700 transition-colors"
+        >
+          {article.category}
+        </Link>
+        <Link to={`/${encodeURIComponent(postSlug)}`} className="flex flex-col h-full">
+          <div className="h-56 overflow-hidden relative">
           {article.image ? (
             <img 
               src={article.image || null} 
@@ -659,6 +668,7 @@ const ArticleCard = ({ article, index, dynamicCategoryMap }: { article: Article,
           </div>
         </div>
       </Link>
+    </div>
     </motion.div>
   );
 };
@@ -878,8 +888,12 @@ function Bocker168Landing() {
   const slugMatch = location.pathname.match(/^\/([^/]+)$/);
   const potentialSlug = slugMatch ? decodeURIComponent(slugMatch[1]) : null;
 
-  // Reserved routes
-  const reservedRoutes = ['articles', 'faq', 'contact', 'baccarat', 'features', 'promotions', 'register-guide', 'deposit-withdraw-guide', 'terms', 'privacy', 'cookies', 'responsible-gambling', 'category', 'author', 'admin', 'dashboard', 'api'];
+  // Reserved routes (static pages that should not be matched as dynamic post slugs)
+  const reservedRoutes = [
+    'articles', 'faq', 'contact', 'baccarat', 'features', 'promotions', 
+    'register-guide', 'deposit-withdraw-guide', 'terms', 'privacy', 'cookies', 
+    'responsible-gambling', 'category', 'author', 'admin', 'dashboard', 'api'
+  ];
   
   const isPotentialFlatRoute = potentialSlug && !reservedRoutes.includes(potentialSlug);
 
@@ -1126,7 +1140,7 @@ function Bocker168Landing() {
               "dateModified": currentPost.updatedAt || currentPost.date || currentPost.createdAt || new Date().toISOString(),
               "mainEntityOfPage": {
                 "@type": "WebPage",
-                "@id": `https://hongkonglex.com/category/${currentPost.category}/${currentPost.slug}`
+                "@id": `https://hongkonglex.com/${currentPost.slug}`
               },
               "keywords": currentPost.metaKeywords || "บาคาร่า, สูตรบาคาร่า"
             })}
@@ -1244,9 +1258,12 @@ function Bocker168Landing() {
                 <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden">
                   <div className="p-8 md:p-12">
                     <div className="flex items-center gap-4 mb-6 flex-wrap">
-                      <div className="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
+                      <Link 
+                        to={`/category/${encodeURIComponent(dynamicCategoryMap[currentPost.category] || currentPost.category)}`}
+                        className="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full hover:bg-red-700 transition-colors"
+                      >
                         {currentPost.category}
-                      </div>
+                      </Link>
                       <div className="flex items-center gap-2 text-zinc-400 text-sm">
                         <Calendar className="w-5 h-5" />
                         <span>{currentPost.date}</span>
@@ -1415,7 +1432,7 @@ function Bocker168Landing() {
                             return (
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12 pt-12 border-t border-zinc-800">
                                 {prevArticle ? (
-                                  <Link to={`/category/${dynamicCategoryMap[prevArticle.category] || prevArticle.category}/${prevArticle.slug || prevArticle.title.replace(/\s+/g, '-').toLowerCase()}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-left">
+                                  <Link to={`/${prevArticle.slug || prevArticle.title.replace(/\s+/g, '-').toLowerCase()}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-left">
                                     <div className="text-zinc-500 text-xs font-bold mb-2 flex items-center gap-1 group-hover:text-red-400 transition-colors">
                                       <BookOpen size={14} /> บทความก่อนหน้า
                                     </div>
@@ -1426,7 +1443,7 @@ function Bocker168Landing() {
                                 ) : <div />}
                                 
                                 {nextArticle && (
-                                  <Link to={`/category/${dynamicCategoryMap[nextArticle.category] || nextArticle.category}/${nextArticle.slug || nextArticle.title.replace(/\s+/g, '-').toLowerCase()}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-right">
+                                  <Link to={`/${nextArticle.slug || nextArticle.title.replace(/\s+/g, '-').toLowerCase()}`} className="group p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl hover:border-red-500/50 transition-all text-right">
                                     <div className="text-zinc-500 text-xs font-bold mb-2 flex items-center gap-1 justify-end group-hover:text-red-400 transition-colors">
                                       บทความถัดไป <BookOpen size={14} />
                                     </div>
@@ -1455,7 +1472,7 @@ function Bocker168Landing() {
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                   {related.map(item => (
-                                    <Link key={item.id} to={`/category/${dynamicCategoryMap[item.category] || item.category}/${item.slug || item.title.replace(/\s+/g, '-').toLowerCase()}`} className="group block group">
+                                    <Link key={item.id} to={`/${item.slug || item.title.replace(/\s+/g, '-').toLowerCase()}`} className="group block group">
                                       <div className="aspect-video rounded-xl overflow-hidden mb-4 border border-zinc-800">
                                         <img 
                                           src={item.image || null} 

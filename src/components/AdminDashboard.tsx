@@ -1890,6 +1890,15 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                       </td>
                       <td className="p-4 text-right space-x-2 whitespace-nowrap">
                         <div className="inline-flex items-center gap-1 mr-2 border-r border-zinc-800 pr-2">
+                          <a 
+                            href={`/${article.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 text-zinc-400 hover:text-amber-500 bg-black rounded-lg transition-colors inline-flex border border-zinc-800"
+                            title="ดูหน้าเว็บจริง"
+                          >
+                             <Eye size={16} />
+                          </a>
                           <button 
                             onClick={() => exportToWord(article)}
                             className="p-2 text-zinc-500 hover:text-blue-500 transition-colors"
