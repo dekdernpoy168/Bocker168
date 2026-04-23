@@ -690,9 +690,12 @@ async function startServer() {
         SELECT 
           id, 
           name, 
+          image,
           image AS avatar_url, 
           position, 
+          description,
           description AS bio, 
+          createdAt,
           createdAt AS created_at 
         FROM authors 
         ORDER BY createdAt DESC
@@ -821,6 +824,8 @@ async function startServer() {
           status TEXT CHECK(status IN ('published', 'draft', 'scheduled')),
           author TEXT,
           authorImage TEXT,
+          authorPosition TEXT,
+          authorDescription TEXT,
           date TEXT,
           metaTitle TEXT,
           metaDescription TEXT,
@@ -831,12 +836,10 @@ async function startServer() {
       `;
       await queryD1(sql);
       
-      // Attempt to add authorImage column if it doesn't exist
-      try {
-        await queryD1(`ALTER TABLE articles ADD COLUMN authorImage TEXT;`);
-      } catch (e) {
-        // Ignore error
-      }
+      // Attempt to add columns if they don't exist (migrations)
+      try { await queryD1(`ALTER TABLE articles ADD COLUMN authorImage TEXT;`); } catch (e) {}
+      try { await queryD1(`ALTER TABLE articles ADD COLUMN authorPosition TEXT;`); } catch (e) {}
+      try { await queryD1(`ALTER TABLE articles ADD COLUMN authorDescription TEXT;`); } catch (e) {}
       
       res.json({ success: true, message: 'Database initialized successfully' });
     } catch (error: any) {

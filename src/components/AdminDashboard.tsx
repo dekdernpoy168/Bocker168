@@ -390,10 +390,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
         setIsEditing(false); // Reuse isEditing for simplicity, or have isEditingPage
         setCurrentWebPage({});
         alert('บันทึกหน้าเรียบร้อยแล้ว');
+      } else {
+        const text = await response.text();
+        alert('บันทึกไม่สำเร็จ: \n\n' + text);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving page:', error);
-      alert('เกิดข้อผิดพลาดในการบันทึก');
+      alert('เกิดข้อผิดพลาดในการบันทึก: \n\n' + (error.message || String(error)));
     }
   };
 
@@ -491,12 +494,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
         } else {
           const text = await response.text();
           console.error('Server error response:', text);
-          alert('บันทึกไม่สำเร็จ: เกิดข้อผิดพลาดที่เซิร์ฟเวอร์ (Server Error)');
+          alert('บันทึกไม่สำเร็จ: เกิดข้อผิดพลาดที่เซิร์ฟเวอร์ \n\n' + text);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving article:', error);
-      alert('เกิดข้อผิดพลาดในการบันทึก');
+      alert('เกิดข้อผิดพลาดในการบันทึก: \n\n' + (error.message || String(error)));
     }
   };
 
