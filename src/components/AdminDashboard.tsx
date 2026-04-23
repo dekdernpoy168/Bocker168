@@ -9,6 +9,7 @@ import { Article, Author, WebPage, Category } from '../types';
 import AIPromptModal from './AIPromptModal';
 import { generateAIContent } from '../lib/aiService';
 import ReactQuill from 'react-quill-new';
+const QuillEditor = ReactQuill as any;
 import 'react-quill-new/dist/quill.snow.css';
 import * as docx from 'docx';
 import * as xlsx from 'xlsx';
@@ -51,6 +52,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [editorMode, setEditorMode] = useState<'visual' | 'text'>('visual');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const quillRef = useRef<any>(null);
 
   const [articles, setArticles] = useState<Article[]>([]); 
   const [isLoading, setIsLoading] = useState(false);
@@ -66,6 +68,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [currentCategory, setCurrentCategory] = useState<Partial<Category>>({});
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isLoadingLogs, setIsLoadingLogs] = useState(false);
+  
+  // R2 States
+  const [isR2ModalOpen, setIsR2ModalOpen] = useState(false);
+  const [r2Images, setR2Images] = useState<any[]>([]);
+  const [isLoadingR2, setIsLoadingR2] = useState(false);
+  const [r2TargetField, setR2TargetField] = useState<'cover' | 'editor'>('cover');
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -231,6 +239,60 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     }
   };
 
+  const fetchR2Images = async () => {
+    setIsLoadingR2(true);
+    try {
+      const response = await fetch('/api/r2/images');
+      if (response.ok) {
+        const data = await response.json();
+        setR2Images(data);
+      } else {
+        const errorData = await response.json() as any;
+        alert('Error fetching R2 images: ' + (errorData.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error fetching R2 images:', error);
+      alert('Failed to connect to R2 API');
+    } finally {
+      setIsLoadingR2(false);
+    }
+  };
+
+  const handleSelectR2Image = (imageUrl: string) => {
+    if (r2TargetField === 'cover') {
+      if (activeTab === 'pages') {
+        setCurrentWebPage({ ...currentWebPage, image: imageUrl });
+      } else {
+        setCurrentArticle({ ...currentArticle, image: imageUrl });
+      }
+    } else {
+      // For editor, we insert into content
+      if (editorMode === 'visual') {
+        const quill = quillRef.current?.getEditor();
+        if (quill) {
+          const range = quill.getSelection(true);
+          quill.insertEmbed(range.index, 'image', imageUrl);
+        }
+      } else {
+        // Text mode
+        const textarea = contentTextareaRef.current;
+        if (textarea) {
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const text = textarea.value;
+          const imgHtml = `<img src="${imageUrl}" alt="Image" />`;
+          const newText = text.substring(0, start) + imgHtml + text.substring(end);
+          if (activeTab === 'pages') {
+            setCurrentWebPage({ ...currentWebPage, content: newText });
+          } else {
+            setCurrentArticle({ ...currentArticle, content: newText });
+          }
+        }
+      }
+    }
+    setIsR2ModalOpen(false);
+  };
+
   const fetchConfigStatus = async () => {
     try {
       const response = await fetch('/api/config-status');
@@ -384,16 +446,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     
     if (!currentArticle.title || !currentArticle.content) {
       alert('กรุณากรอกหัวข้อและเนื้อหาบทความ');
-      return;
-    }
-
-    if (currentArticle.metaTitle && currentArticle.metaTitle.length < 55) {
-      alert('Meta Title ต้องมีความยาวไม่ต่ำกว่า 55 ตัวอักษร');
-      return;
-    }
-
-    if (currentArticle.metaDescription && currentArticle.metaDescription.length < 155) {
-      alert('Meta Description ต้องมีความยาวไม่ต่ำกว่า 155 ตัวอักษร');
       return;
     }
 
@@ -580,17 +632,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       Article Content: "${currentArticle.content?.substring(0, 2000) || ''}"
       
       Return ONLY a valid JSON object with three keys: 
-      1. "metaTitle" (Length: 55-60 characters, engaging, includes keyword, Thai language)
-      2. "metaDescription" (Length: 155-160 characters, call to action, includes keyword, Thai language)
+      1. "metaTitle" (Engaging, includes keyword, Thai language)
+      2. "metaDescription" (Call to action, includes keyword, Thai language)
       3. "metaKeywords" (comma-separated list of 5-10 relevant keywords)
       
       STRICT RULES:
-      - metaTitle MUST be between 55 and 60 characters long.
-      - metaDescription MUST be between 155 and 160 characters long.
       - Do not include any extra text, explanations, or markdown formatting.
       - Return ONLY the JSON object.
       
-      Example: {"metaTitle": "Title here (must be 55-60 chars)", "metaDescription": "Description here (must be 155-160 chars)", "metaKeywords": "keyword1, keyword2"}`;
+      Example: {"metaTitle": "Title here", "metaDescription": "Description here", "metaKeywords": "keyword1, keyword2"}`;
       
       const text = await generateAIContent(prompt);
       
@@ -1242,24 +1292,53 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
-                  <Code size={16} /> เนื้อหา (Content)
-                </label>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
+                    <Code size={16} /> เนื้อหา (Content)
+                  </label>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setR2TargetField('editor');
+                      setIsR2ModalOpen(true);
+                      fetchR2Images();
+                    }}
+                    className="flex items-center gap-1 px-3 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-medium transition-colors border border-zinc-800"
+                  >
+                    <Download size={14} /> Pull R2
+                  </button>
+                </div>
                 <div className="border border-zinc-800 rounded-xl overflow-hidden bg-black">
-                  <ReactQuill 
-                    theme="snow"
-                    value={currentWebPage.content || ''}
-                    onChange={(val) => setCurrentWebPage({...currentWebPage, content: val})}
-                    modules={quillModules}
-                    className="text-white"
-                  />
+                  <div className="bg-white text-black quill-wrapper">
+                    <QuillEditor 
+                      ref={quillRef}
+                      theme="snow"
+                      value={currentWebPage.content || ''}
+                      onChange={(val: any) => setCurrentWebPage({...currentWebPage, content: val})}
+                      modules={quillModules}
+                      className="text-white"
+                    />
+                  </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-zinc-900/20 border border-zinc-800 rounded-2xl mt-8">
                 <div className="space-y-2">
-                  <label className="text-red-500 text-sm font-medium">Meta Title</label>
+                  <div className="flex justify-between items-center">
+                    <label className="text-red-500 text-sm font-medium">Meta Title</label>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setR2TargetField('cover');
+                        setIsR2ModalOpen(true);
+                        fetchR2Images();
+                      }}
+                      className="text-[10px] text-zinc-400 hover:text-red-500 flex items-center gap-1 border border-zinc-800 rounded px-2 py-1 transition-colors"
+                    >
+                      <Download size={12} /> Pull from R2
+                    </button>
+                  </div>
                   <input 
                     type="text" 
                     value={currentWebPage.metaTitle || ''}
@@ -1372,43 +1451,29 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
                     <label className="text-zinc-400 font-medium uppercase">Meta Title</label>
-                    <span className={`${(currentArticle.metaTitle?.length || 0) < 55 ? 'text-red-500' : 'text-green-500'}`}>
-                      {currentArticle.metaTitle?.length || 0}/60 (ขั้นต่ำ 55)
+                    <span className="text-zinc-500">
+                      {currentArticle.metaTitle?.length || 0} ตัวอักษร
                     </span>
                   </div>
                   <input 
                     type="text" 
                     value={currentArticle.metaTitle || ''}
                     onChange={e => setCurrentArticle({...currentArticle, metaTitle: e.target.value})}
-                    className={`w-full bg-black border rounded-lg px-4 py-2.5 text-zinc-200 focus:ring-1 outline-none text-sm transition-all ${
-                      (currentArticle.metaTitle?.length || 0) > 0 && (currentArticle.metaTitle?.length || 0) < 55 
-                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
-                        : 'border-zinc-800 focus:border-red-500 focus:ring-red-500'
-                    }`}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
                   />
-                  {(currentArticle.metaTitle?.length || 0) > 0 && (currentArticle.metaTitle?.length || 0) < 55 && (
-                    <p className="text-[10px] text-red-500">ความยาวต้องไม่ต่ำกว่า 55 ตัวอักษร</p>
-                  )}
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
                     <label className="text-zinc-400 font-medium uppercase">Meta Description</label>
-                    <span className={`${(currentArticle.metaDescription?.length || 0) < 155 ? 'text-red-500' : 'text-green-500'}`}>
-                      {currentArticle.metaDescription?.length || 0}/160 (ขั้นต่ำ 155)
+                    <span className="text-zinc-500">
+                      {currentArticle.metaDescription?.length || 0} ตัวอักษร
                     </span>
                   </div>
                   <textarea 
                     value={currentArticle.metaDescription || ''}
                     onChange={e => setCurrentArticle({...currentArticle, metaDescription: e.target.value})}
-                    className={`w-full bg-black border rounded-lg px-4 py-2.5 text-zinc-200 focus:ring-1 outline-none text-sm resize-none h-[42px] transition-all ${
-                      (currentArticle.metaDescription?.length || 0) > 0 && (currentArticle.metaDescription?.length || 0) < 155 
-                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
-                        : 'border-zinc-800 focus:border-red-500 focus:ring-red-500'
-                    }`}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm resize-none h-[42px] transition-all"
                   />
-                  {(currentArticle.metaDescription?.length || 0) > 0 && (currentArticle.metaDescription?.length || 0) < 155 && (
-                    <p className="text-[10px] text-red-500">ความยาวต้องไม่ต่ำกว่า 155 ตัวอักษร</p>
-                  )}
                 </div>
               </div>
             </div>
@@ -1490,9 +1555,22 @@ ${article.content?.replace(/<[^>]*>/g, '')}
             {/* Section 6: Cover Image & Scheduling */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
-                  <ImageIcon size={16} /> URL รูปภาพหน้าปก
-                </label>
+                <div className="flex justify-between items-center">
+                  <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
+                    <ImageIcon size={16} /> URL รูปภาพหน้าปก
+                  </label>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setR2TargetField('cover');
+                      setIsR2ModalOpen(true);
+                      fetchR2Images();
+                    }}
+                    className="text-[10px] text-zinc-400 hover:text-red-500 flex items-center gap-1 border border-zinc-800 rounded px-2 py-1 transition-colors"
+                  >
+                    <Download size={12} /> Pull from R2
+                  </button>
+                </div>
                 <input 
                   type="text" 
                   value={currentArticle.image || ''}
@@ -1624,6 +1702,17 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                 </label>
                 <div className="flex items-center gap-2 w-full md:w-auto flex-wrap">
                   <div className="flex bg-zinc-900 rounded-lg p-1 border border-zinc-800">
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setR2TargetField('editor');
+                        setIsR2ModalOpen(true);
+                        fetchR2Images();
+                      }}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-medium transition-colors border border-zinc-800"
+                    >
+                      <Download size={14} /> Pull R2
+                    </button>
                     <button
                       type="button"
                       onClick={() => setEditorMode('visual')}
@@ -1684,10 +1773,11 @@ ${article.content?.replace(/<[^>]*>/g, '')}
               <div className="border border-zinc-800 rounded-lg overflow-hidden bg-black">
                 {editorMode === 'visual' ? (
                   <div className="bg-white text-black quill-wrapper">
-                    <ReactQuill 
+                    <QuillEditor 
+                      ref={quillRef}
                       theme="snow" 
                       value={currentArticle.content || ''} 
-                      onChange={(content) => setCurrentArticle({...currentArticle, content})}
+                      onChange={(content: any) => setCurrentArticle({...currentArticle, content})}
                       modules={quillModules}
                       className="h-[300px] mb-12"
                     />
@@ -2306,6 +2396,85 @@ ${article.content?.replace(/<[^>]*>/g, '')}
           )}
         </div>
       )}
+        </div>
+      )}
+
+      {/* R2 Image Library Modal */}
+      {isR2ModalOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+          <div className="bg-[#18181b] w-full max-w-5xl rounded-2xl shadow-2xl border border-zinc-800 flex flex-col max-h-[85vh] overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-zinc-800">
+              <div>
+                <h2 className="text-white font-bold text-xl flex items-center gap-2">
+                  <ImageIcon size={22} className="text-red-500" />
+                  R2 Image Library
+                </h2>
+                <p className="text-zinc-500 text-xs mt-1">
+                  เลือกรูปภาพจาก Cloudflare R2 เพื่อใช้งานในบทความ
+                </p>
+              </div>
+              <button onClick={() => setIsR2ModalOpen(false)} className="text-zinc-400 hover:text-white transition-colors bg-zinc-900 p-2 rounded-full">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar min-h-[300px]">
+              {isLoadingR2 ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <div className="w-10 h-10 border-4 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
+                  <p className="text-zinc-400 animate-pulse">กำลังโหลดรูปภาพจาก R2...</p>
+                </div>
+              ) : r2Images.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-zinc-500 gap-4">
+                  <Search size={48} className="opacity-20" />
+                  <div className="text-center">
+                    <p className="text-lg font-medium text-zinc-400">ไม่พบรูปภาพใน Bucket</p>
+                    <p className="text-sm">กรุณาอัปโหลดรูปภาพเข้า R2 ก่อนใช้งาน</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {r2Images.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSelectR2Image(img.url)}
+                      className="group relative aspect-square bg-black rounded-xl border border-zinc-800 overflow-hidden hover:border-red-500 transition-all focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    >
+                      {img.url ? (
+                        <img 
+                          src={img.url} 
+                          alt={img.key} 
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                          referrerPolicy="no-referrer"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-zinc-500 text-[10px] break-all p-2">
+                          {img.key}
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                        <p className="text-[10px] text-white truncate w-full">{img.key}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="p-5 border-t border-zinc-800 bg-zinc-900/30 flex justify-between items-center">
+              <p className="text-xs text-zinc-500">
+                พบ {r2Images.length} รูปภาพใน Bucket
+              </p>
+              <button 
+                onClick={fetchR2Images}
+                className="text-xs font-medium text-red-500 hover:text-red-400 flex items-center gap-1.5 transition-colors"
+                disabled={isLoadingR2}
+              >
+                <Sparkles size={14} /> Refresh Library
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

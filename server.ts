@@ -5,6 +5,7 @@ import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
+import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 
 dotenv.config();
 
@@ -458,6 +459,66 @@ async function startServer() {
       }
     } catch (error: any) {
       console.error('Error fetching articles:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/articles/:id', async (req, res) => {
+    try {
+      if (!isD1Configured()) {
+        const local = await getLocalArticles();
+        const article = local.find((a: any) => a.id === req.params.id);
+        return res.json(article || null);
+      }
+      const result = await queryD1('SELECT * FROM articles WHERE id = ? LIMIT 1', [req.params.id]);
+      res.json(result.results?.[0] || null);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // --- R2 API ---
+  app.get('/api/r2/images', async (req, res) => {
+    const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+    const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+    const bucketName = process.env.R2_BUCKET_NAME;
+    const accountId = process.env.R2_ACCOUNT_ID;
+    const publicUrl = process.env.R2_PUBLIC_URL || '';
+
+    if (!accessKeyId || !secretAccessKey || !bucketName || !accountId) {
+      return res.status(400).json({ error: 'R2 configuration is incomplete' });
+    }
+
+    try {
+      const s3Client = new S3Client({
+        region: 'auto',
+        endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+        credentials: {
+          accessKeyId,
+          secretAccessKey,
+        },
+      });
+
+      const command = new ListObjectsV2Command({
+        Bucket: bucketName,
+      });
+
+      const response = await s3Client.send(command);
+      const images = (response.Contents || [])
+        .filter(obj => {
+          const ext = obj.Key?.toLowerCase().split('.').pop();
+          return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext || '');
+        })
+        .map(obj => ({
+          key: obj.Key,
+          url: publicUrl ? `${publicUrl.replace(/\/$/, '')}/${obj.Key}` : null,
+          size: obj.Size,
+          lastModified: obj.LastModified,
+        }));
+
+      res.json(images);
+    } catch (error: any) {
+      console.error('R2 List Error:', error);
       res.status(500).json({ error: error.message });
     }
   });
