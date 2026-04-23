@@ -258,7 +258,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     }
   };
 
-  const handleSelectR2Image = (imageUrl: string) => {
+  const handleSelectR2Image = (imageUrl: string, defaultAlt: string = '') => {
+    let altText = defaultAlt;
+
+    if (r2TargetField !== 'cover') {
+      const result = window.prompt("กำหนดคำอธิบายรูปภาพ (Alt Text) หรือเว้นว่างไว้:", defaultAlt.split('.')[0] || "");
+      if (result === null) return; // User Cancelled
+      altText = result;
+    }
+
     if (r2TargetField === 'cover') {
       if (activeTab === 'pages') {
         setCurrentWebPage({ ...currentWebPage, image: imageUrl });
@@ -271,7 +279,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
         const quill = quillRef.current?.getEditor();
         if (quill) {
           const range = quill.getSelection(true);
-          quill.insertEmbed(range.index, 'image', imageUrl);
+          // Set selection explicitly and paste HTML to include alt attributes cleanly
+          const imgHtml = `<img src="${imageUrl}" alt="${altText}" />`;
+          quill.clipboard.dangerouslyPasteHTML(range.index, imgHtml);
         }
       } else {
         // Text mode
@@ -280,7 +290,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
           const start = textarea.selectionStart;
           const end = textarea.selectionEnd;
           const text = textarea.value;
-          const imgHtml = `<img src="${imageUrl}" alt="Image" />`;
+          const imgHtml = `<img src="${imageUrl}" alt="${altText}" />`;
           const newText = text.substring(0, start) + imgHtml + text.substring(end);
           if (activeTab === 'pages') {
             setCurrentWebPage({ ...currentWebPage, content: newText });
@@ -2443,7 +2453,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                   {r2Images.map((img, idx) => (
                     <button
                       key={idx}
-                      onClick={() => handleSelectR2Image(img.url)}
+                      onClick={() => handleSelectR2Image(img.url || '', img.key || '')}
                       className="group relative aspect-square bg-black rounded-xl border border-zinc-800 overflow-hidden hover:border-red-500 transition-all focus:outline-none focus:ring-2 focus:ring-red-500/50"
                     >
                       {img.url ? (
