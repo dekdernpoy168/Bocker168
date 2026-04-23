@@ -581,10 +581,54 @@ async function startServer() {
     }
   });
 
-  app.get('/sitemap.xml', async (req, res) => {
+  // Sitemap Index
+  app.get('/sitemap.xml', (req, res) => {
+    const DOMAIN = 'https://hongkonglex.com';
+    const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>${DOMAIN}/post-sitemap.xml</loc></sitemap>
+  <sitemap><loc>${DOMAIN}/page-sitemap.xml</loc></sitemap>
+  <sitemap><loc>${DOMAIN}/category-sitemap.xml</loc></sitemap>
+  <sitemap><loc>${DOMAIN}/author-sitemap.xml</loc></sitemap>
+</sitemapindex>`;
+    res.header('Content-Type', 'application/xml');
+    res.send(sitemapIndex);
+  });
+
+  // Post Sitemap
+  app.get('/post-sitemap.xml', async (req, res) => {
     const DOMAIN = 'https://hongkonglex.com';
     const today = new Date().toISOString().split('T')[0];
     
+    let articles: any[] = [];
+    try {
+      if (!isD1Configured()) {
+        articles = await getLocalArticles();
+      } else {
+        const result = await queryD1('SELECT slug, date FROM articles');
+        articles = result.results || [];
+      }
+    } catch (error) {
+      console.error('Error fetching articles for post-sitemap:', error);
+    }
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${articles.map(article => `  <url>
+    <loc>${DOMAIN}/category/all/${article.slug}</loc>
+    <lastmod>${article.date || today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('\n')}
+</urlset>`;
+    res.header('Content-Type', 'application/xml');
+    res.send(sitemap);
+  });
+
+  // Page Sitemap
+  app.get('/page-sitemap.xml', async (req, res) => {
+    const DOMAIN = 'https://hongkonglex.com';
+    const today = new Date().toISOString().split('T')[0];
     const staticRoutes = [
       { url: '/', priority: '1.0' },
       { url: '/features', priority: '0.9' },
@@ -600,35 +644,71 @@ async function startServer() {
       { url: '/cookies', priority: '0.7' },
       { url: '/responsible-gambling', priority: '0.7' },
     ];
-
-    let articles: any[] = [];
-    try {
-      if (!isD1Configured()) {
-        articles = await getLocalArticles();
-      } else {
-        const result = await queryD1('SELECT slug, date FROM articles');
-        articles = result.results || [];
-      }
-    } catch (error) {
-      console.error('Error fetching articles for sitemap:', error);
-    }
-
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticRoutes.map(route => `  <url>
     <loc>${DOMAIN}${route.url}</loc>
     <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>${route.priority}</priority>
   </url>`).join('\n')}
-${articles.map(article => `  <url>
-    <loc>${DOMAIN}/article/${article.slug}</loc>
-    <lastmod>${article.date || today}</lastmod>
+</urlset>`;
+    res.header('Content-Type', 'application/xml');
+    res.send(sitemap);
+  });
+
+  // Category Sitemap
+  app.get('/category-sitemap.xml', async (req, res) => {
+    const DOMAIN = 'https://hongkonglex.com';
+    const today = new Date().toISOString().split('T')[0];
+    
+    let categories: string[] = [];
+    try {
+      if (isD1Configured()) {
+        const result = await queryD1('SELECT DISTINCT category FROM articles WHERE category IS NOT NULL');
+        categories = (result.results || []).map((r: any) => r.category);
+      }
+    } catch (error) {
+      console.error('Error fetching categories for category-sitemap:', error);
+    }
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${categories.map(cat => `  <url>
+    <loc>${DOMAIN}/category/${cat}</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>`).join('\n')}
 </urlset>`;
+    res.header('Content-Type', 'application/xml');
+    res.send(sitemap);
+  });
 
+  // Author Sitemap
+  app.get('/author-sitemap.xml', async (req, res) => {
+    const DOMAIN = 'https://hongkonglex.com';
+    const today = new Date().toISOString().split('T')[0];
+    
+    let authors: any[] = [];
+    try {
+      if (isD1Configured()) {
+        const result = await queryD1('SELECT id FROM authors');
+        authors = result.results || [];
+      }
+    } catch (error) {
+      console.error('Error fetching authors for author-sitemap:', error);
+    }
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${authors.map(author => `  <url>
+    <loc>${DOMAIN}/author/${author.id}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>`).join('\n')}
+</urlset>`;
     res.header('Content-Type', 'application/xml');
     res.send(sitemap);
   });
