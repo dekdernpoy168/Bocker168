@@ -573,6 +573,69 @@ const PromotionModal = ({
 
 import AdminDashboard from './components/AdminDashboard';
 
+const ArticleCard = ({ article, index }: { article: Article, index: number }) => (
+  <motion.div
+    key={article.id || index}
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-100px" }}
+    transition={{ duration: 0.5, delay: index * 0.1 }}
+    className="group bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden hover:border-red-600/30 transition-all duration-500 flex flex-col"
+  >
+    <Link to={`/category/${article.category}/${article.slug || article.title.replace(/\s+/g, '-').toLowerCase()}`} className="flex flex-col h-full">
+      <div className="h-56 overflow-hidden relative">
+        <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
+          {article.category}
+        </div>
+        {article.image ? (
+          <img 
+            src={article.image || null} 
+            alt={article.title} 
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+            <BookOpen className="w-12 h-12 text-zinc-700" />
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-80" />
+      </div>
+      
+      <div className="p-6 md:p-8 flex flex-col flex-grow">
+        <div className="flex items-center gap-4 text-zinc-400 text-sm mb-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            <span>{article.date}</span>
+          </div>
+          {article.author && (
+            <div className="flex items-center gap-2">
+              {article.authorImage ? (
+                <img src={article.authorImage} alt={article.author} className="w-5 h-5 rounded-full object-cover border border-zinc-700" referrerPolicy="no-referrer" />
+              ) : (
+                <User className="w-4 h-4" />
+              )}
+              <span className="truncate max-w-[100px]">{article.author}</span>
+            </div>
+          )}
+        </div>
+        
+        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors line-clamp-2">
+          {article.title}
+        </h3>
+        
+        <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
+          {article.excerpt || (article as any).description}
+        </p>
+
+        <div className="text-red-500 font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+          อ่านต่อ <ArrowRight size={16} />
+        </div>
+      </div>
+    </Link>
+  </motion.div>
+);
+
 export default function App() {
   return (
     <Router>
@@ -1346,7 +1409,27 @@ function Bocker168Landing() {
         </section>
       )}
 
-      {/* --- Register Guide Section --- */}
+      {/* --- Category Page Section --- */}
+      {isCategoryPage && (
+        <section className="py-24 relative bg-[#050505] min-h-screen">
+          <div className="container mx-auto px-4">
+            <h1 className="text-3xl md:text-5xl font-black text-white mb-12 text-center">
+              หมวดหมู่: <span className="text-red-500">{currentCategory}</span>
+            </h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {articles
+                .filter(a => a.category === currentCategory && a.status !== 'draft')
+                .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} />)}
+            </div>
+            {articles.filter(a => a.category === currentCategory && a.status !== 'draft').length === 0 && (
+              <div className="text-center py-20 bg-zinc-900/40 border border-zinc-800/50 rounded-3xl">
+                <h2 className="text-2xl font-bold text-white mb-4">ยังไม่มีบทความในหมวดหมู่นี้</h2>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {isRegisterGuide && (
         <section className="py-24 bg-zinc-950 min-h-[60vh]">
           <div className="container mx-auto px-4">
