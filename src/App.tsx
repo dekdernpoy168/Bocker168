@@ -973,32 +973,53 @@ function Bocker168Landing() {
     return 'บาคาร่า, บาคาร่าออนไลน์, บาคาร่าเว็บตรง, สมัครบาคาร่า, คาสิโนสด, bocker168';
   };
 
-  const getTableOfContents = (content: string) => {
-    if (!content) return [];
-    const hMatches = Array.from(content.matchAll(/<h([1-6])[^>]*>(.*?)<\/h\1>/gis));
-    return hMatches.map((match, index) => {
-      let text = match[2].replace(/<[^>]*>/g, '');
-      // Remove HTML entities like &nbsp;
-      text = text.replace(/&nbsp;/g, ' ')
-                 .replace(/&amp;/g, '&')
-                 .replace(/&lt;/g, '<')
-                 .replace(/&gt;/g, '>')
-                 .replace(/&quot;/g, '"')
-                 .replace(/&#39;/g, "'")
-                 .trim();
-      const id = `heading-${index}`;
-      return { id, text, raw: match[0], level: parseInt(match[1]) };
+  const processHeadingLogic = (content: string, returnType: 'toc' | 'html') => {
+    if (!content) return returnType === 'toc' ? [] : '';
+    let mainCounter = 0;
+    let h3Counter = 0;
+    let h4Counter = 0;
+    let index = 0;
+    const toc: any[] = [];
+    
+    const html = content.replace(/<h([1-6])([^>]*)>(.*?)<\/h\1>/gis, (match, levelStr, attrs, textRaw) => {
+      const level = parseInt(levelStr);
+      let rawText = textRaw.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+      let cleanText = rawText.replace(/^(?:\d+\.)+\s*|^(?:\d+)\s+/, '').trim();
+      
+      let numStr = '';
+      if (level === 1 || level === 2) {
+        mainCounter++;
+        h3Counter = 0;
+        h4Counter = 0;
+        numStr = `${mainCounter}.`;
+      } else if (level === 3) {
+        if (mainCounter === 0) mainCounter = 1;
+        h3Counter++;
+        h4Counter = 0;
+        numStr = `${mainCounter}.${h3Counter}`;
+      } else if (level >= 4) {
+        if (mainCounter === 0) mainCounter = 1;
+        if (h3Counter === 0) h3Counter = 1;
+        h4Counter++;
+        numStr = `${mainCounter}.${h3Counter}.${h4Counter}`;
+      }
+      
+      const finalTitle = `${numStr} ${cleanText}`;
+      const id = `heading-${index++}`;
+      
+      toc.push({ id, text: finalTitle, level });
+      
+      // Remove any manual numbers prefixed in the editor from the article body.
+      // This ensures the articles print cleanly without numbers, while the TOC holds auto-numbers.
+      let articleTitleHtml = textRaw.replace(/^(\s*(?:<[^>]+>\s*)*)(?:(?:\d+\.)+\s*|\d+\s+)/i, '$1');
+      return `<h${levelStr} id="${id}"${attrs}>${articleTitleHtml}</h${levelStr}>`;
     });
+    
+    return returnType === 'toc' ? toc : html;
   };
 
-  const addIdsToHeadings = (content: string) => {
-    if (!content) return '';
-    let index = 0;
-    return content.replace(/<h([1-6])([^>]*)>(.*?)<\/h\1>/gis, (match, level, attrs, text) => {
-      const id = `heading-${index++}`;
-      return `<h${level} id="${id}"${attrs}>${text}</h${level}>`;
-    });
-  };
+  const getTableOfContents = (content: string) => processHeadingLogic(content, 'toc') as any[];
+  const addIdsToHeadings = (content: string) => processHeadingLogic(content, 'html') as string;
 
   const lazyLoadImages = (content: string) => {
     if (!content) return '';
@@ -1316,21 +1337,24 @@ function Bocker168Landing() {
                                 สารบัญบทความ
                               </h3>
                               <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
-                                {toc.map((item, i) => (
-                                  <li key={i}>
-                                    <a 
-                                      href={`#${item.id}`} 
-                                      className="text-zinc-400 hover:text-red-400 text-sm transition-colors flex items-start gap-2 py-1"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
-                                      }}
-                                    >
-                                      <span className="text-red-500/50 mt-0.5">•</span>
-                                      {item.text}
-                                    </a>
-                                  </li>
-                                ))}
+                                {toc.map((item, i) => {
+                                  const indentClass = item.level >= 4 ? 'ml-6' : item.level === 3 ? 'ml-3' : '';
+                                  return (
+                                    <li key={i} className={indentClass}>
+                                      <a 
+                                        href={`#${item.id}`} 
+                                        className="text-zinc-400 hover:text-red-400 text-sm transition-colors flex items-start gap-2 py-1"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                                        }}
+                                      >
+                                        <span className="text-red-500/50 mt-0.5">•</span>
+                                        {item.text}
+                                      </a>
+                                    </li>
+                                  );
+                                })}
                               </ul>
                             </div>
                           );

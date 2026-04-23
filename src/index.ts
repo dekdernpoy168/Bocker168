@@ -397,27 +397,57 @@ export default {
       // Route to handle sitemap.xml
       if (url.pathname === '/sitemap.xml') {
         const allArticles = await db.select().from(articles).where(eq(articles.status, 'published')).all();
+        const allPages = await db.select().from(pages).where(eq(pages.status, 'published')).all();
+        const today = new Date().toISOString().split('T')[0];
         
+        // Static routes
+        const staticRoutes = [
+          { loc: '/', priority: '1.0', changefreq: 'daily' },
+          { loc: '/articles', priority: '0.9', changefreq: 'daily' },
+          { loc: '/promotions', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/faq', priority: '0.7', changefreq: 'weekly' },
+          { loc: '/contact', priority: '0.7', changefreq: 'monthly' },
+        ];
+
+        // Extract unique categories from articles
+        const categories = Array.from(new Set(allArticles.map(a => a.category).filter(Boolean)));
+
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${staticRoutes.map(route => `
   <url>
-    <loc>${url.origin}/</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
+    <loc>${url.origin}${route.loc}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${route.changefreq}</changefreq>
+    <priority>${route.priority}</priority>
+  </url>`).join('')}
   ${allArticles.map(article => `
   <url>
-    <loc>${url.origin}/article/${article.slug}</loc>
-    <lastmod>${article.updatedAt ? article.updatedAt.split(' ')[0] : new Date().toISOString().split('T')[0]}</lastmod>
+    <loc>${url.origin}/${article.slug}</loc>
+    <lastmod>${article.updatedAt ? article.updatedAt.split(' ')[0] : (article.date ? new Date(article.date).toISOString().split('T')[0] : today).split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`).join('')}
-</urlset>`;
+  ${allPages.map(page => `
+  <url>
+    <loc>${url.origin}/${page.slug}</loc>
+    <lastmod>${page.updatedAt ? page.updatedAt.split(' ')[0] : today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('')}
+  ${categories.map(cat => `
+  <url>
+    <loc>${url.origin}/category/${encodeURIComponent(cat as string)}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('')}
+</urlset>`.trim().replace(/>\s+</g, '><'); // Minify
 
         return new Response(xml, {
           headers: {
             'Content-Type': 'application/xml',
+            'Cache-Control': 'public, max-age=3600'
           },
         });
       }
