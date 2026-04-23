@@ -56,7 +56,6 @@ import 'swiper/css/navigation';
 import { Helmet } from 'react-helmet-async';
 import LiveChat from './components/LiveChat';
 import { Article } from './types';
-import { ARTICLES } from './data/articles';
 
 // --- Constants & Data ---
 
@@ -687,7 +686,7 @@ function Bocker168Landing() {
     setShowCookieBanner(false);
   };
 
-  const [articles, setArticles] = useState<Article[]>(ARTICLES);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
   const [articleError, setArticleError] = useState<string | null>(null);
   const [showArticleQR, setShowArticleQR] = useState(false);
@@ -697,12 +696,9 @@ function Bocker168Landing() {
       const response = await fetch(`/api/articles?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setArticles(data);
           setArticleError(null);
-        } else if (Array.isArray(data) && data.length === 0 && ARTICLES.length > 0) {
-          // Keep initial articles if API returns empty
-          setArticles(ARTICLES);
         }
       } else {
         // Silent fail for background polling, but set error state
