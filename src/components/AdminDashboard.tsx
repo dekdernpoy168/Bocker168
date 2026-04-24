@@ -1408,7 +1408,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                     }}
                     className="flex-shrink-0 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-lg px-3 flex items-center gap-2 font-medium text-xs transition-colors"
                   >
-                    <Image size={14} /> <span className="hidden sm:inline">เลือกรูป/อัปโหลด</span>
+                    <ImageIcon size={14} /> <span className="hidden sm:inline">เลือกรูป/อัปโหลด</span>
                   </button>
                 </div>
               </div>
@@ -1439,7 +1439,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                     }}
                     className="flex items-center gap-1 px-3 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-medium transition-colors border border-zinc-800"
                   >
-                    <Image size={14} /> เลือกรูป/อัปโหลด
+                    <ImageIcon size={14} /> เลือกรูป/อัปโหลด
                   </button>
                 </div>
                 <div className="border border-zinc-800 rounded-xl overflow-hidden bg-black">
@@ -1710,7 +1710,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                     }}
                     className="flex-shrink-0 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-lg px-3 flex items-center gap-2 font-medium text-xs transition-colors"
                   >
-                    <Image size={14} /> <span className="hidden sm:inline">เลือกรูป/อัปโหลด</span>
+                    <ImageIcon size={14} /> <span className="hidden sm:inline">เลือกรูป/อัปโหลด</span>
                   </button>
                 </div>
               </div>
@@ -1846,7 +1846,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                       }}
                       className="flex items-center gap-1 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-medium transition-colors border border-zinc-800"
                     >
-                      <Image size={14} /> อัปโหลดรูปลงเนื้อหา
+                      <ImageIcon size={14} /> อัปโหลดรูปลงเนื้อหา
                     </button>
                     <button
                       type="button"
@@ -2287,7 +2287,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                       }}
                       className="flex-shrink-0 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-lg px-3 flex items-center gap-2 font-medium text-xs transition-colors"
                     >
-                      <Image size={14} /> <span className="hidden sm:inline">อัปโหลดรูป</span>
+                      <ImageIcon size={14} /> <span className="hidden sm:inline">อัปโหลดรูป</span>
                     </button>
                   </div>
                 </div>
