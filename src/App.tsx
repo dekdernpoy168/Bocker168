@@ -2889,6 +2889,133 @@ function Bocker168Landing() {
       {/* --- Baccarat Guide Section --- */}
       {(isHome || isBaccarat) && <BaccaratGuide />}
 
+      {/* --- Baccarat SEO Article Section --- */}
+      {isBaccarat && (
+        <section className="py-24 bg-[#050505] border-t border-zinc-900">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="markdown-body prose prose-invert prose-red max-w-none prose-headings:font-black prose-a:text-red-500 hover:prose-a:text-red-400">
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-8 border-l-4 border-red-600 pl-4 py-1">
+                บาคาร่าออนไลน์ (Baccarat Online) เกมคาสิโนสดอันดับ 1 ของโลก
+              </h2>
+              
+              <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 md:p-8 mb-10">
+                <p className="text-zinc-300 text-lg leading-relaxed mb-6">
+                  <strong>บาคาร่าออนไลน์</strong> คือเกมไพ่คาสิโนสดที่ได้รับความนิยมสูงสุดในประเทศไทยและทั่วเอเชีย ด้วยรูปแบบการเล่นที่เรียบง่าย คล้ายกับไพ่ป๊อกเด้งที่คนไทยคุ้นเคย ทำให้นักพนันหน้าใหม่สามารถทำความเข้าใจกติกาได้ภายในเวลาไม่ถึง 1 นาที ที่ Bocker168 เราได้รวบรวมค่ายเกมแบรนด์ดังระดับโลกมาไว้ในที่เดียว ไม่ว่าจะเป็น SA Gaming, Sexy Baccarat, หรือ Dream Gaming ให้คุณได้สัมผัสประสบการณ์เสมือนนั่งอยู่ในคาสิโนจริง
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                  <div className="flex items-center gap-3 text-sm text-zinc-400">
+                    <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+                      <Check className="w-5 h-5" />
+                    </div>
+                    <span>เล่นง่าย รู้ผลไว ใน 30 วินาที</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-zinc-400">
+                    <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+                      <Check className="w-5 h-5" />
+                    </div>
+                    <span>รองรับทุกอุปกรณ์ มือถือ/แท็บเล็ต/คอมพ์</span>
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="text-2xl font-bold text-white mt-12 mb-6 flex items-center gap-3">
+                <Flame className="w-6 h-6 text-red-500" />
+                ทำไมต้องเล่น บาคาร่าเว็บตรง กับ Bocker168?
+              </h3>
+              <p className="text-zinc-400 leading-relaxed mb-6">
+                การเลือกเว็บบาคาร่าที่ได้มาตรฐานคือหัวใจสำคัญของการเล่นคาสิโนออนไลน์ Bocker168 คือ <strong>เว็บบาคาร่าอันดับ 1</strong> ที่ให้บริการแบบ "เว็บตรง ไม่ผ่านเอเย่นต์" ซึ่งส่งผลดีต่อผู้เล่นโดยตรงดังนี้:
+              </p>
+              <ul className="space-y-4 mb-8">
+                <li className="flex gap-4">
+                  <div className="min-w-[24px] mt-1"><CheckCircle2 className="w-6 h-6 text-red-500" /></div>
+                  <div>
+                    <strong className="text-white block">ระบบการเงินมั่นคง ถอนได้ไม่อั้น</strong>
+                    <span className="text-zinc-400 text-sm">ไร้ปัญหาโกง หรือปิดเว็บหนี เพราะเรามีทุนจดทะเบียนหนา รองรับการถอนเงินหลักแสนถึงหลักล้านต่อวัน</span>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <div className="min-w-[24px] mt-1"><CheckCircle2 className="w-6 h-6 text-red-500" /></div>
+                  <div>
+                    <strong className="text-white block">ฝาก-ถอน ออโต้ 100% ไม่มีขั้นต่ำ</strong>
+                    <span className="text-zinc-400 text-sm">ทำรายการไวสุดใน 5 วินาที ทุนน้อยก็สามารถฝากเข้ามาเล่นได้ เริ่มต้นเดิมพันคาสิโนสดเพียง 10 บาท</span>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <div className="min-w-[24px] mt-1"><CheckCircle2 className="w-6 h-6 text-red-500" /></div>
+                  <div>
+                    <strong className="text-white block">รวมครบทุกค่ายแบรนด์ดัง</strong>
+                    <span className="text-zinc-400 text-sm">ยูสเซอร์เดียวเล่นได้ครบทุกอย่าง ไม่ต้องโยกเงินให้เสียเวลา ภาพคมชัดระดับ 4K ส่งตรงจากคาสิโนแบบไม่มีดีเลย์</span>
+                  </div>
+                </li>
+              </ul>
+
+              <div className="bg-gradient-to-r from-red-950/20 to-black border border-red-900/30 rounded-2xl p-8 my-12">
+                <h3 className="text-xl font-bold text-white mb-4">กฎกติกาการนับแต้มบาคาร่า (เบื้องต้น)</h3>
+                <p className="text-zinc-400 text-sm mb-6">
+                  การเล่นประกอบด้วย 2 ฝั่งคือ ฝั่งผู้เล่น (Player - สีน้ำเงิน) และฝั่งเจ้ามือ (Banker - สีแดง) โดยดีลเลอร์จะแจกไพ่ฝ่ายละ 2 ใบ และสามารถจั่วไพ่ใบที่ 3 ได้ตามกติกาที่กำหนด ฝ่ายไหนมีแต้มใกล้เคียง 9 มากที่สุดจะเป็นฝ่ายชนะ!
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center">
+                    <div className="text-red-500 font-black mb-1">A</div>
+                    <div className="text-zinc-500 text-xs">นับเป็น 1 แต้ม</div>
+                  </div>
+                  <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center">
+                    <div className="text-red-500 font-black mb-1">2-9</div>
+                    <div className="text-zinc-500 text-xs">นับแต้มตามหน้าไพ่</div>
+                  </div>
+                  <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center">
+                    <div className="text-red-500 font-black mb-1">10, J, Q, K</div>
+                    <div className="text-zinc-500 text-xs">นับเป็น 0 แต้ม</div>
+                  </div>
+                  <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center flex flex-col justify-center">
+                    <div className="text-red-500 font-black mb-1">ชนะทันที (ป๊อก)</div>
+                    <div className="text-zinc-500 text-xs">ได้แต้ม 8 หรือ 9</div>
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="text-2xl font-bold text-white mt-12 mb-6 line-clamp-1">
+                เคล็ดลับทำกำไรจาก บาคาร่า (Baccarat Strategy)
+              </h3>
+              <p className="text-zinc-400 mb-6 leading-relaxed">
+                แม้ว่าบาคาร่าจะเป็นเกมที่อาศัยดวง แต่การมี <strong>สูตรบาคาร่า หรือเทคนิคการเดินเงิน</strong> จะช่วยเพิ่มอัตราการชนะ (Win Rate) ให้กับคุณได้อย่างมหาศาล:
+              </p>
+              <div className="space-y-6 mb-10 text-zinc-400 text-sm">
+                <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl flex gap-4">
+                  <div className="text-2xl pt-1">📊</div>
+                  <div>
+                    <h4 className="text-white font-bold text-base mb-2">การอ่านเค้าไพ่ (Roadmap Reading)</h4>
+                    <p>ฝึกสังเกตเค้าไพ่ยอดฮิต เช่น เค้าไพ่มังกร (ออกฝั่งเดิมซ้ำๆ ยาวๆ) หรือ เค้าไพ่ปิงปอง (ออกสลับฝั่งกัน) หากจับจังหวะได้ คุณสามารถแทงตามน้ำรับทรัพย์ได้อย่างต่อเนื่อง</p>
+                  </div>
+                </div>
+                <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl flex gap-4">
+                  <div className="text-2xl pt-1">💰</div>
+                  <div>
+                    <h4 className="text-white font-bold text-base mb-2">เทคนิคการแทงทบ (Martingale Method)</h4>
+                    <p>สูตรการเดินเงินยอดนิยม หากเสียในตานี้ ให้ทบเงินเดิมพันในตาถัดไปเป็น 2 เท่าเสมอ เมื่อคุณชนะ คุณจะได้ทุนคืนพร้อมกำไรของตาแรกทันที (ควรตั้งงบประมาณไว้ล่วงหน้าให้เพียงพอ)</p>
+                  </div>
+                </div>
+                <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl flex gap-4">
+                  <div className="text-2xl pt-1">🧊</div>
+                  <div>
+                    <h4 className="text-white font-bold text-base mb-2">หยุดพักเมื่อได้กำไรตามเป้า</h4>
+                    <p>การพนันที่ฉลาดที่สุดคือการรู้จักควบคุมอารมณ์ เมื่อคุณตั้งเป้าหมายกำไรในแต่ละวันและทำได้ถึงเป้าแล้ว ให้เลิกเล่นและถอนเงินทันที</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-zinc-800 pt-8 mt-12 text-center">
+                <h3 className="text-xl font-bold text-white mb-4">พร้อมที่จะลุยและคว้าเงินรางวัลแล้วหรือยัง?</h3>
+                <p className="text-zinc-500 mb-8">สมัครสมาชิกใหม่วันนี้รับเครดิตฟรีทันทีไม่ต้องแชร์ สมัครง่ายผ่านระบบออโต้</p>
+                <a href="https://inlnk.co/registerbocker168" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-xl shadow-lg transition-all hover:-translate-y-1">
+                  สมัครสมาชิก เล่นบาคาร่าเลย <ChevronRight className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* --- FAQ Section --- */}
       {(isHome || isFaq) && (
       <section id="faq" className="py-24 bg-zinc-950">
