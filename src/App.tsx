@@ -1634,6 +1634,74 @@ function Bocker168Landing() {
     return <AdminDashboard onClose={() => setShowAdmin(false)} onSaveSuccess={fetchArticles} />;
   }
 
+  const renderCategoriesSection = (isHomeTitle: boolean) => (
+      <section id="categories" className="py-24 bg-zinc-950 relative">
+        <div className="container mx-auto px-4">
+          <SectionTitle 
+            title="รวมค่ายบาคาร่าออนไลน์ชั้นนำระดับโลก"
+            subtitle="เลือกเล่นคาสิโนสดจากค่ายดัง ภาพคมชัดระดับ Full HD ส่งตรงจากคาสิโนจริง"
+            as={isHomeTitle ? 'h2' : 'h1'}
+          />
+
+          <Swiper
+            modules={[Autoplay, Pagination, Navigation]}
+            spaceBetween={24}
+            slidesPerView={1}
+            breakpoints={{
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+            }}
+            autoplay={{ delay: 3000, disableOnInteraction: false }}
+            pagination={{ clickable: true, dynamicBullets: true }}
+            navigation
+            className="pb-16"
+          >
+            {CATEGORIES.map((cat, i) => (
+              <SwiperSlide key={i} className="h-auto">
+                <Link to="/baccarat" className="block h-full">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="relative overflow-hidden rounded-3xl group cursor-pointer bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 transition-colors flex flex-col h-full"
+                  >
+                    <div className="relative h-64 overflow-hidden pt-6 px-4 flex items-end justify-center">
+                      <div className={`absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/20 to-transparent z-10`} />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${cat.accent} opacity-20 group-hover:opacity-40 transition-opacity z-10`} />
+                      <img 
+                        src={cat.image || null} 
+                        alt={cat.title} 
+                        className="w-full h-full object-contain object-bottom group-hover:scale-110 transition-transform duration-500 relative z-0"
+                        referrerPolicy="no-referrer"
+                      />
+                      <img 
+                        src={cat.logo || null} 
+                        alt={`${cat.title} logo`} 
+                        className="absolute top-4 left-4 w-12 h-12 z-20 rounded-full border border-zinc-700 bg-zinc-900 p-1"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="relative p-8 pt-0 flex-1 flex flex-col justify-between z-20">
+                      <div>
+                        <h3 className="text-2xl font-black text-white mb-4 group-hover:text-amber-500 transition-colors">{cat.title}</h3>
+                        <p className="text-zinc-400 text-sm leading-relaxed mb-8">
+                          {cat.description}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 text-red-500 font-bold text-sm group-hover:translate-x-2 transition-transform">
+                        ดูรายละเอียด <Zap className="w-4 h-4 fill-current" />
+                      </div>
+                    </div>
+                  </motion.div>
+                </Link>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      </section>
+  );
+
   return (
     <div className="min-h-screen bg-black text-zinc-100 font-sans selection:bg-red-600 selection:text-white overflow-x-hidden">
       <Helmet>
@@ -2584,76 +2652,10 @@ function Bocker168Landing() {
       )}
 
       {/* --- Baccarat Categories --- */}
-      {(isHome || isBaccarat) && (
-      <>
-
-      <section id="categories" className="py-24 bg-zinc-950 relative">
-        <div className="container mx-auto px-4">
-          <SectionTitle 
-            title="รวมค่ายบาคาร่าออนไลน์ชั้นนำระดับโลก"
-            subtitle="เลือกเล่นคาสิโนสดจากค่ายดัง ภาพคมชัดระดับ Full HD ส่งตรงจากคาสิโนจริง"
-            as={isHome ? 'h2' : 'h1'}
-          />
-
-          <Swiper
-            modules={[Autoplay, Pagination, Navigation]}
-            spaceBetween={24}
-            slidesPerView={1}
-            breakpoints={{
-              640: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 },
-            }}
-            autoplay={{ delay: 3000, disableOnInteraction: false }}
-            pagination={{ clickable: true, dynamicBullets: true }}
-            navigation
-            className="pb-16"
-          >
-            {CATEGORIES.map((cat, i) => (
-              <SwiperSlide key={i} className="h-auto">
-                <Link to="/baccarat" className="block h-full">
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="relative overflow-hidden rounded-3xl group cursor-pointer bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 transition-colors flex flex-col h-full"
-                  >
-                    <div className="relative h-64 overflow-hidden pt-6 px-4 flex items-end justify-center">
-                      <div className={`absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/20 to-transparent z-10`} />
-                      <div className={`absolute inset-0 bg-gradient-to-br ${cat.accent} opacity-20 group-hover:opacity-40 transition-opacity z-10`} />
-                      <img 
-                        src={cat.image || null} 
-                        alt={cat.title} 
-                        className="w-full h-full object-contain object-bottom group-hover:scale-110 transition-transform duration-500 relative z-0"
-                        referrerPolicy="no-referrer"
-                      />
-                      <img 
-                        src={cat.logo || null} 
-                        alt={`${cat.title} logo`} 
-                        className="absolute top-4 left-4 w-12 h-12 z-20 rounded-full border border-zinc-700 bg-zinc-900 p-1"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                    <div className="relative p-8 pt-0 flex-1 flex flex-col justify-between z-20">
-                      <div>
-                        <h3 className="text-2xl font-black text-white mb-4 group-hover:text-amber-500 transition-colors">{cat.title}</h3>
-                        <p className="text-zinc-400 text-sm leading-relaxed mb-8">
-                          {cat.description}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 text-red-500 font-bold text-sm group-hover:translate-x-2 transition-transform">
-                        ดูรายละเอียด <Zap className="w-4 h-4 fill-current" />
-                      </div>
-                    </div>
-                  </motion.div>
-                </Link>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-      </section>
+      {isHome && renderCategoriesSection(true)}
 
       {/* --- How To Start --- */}
+      {isHome && (
       <section className="py-24 bg-black">
         <div className="container mx-auto px-4">
           <SectionTitle 
@@ -2712,7 +2714,6 @@ function Bocker168Landing() {
           </Swiper>
         </div>
       </section>
-      </>
       )}
 
       {/* --- Promotions Section --- */}
@@ -2798,7 +2799,7 @@ function Bocker168Landing() {
       )}
 
       {/* --- Articles Section --- */}
-      {(isHome || isArticles) && (
+      {(isHome || isArticles || isBaccarat) && (
       <section id="articles" className="py-24 relative bg-[#050505]">
         <div className="container mx-auto px-4">
           <SectionTitle 
@@ -2835,7 +2836,7 @@ function Bocker168Landing() {
               <h3 className="text-xl font-bold text-white mb-2">ยังไม่มีบทความในขณะนี้</h3>
               <p className="text-zinc-400">บทความใหม่ๆ จะถูกอัปเดตและแสดงผลที่นี่เร็วๆ นี้</p>
             </div>
-          ) : isHome ? (
+          ) : (isHome || isBaccarat) ? (
             <div className="mt-16 relative">
               <Swiper
                 modules={[Autoplay, Pagination, Navigation]}
@@ -2887,7 +2888,7 @@ function Bocker168Landing() {
       )}
 
       {/* --- Baccarat Guide Section --- */}
-      {(isHome || isBaccarat) && <BaccaratGuide />}
+      {isHome && <BaccaratGuide />}
 
       {/* --- Baccarat SEO Article Section --- */}
       {isBaccarat && (
@@ -3015,6 +3016,9 @@ function Bocker168Landing() {
           </div>
         </section>
       )}
+
+      {/* --- Baccarat Categories (At Bottom of Baccarat Page) --- */}
+      {isBaccarat && renderCategoriesSection(false)}
 
       {/* --- FAQ Section --- */}
       {(isHome || isFaq) && (
