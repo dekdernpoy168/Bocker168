@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   Plus, Edit, Trash2, Save, X, FileText, Target, Upload, Copy,
   Type as TypeIcon, Link as LinkIcon, Search, Folder, Tag,
-  Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2,
+  Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2, Clock,
   LayoutTemplate, Code, Database, Sparkles, Download, FileSpreadsheet, FileJson, FileCode, User, List, RefreshCw
 } from 'lucide-react';
 import { Article, Author, WebPage, Category } from '../types';
@@ -256,7 +256,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       const response = await fetch('/api/r2/images');
       if (response.ok) {
         const data = await response.json();
-        setR2Images(data);
+        const sortedData = data.sort((a: any, b: any) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
+        setR2Images(sortedData);
       } else {
         const errorData = await response.json() as any;
         alert('Error fetching R2 images: ' + (errorData.error || 'Unknown error'));
@@ -2594,31 +2595,44 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                     <button
                       key={idx}
                       onClick={() => handleSelectR2Image(img.url || '', img.key || '')}
-                      className={`group relative aspect-square bg-black rounded-xl border overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-red-500/50 ${selectedR2Image?.url === img.url ? 'border-red-500 ring-2 ring-red-500/30' : 'border-zinc-800 hover:border-red-500/50'}`}
+                      className={`group flex flex-col text-left bg-black rounded-xl border overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-red-500/50 ${selectedR2Image?.url === img.url ? 'border-red-500 ring-2 ring-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-zinc-800 hover:border-zinc-700 hover:shadow-lg'}`}
                     >
-                      {img.url ? (
-                        <img 
-                          src={img.url} 
-                          alt={img.key} 
-                          className={`w-full h-full object-cover transition-transform duration-500 ${selectedR2Image?.url === img.url ? 'scale-110 opacity-70' : 'group-hover:scale-110'}`} 
-                          referrerPolicy="no-referrer"
-                          loading="lazy"
-                          onError={(e) => {
-                            console.error('Image failed to load:', img.url);
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-zinc-500 text-[10px] break-all p-2">
-                          {img.key}
+                      <div className="relative w-full aspect-video bg-zinc-900/50 overflow-hidden">
+                        {img.url ? (
+                          <img 
+                            src={img.url} 
+                            alt={img.key} 
+                            className={`w-full h-full object-cover transition-transform duration-500 ${selectedR2Image?.url === img.url ? 'scale-105 opacity-80' : 'group-hover:scale-110'}`} 
+                            referrerPolicy="no-referrer"
+                            loading="lazy"
+                            onError={(e) => {
+                              console.error('Image failed to load:', img.url);
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-zinc-500 text-[10px] break-all p-2">
+                            (No URL)
+                          </div>
+                        )}
+                        {selectedR2Image?.url === img.url && (
+                          <div className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 shadow-lg z-10 animate-in zoom-in duration-200">
+                             <Check size={14} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3 w-full bg-zinc-900/80 flex flex-col gap-1.5 border-t border-zinc-800/50">
+                        <p className="text-xs text-zinc-200 font-medium truncate" title={img.key}>
+                          {img.key?.split('/').pop() || img.key}
+                        </p>
+                        <div className="flex justify-between items-center w-full">
+                          <p className="text-[10px] text-zinc-500 flex items-center gap-1">
+                            <Clock size={10} />
+                            {new Date(img.lastModified).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </p>
+                          <p className="text-[10px] text-zinc-500 font-mono">
+                            {img.size ? (img.size / 1024).toFixed(0) + ' KB' : ''}
+                          </p>
                         </div>
-                      )}
-                      {selectedR2Image?.url === img.url && (
-                        <div className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg z-10 animate-in zoom-in duration-200">
-                           <Check size={14} />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
-                        <p className="text-[10px] text-white truncate w-full drop-shadow-md">{img.key}</p>
                       </div>
                     </button>
                   ))}
