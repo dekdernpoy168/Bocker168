@@ -405,7 +405,7 @@ const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => {
     
   return (
   <div ref={itemRef} className="border-b border-zinc-800 last:border-0 group">
-    <div className="flex items-start gap-2">
+    <div className="flex items-start gap-4">
       <button 
         onClick={onClick}
         aria-expanded={isOpen}
@@ -413,18 +413,14 @@ const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => {
         id={`faq-question-${faqId}`}
         className="w-full py-6 flex items-center justify-between text-left focus:outline-none group"
       >
-        <h3 className={`text-lg font-medium transition-colors ${isOpen ? 'text-amber-500' : 'text-white group-hover:text-amber-500/80'}`}>
-          {faq.question}
-        </h3>
-        {isOpen ? <ChevronUp className="text-amber-500 shrink-0" aria-hidden="true" /> : <ChevronDown className="text-zinc-500 shrink-0" aria-hidden="true" />}
-      </button>
-
-      <button
-        onClick={handleCopy}
-        aria-label="คัดลอกคำถาม"
-        className="mt-6 p-1.5 rounded-lg bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors shrink-0 outline-none"
-      >
-        {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+        <span className="flex-1 flex flex-col gap-2">
+          <h3 className={`text-lg md:text-xl font-bold transition-all duration-300 ${isOpen ? 'text-amber-500 translate-x-2' : 'text-zinc-100 group-hover:text-amber-500/80 group-hover:translate-x-1'}`}>
+            {faq.question}
+          </h3>
+        </span>
+        <span className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${isOpen ? 'bg-amber-500/10 rotate-180' : 'bg-zinc-900 group-hover:bg-zinc-800'}`}>
+          <ChevronDown className={`w-5 h-5 transition-colors ${isOpen ? 'text-amber-500' : 'text-zinc-400 group-hover:text-amber-500'}`} aria-hidden="true" />
+        </span>
       </button>
     </div>
 
@@ -434,15 +430,25 @@ const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => {
           id={`faq-answer-${faqId}`}
           role="region"
           aria-labelledby={`faq-question-${faqId}`}
-          initial={{ height: 0, opacity: 0, y: -10 }}
-          animate={{ height: 'auto', opacity: 1, y: 0 }}
-          exit={{ height: 0, opacity: 0, y: -10 }}
-          transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
           className="overflow-hidden"
         >
-          <p className="pb-6 pr-8 text-zinc-400 leading-relaxed text-sm md:text-base">
-            {faq.answer}
-          </p>
+          <div className="pb-8 pr-12 text-zinc-400 leading-relaxed text-sm md:text-base">
+            <div className="p-4 bg-zinc-900/50 rounded-xl border border-zinc-800 mb-4 relative group/copy">
+              <p className="text-zinc-300 pr-10">{faq.answer}</p>
+              <button
+                onClick={handleCopy}
+                aria-label="คัดลอกคำตอบ"
+                title="คัดลอก"
+                className={`absolute top-4 right-4 p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white transition-all backdrop-blur-sm shadow-lg ${copied ? 'bg-green-500/20 text-green-500 hover:bg-green-500/30' : 'hover:bg-amber-500 hover:text-white'}`}
+              >
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
@@ -960,6 +966,71 @@ const BaccaratGuide = () => {
   );
 };
 
+const SeoContentBlock = () => {
+  return (
+    <section className="py-24 bg-black border-t border-zinc-900/50 border-b relative">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <div className="prose prose-invert prose-lg prose-red mx-auto text-zinc-300">
+          <h2 className="text-3xl md:text-5xl font-black mb-8 text-white">บาคาร่า เว็บตรงอันดับ 1 Bocker168 เว็บบาคาร่าออนไลน์ยอดนิยม</h2>
+          <p className="leading-relaxed mb-6">
+            หากคุณกำลังมองหา <strong>เว็บบาคาร่าออนไลน์</strong> ที่เชื่อถือได้และได้มาตรฐานระดับสากล <strong>Bocker168</strong> คือคำตอบที่ใช่ที่สุดสำหรับคุณ! เราคือผู้ให้บริการ <a href="/" className="text-red-500 hover:text-red-400 no-underline">บาคาร่าเว็บตรงไม่ผ่านเอเย่นต์</a> อันดับ 1 ของไทย ที่นำเสนอประสบการณ์การเล่นคาสิโนสดที่เหนือระดับ ด้วยระบบสตรีมมิ่งความละเอียดคมชัด Full HD ส่งตรงจากคาสิโนต่างประเทศที่ได้รับใบอนุญาต (License) อย่างถูกต้องตามกฎหมาย
+          </p>
+  
+          <h3 className="text-2xl md:text-3xl font-bold mb-6 text-white mt-12">ทำไมต้องเลือกเล่น บาคาร่าออนไลน์ กับ Bocker168?</h3>
+          <ul className="space-y-4 mb-8">
+            <li className="flex gap-3">
+              <span className="text-red-500 font-bold">✓</span> 
+              <span><strong>ฝาก-ถอน ระบบออโต้ (Auto):</strong> รวดเร็วทันใจภายใน 10 วินาที ไม่ต้องส่งสลิป ยอดอัปเดตอัตโนมัติ</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-red-500 font-bold">✓</span> 
+              <span><strong>ไม่มีขั้นต่ำ:</strong> ทุนน้อยก็รวยได้ เริ่มต้นเดิมพันฝากถอนไม่มีขั้นต่ำ 10 บาทก็เล่นคาสิโนสดได้ทุกค่าย</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-red-500 font-bold">✓</span> 
+              <span><strong>รองรับทุกระบบ:</strong> ทำงานร่วมกับระบบธนาคารชั้นนำของไทยทั้งหมด รวมถึง <em>True Wallet (ทรูวอเลท)</em> มั่นใจในความสะดวกสบาย</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-red-500 font-bold">✓</span> 
+              <span><strong>รวมค่ายดังครบจบในเว็บเดียว:</strong> ทั้ง Sexy Baccarat, SA Gaming, Dream Gaming, Pretty Gaming และอื่นๆ อีกมากมาย</span>
+            </li>
+          </ul>
+  
+          <h3 className="text-2xl md:text-3xl font-bold mb-6 text-white mt-12">เทคนิคและสูตรบาคาร่า (Baccarat Strategy) การอ่านเค้าไพ่เบื้องต้น</h3>
+          <p className="leading-relaxed mb-6">
+            การทำกำไรจากการเล่นบาคาร่าไม่ได้พึ่งพาแค่ดวง แต่คือการผสมผสานการวิเคราะห์สถิติและการเดินเงินอย่างมีระบบ เค้าไพ่บาคาร่ายอดนิยมที่เหล่านักเดิมพันนิยมใช้ได้แก่:
+          </p>
+          <div className="grid md:grid-cols-2 gap-6 mb-8 mt-8">
+            <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+              <h4 className="text-white font-bold mb-3 text-lg">1. เค้าไพ่มังกร (Dragon)</h4>
+              <p className="text-sm">การที่ผลการชนะออกฝั่งใดฝั่งหนึ่งติดต่อกันยาวๆ อย่างน้อยยาว 4-5 ตาติดกัน (เช่น แดง-แดง-แดง-แดง) วิธีการคือให้แทงตามน้ำไปเรื่อยๆ จนกว่าไพ่จะเปลี่ยนฝั่ง</p>
+            </div>
+            <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+              <h4 className="text-white font-bold mb-3 text-lg">2. เค้าไพ่ปิงปอง (Ping Pong)</h4>
+              <p className="text-sm">ผลออกสลับฝั่งชนะกันไปมา (เช่น แดง-น้ำเงิน-แดง-น้ำเงิน) ให้คุณแทงสลับสีในรอบถัดไปตามจังหวะลูกปิงปอง</p>
+            </div>
+          </div>
+  
+          <h3 className="text-2xl md:text-3xl font-bold mb-6 text-white mt-12">การบริหารเงินลงทุน (Money Management)</h3>
+          <p className="leading-relaxed mb-6">
+            การเดินเงินคือหัวใจสำคัญของการเล่นคาสิโนให้ยั่งยืน เราแนะนำสูตรเดินเงินมาติงเกล (Martingale) ทบไม้ หรือสูตร N+1 สำหรับผู้เริ่มต้นเพื่อกระจายความเสี่ยงและตามทุนคืนได้เมื่อมีความผิดพลาด ทั้งนี้ควรตั้งเป้าหมายการได้-เสียในแต่ละวันให้ชัดเจนและปฏิบัติตามอย่างเคร่งครัด
+          </p>
+  
+          <div className="bg-gradient-to-br from-red-950/40 to-zinc-900 border border-red-900/30 p-8 rounded-3xl mt-12 text-center shadow-lg">
+            <h3 className="text-2xl md:text-3xl font-black mb-4 text-white">สมัครบาคาร่ากับ Bocker168 วันนี้</h3>
+            <p className="mb-8 max-w-2xl mx-auto">
+              สัมผัสประสบการณ์บาคาร่าที่ดีที่สุดบนมือถือ ภาพลื่นไหล ไม่มีกระตุก พร้อมทีมงานแอดมินดูแลท่านระดับ VIP ตลอด 24 ชั่วโมง
+            </p>
+            <a href="https://inlnk.co/registerbocker168" target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-full transition-colors w-full md:w-auto">
+              สมัครสมาชิกฟรี คลิกเลย!
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const ResponsibleGambling = () => {
   return (
     <div className="py-24 bg-zinc-950 relative overflow-hidden">
@@ -1397,6 +1468,13 @@ function Bocker168Landing() {
     return 'บาคาร่า, บาคาร่าออนไลน์, บาคาร่าเว็บตรง, สมัครบาคาร่า, คาสิโนสด, bocker168';
   };
 
+  const getRobotsTag = () => {
+    if (location.pathname === '/admin' || location.pathname.startsWith('/dashboard')) {
+      return "noindex, nofollow";
+    }
+    return "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
+  };
+
   const getCanonicalUrl = () => {
     let path = location.pathname.replace(/\/$/, '');
     if (path === '') path = '/';
@@ -1562,6 +1640,7 @@ function Bocker168Landing() {
         <meta name="twitter:description" content={getPageDescription()} />
         <meta name="twitter:image" content={isPostDetail && currentPost?.image ? currentPost.image : "https://img2.pic.in.th/A2-Logo-Bocker-168.png"} />
         
+        <meta name="robots" content={getRobotsTag()} />
         <link rel="canonical" href={getCanonicalUrl()} />
         
         <script type="application/ld+json">
@@ -1726,12 +1805,16 @@ function Bocker168Landing() {
           </div>
 
           {/* Mobile/Tablet Nav - Button Grid */}
-          <nav className="lg:hidden grid grid-cols-4 gap-2 py-3 border-t border-zinc-800/50 mt-3">
+          <nav className="lg:hidden grid grid-cols-3 gap-1.5 py-2 border-t border-zinc-800/50 mt-2">
             {MENU_ITEMS.map((item) => (
               <Link 
                 key={item.label} 
                 to={item.path}
-                className="flex items-center justify-center text-center px-1 py-2 bg-zinc-900/50 border border-zinc-800 rounded-lg text-[10px] font-bold text-zinc-400 hover:text-white hover:border-red-600 transition-all"
+                className={`flex items-center justify-center text-center px-1 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-md text-[11px] font-medium transition-all ${
+                  location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))
+                    ? 'text-white border-red-600 bg-red-600/10'
+                    : 'text-zinc-400 hover:text-white hover:border-zinc-700'
+                }`}
               >
                 {item.label}
               </Link>
@@ -1740,7 +1823,7 @@ function Bocker168Landing() {
         </div>
       </header>
 
-      <main className={!isHome ? "pt-56 lg:pt-24" : ""}>
+      <main className={!isHome ? "pt-36 md:pt-40 lg:pt-24" : ""}>
       
       {/* --- Page Detail Section --- */}
       {isPageDetail && currentPage && (
@@ -2327,7 +2410,7 @@ function Bocker168Landing() {
       {/* --- Hero Section --- */}
       {isHome && (
         <>
-          <section id="home" className="relative pt-56 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+          <section id="home" className="relative pt-40 pb-20 md:pt-48 md:pb-32 lg:pt-48 overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto items-center">
             <motion.div
@@ -2338,7 +2421,7 @@ function Bocker168Landing() {
             >
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-950/30 border border-red-900/50 text-red-500 text-xs font-bold uppercase tracking-widest mb-6">
                 <Zap className="w-4 h-4 fill-current" />
-                บาคาร่าเว็บตรงอันดับ 1
+                บาคาร่า เว็บตรงอันดับ 1
               </div>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6">
                 บาคาร่า เว็บตรงอันดับ 1 Bocker168 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-500 to-red-600">ฝากถอนไม่มีขั้นต่ำ</span>
@@ -2393,26 +2476,39 @@ function Bocker168Landing() {
       </section>
 
       {/* --- Highlight Bar --- */}
-      <section className="py-12 bg-zinc-900/30 border-y border-zinc-800">
+      <section className="py-12 bg-zinc-900/30 border-y border-zinc-800 overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+          <Swiper
+            modules={[Autoplay, Pagination]}
+            spaceBetween={24}
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+              1280: { slidesPerView: 6 },
+            }}
+            autoplay={{ delay: 2500, disableOnInteraction: false }}
+            pagination={{ clickable: true, dynamicBullets: true }}
+            className="pb-12"
+          >
             {HIGHLIGHTS.map((item, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="flex flex-col items-center text-center group"
-              >
-                <div className="mb-4 p-3 bg-zinc-900 rounded-2xl border border-zinc-800 group-hover:border-red-500/50 transition-all group-hover:-translate-y-1">
-                  {item.icon}
-                </div>
-                <h3 className="text-white font-bold text-sm mb-1">{item.title}</h3>
-                <p className="text-zinc-500 text-xs">{item.description}</p>
-              </motion.div>
+              <SwiperSlide key={i} className="h-auto">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="flex flex-col items-center text-center group h-full bg-zinc-950/50 p-6 rounded-2xl border border-zinc-800/50"
+                >
+                  <div className="mb-4 p-3 bg-zinc-900 rounded-2xl border border-zinc-800 group-hover:border-red-500/50 transition-all group-hover:-translate-y-1">
+                    {item.icon}
+                  </div>
+                  <h3 className="text-white font-bold text-sm mb-1">{item.title}</h3>
+                  <p className="text-zinc-500 text-xs">{item.description}</p>
+                </motion.div>
+              </SwiperSlide>
             ))}
-          </div>
+          </Swiper>
         </div>
       </section>
 
@@ -2478,117 +2574,6 @@ function Bocker168Landing() {
       {/* --- Baccarat Categories --- */}
       {(isHome || isBaccarat) && (
       <>
-      {/* --- Live Stats Section --- */}
-      <section className="py-24 bg-zinc-950 border-b border-zinc-900 relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-950/50 border border-red-900/50 text-red-500 font-bold text-sm mb-6">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-              </span>
-              LIVE BACCARAT STATS
-            </div>
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
-              สถิติเค้าไพ่สด <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">เรียลไทม์</span>
-            </h2>
-            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-              อัปเดตสถานะโต๊ะบาคาร่ายอดฮิตแบบวินาทีต่อวินาที เลือกโต๊ะที่ใช่ ทำกำไรได้ทันที ไม่ต้องสุ่มเดา
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {LIVE_STATS.map((stat, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-red-500/30 transition-colors group"
-              >
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <h3 className="text-white font-bold text-xl mb-1">{stat.provider}</h3>
-                    <p className="text-zinc-500 text-sm">{stat.table}</p>
-                  </div>
-                  <div className="px-3 py-1 bg-zinc-800 rounded-full text-xs font-medium text-zinc-300 flex items-center gap-2">
-                    <Activity className="w-3 h-3 text-amber-500" />
-                    {stat.status}
-                  </div>
-                </div>
-
-                <div className="mb-6 p-4 bg-zinc-950 rounded-2xl border border-zinc-800/50 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      stat.hot === 'Banker' ? 'bg-red-500/20 text-red-500' :
-                      stat.hot === 'Player' ? 'bg-blue-500/20 text-blue-500' :
-                      'bg-green-500/20 text-green-500'
-                    }`}>
-                      <Flame className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-zinc-400 text-xs mb-1">กำลังมาแรง</p>
-                      <p className={`font-bold text-sm ${
-                        stat.hot === 'Banker' ? 'text-red-500' :
-                        stat.hot === 'Player' ? 'text-blue-500' :
-                        'text-green-500'
-                      }`}>
-                        {stat.hot === 'Banker' ? 'แบงค์เกอร์ (แดง)' : stat.hot === 'Player' ? 'เพลเยอร์ (น้ำเงิน)' : 'เสมอ (เขียว)'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-white font-black text-2xl">{stat.streak}</p>
-                    <p className="text-zinc-500 text-xs">ตาติดกัน</p>
-                  </div>
-                </div>
-
-                <div className="space-y-3 mb-6">
-                  <div className="flex justify-between text-xs font-medium">
-                    <span className="text-red-500">B {stat.stats.banker}%</span>
-                    <span className="text-green-500">T {stat.stats.tie}%</span>
-                    <span className="text-blue-500">P {stat.stats.player}%</span>
-                  </div>
-                  <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden flex">
-                    <div className="h-full bg-red-500" style={{ width: `${stat.stats.banker}%` }} />
-                    <div className="h-full bg-green-500" style={{ width: `${stat.stats.tie}%` }} />
-                    <div className="h-full bg-blue-500" style={{ width: `${stat.stats.player}%` }} />
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-zinc-500 text-xs mb-3">ผลล่าสุด (ซ้ายไปขวา)</p>
-                  <div className="flex gap-2">
-                    {stat.history.map((result, idx) => (
-                      <div 
-                        key={idx}
-                        className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm ${
-                          result === 'B' ? 'bg-red-500 shadow-red-500/20' :
-                          result === 'P' ? 'bg-blue-500 shadow-blue-500/20' :
-                          'bg-green-500 shadow-green-500/20'
-                        }`}
-                      >
-                        {result}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <a 
-                  href="https://inlnk.co/registerbocker168" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="mt-6 w-full py-3 bg-zinc-800 hover:bg-red-600 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 group-hover:bg-red-600"
-                >
-                  เข้าเล่นโต๊ะนี้ <ArrowRight className="w-4 h-4" />
-                </a>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <section id="categories" className="py-24 bg-zinc-950 relative">
         <div className="container mx-auto px-4">
@@ -2664,47 +2649,55 @@ function Bocker168Landing() {
             subtitle="สมัคร ฝาก เล่น ทำกำไรได้ทันที ไม่ต้องรอนานด้วยระบบออโต้"
           />
 
-          <div className="grid md:grid-cols-3 gap-12 relative">
-            {/* Connector Line - Adjusted to align with circles */}
-            <div className="hidden md:block absolute top-[160px] left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-zinc-800 to-transparent z-0" />
-            
+          <Swiper
+            modules={[Autoplay, Pagination]}
+            spaceBetween={24}
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              768: { slidesPerView: 3 },
+            }}
+            autoplay={{ delay: 3000, disableOnInteraction: false }}
+            pagination={{ clickable: true, dynamicBullets: true }}
+            className="pb-16"
+          >
             {STEPS.map((step, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.2 }}
-                className="relative z-10 flex flex-col items-center text-center group"
-              >
-                <div className="flex flex-col items-center min-h-[200px] justify-end mb-8">
-                  {step.image ? (
-                    <div className="mb-6 rounded-2xl overflow-hidden border border-zinc-800 shadow-lg max-w-[280px] group-hover:border-red-500/50 transition-colors">
-                      <img 
-                        src={step.image || null} 
-                        alt={step.title} 
-                        className="w-full h-auto object-cover"
-                        referrerPolicy="no-referrer"
-                      />
+              <SwiperSlide key={i} className="h-auto">
+                <motion.div 
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.2 }}
+                  className="relative z-10 flex flex-col items-center text-center group h-full"
+                >
+                  <div className="flex flex-col items-center min-h-[200px] justify-end mb-8">
+                    {step.image ? (
+                      <div className="mb-6 rounded-2xl overflow-hidden border border-zinc-800 shadow-lg max-w-[280px] group-hover:border-red-500/50 transition-colors">
+                        <img 
+                          src={step.image || null} 
+                          alt={step.title} 
+                          className="w-full h-auto object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                    ) : (
+                      <div className="mb-6 h-[120px] flex items-center justify-center">
+                        {/* Placeholder or just empty space to keep circles aligned */}
+                      </div>
+                    )}
+                    <div className="w-20 h-20 bg-zinc-900 border-4 border-zinc-800 rounded-full flex items-center justify-center shadow-xl group-hover:border-red-600 transition-all">
+                      <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-red-500 to-amber-500">
+                        {step.number}
+                      </span>
                     </div>
-                  ) : (
-                    <div className="mb-6 h-[120px] flex items-center justify-center">
-                      {/* Placeholder or just empty space to keep circles aligned */}
-                    </div>
-                  )}
-                  <div className="w-20 h-20 bg-zinc-900 border-4 border-zinc-800 rounded-full flex items-center justify-center shadow-xl group-hover:border-red-600 transition-all">
-                    <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-red-500 to-amber-500">
-                      {step.number}
-                    </span>
                   </div>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-amber-500 transition-colors">{step.title}</h3>
-                <p className="text-zinc-500 max-w-xs">
-                  {step.description}
-                </p>
-              </motion.div>
+                  <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-amber-500 transition-colors">{step.title}</h3>
+                  <p className="text-zinc-500 max-w-xs mb-8">
+                    {step.description}
+                  </p>
+                </motion.div>
+              </SwiperSlide>
             ))}
-          </div>
+          </Swiper>
         </div>
       </section>
       </>
@@ -2721,48 +2714,60 @@ function Bocker168Landing() {
             as={isHome ? 'h2' : 'h1'}
           />
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          <Swiper
+            modules={[Autoplay, Pagination]}
+            spaceBetween={24}
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              768: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+            }}
+            autoplay={{ delay: 3500, disableOnInteraction: false }}
+            pagination={{ clickable: true, dynamicBullets: true }}
+            className="pb-16"
+          >
             {PROMOTIONS.map((promo, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="bg-zinc-900 border border-zinc-800 rounded-[2rem] overflow-hidden group hover:border-red-600/50 transition-all"
-              >
-                <div className="h-48 bg-gradient-to-br from-zinc-800 to-zinc-950 relative flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-600/10 via-transparent to-transparent" />
-                  {promo.image ? (
-                    <img 
-                      src={promo.image || null} 
-                      alt={promo.title} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <Gift className="w-20 h-20 text-red-600/20 group-hover:scale-110 transition-transform duration-500" />
-                  )}
-                  <div className="absolute top-4 right-4 px-4 py-1 bg-red-600 text-white text-xs font-black rounded-full shadow-lg z-10">
-                    {promo.badge}
+              <SwiperSlide key={i} className="h-auto">
+                <motion.div
+                  initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  className="bg-zinc-900 border border-zinc-800 rounded-[2rem] overflow-hidden group hover:border-red-600/50 transition-all h-full flex flex-col"
+                >
+                  <div className="h-48 bg-gradient-to-br from-zinc-800 to-zinc-950 relative flex items-center justify-center overflow-hidden shrink-0">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-600/10 via-transparent to-transparent" />
+                    {promo.image ? (
+                      <img 
+                        src={promo.image || null} 
+                        alt={promo.title} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <Gift className="w-20 h-20 text-red-600/20 group-hover:scale-110 transition-transform duration-500" />
+                    )}
+                    <div className="absolute top-4 right-4 px-4 py-1 bg-red-600 text-white text-xs font-black rounded-full shadow-lg z-10">
+                      {promo.badge}
+                    </div>
                   </div>
-                </div>
-                <div className="p-8">
-                  <h3 className="text-2xl font-bold text-white mb-4">{promo.title}</h3>
-                  <p className="text-zinc-400 mb-8 text-sm leading-relaxed">
-                    {promo.description}
-                  </p>
-                  <div className="flex flex-col gap-3">
-                    <button 
-                      onClick={() => setSelectedPromo(promo)}
-                      className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-900/40 transition-all active:scale-95 flex items-center justify-center gap-2"
-                    >
-                      {promo.cta} <Zap className="w-4 h-4 fill-current" />
-                    </button>
+                  <div className="p-8 flex-1 flex flex-col">
+                    <h3 className="text-2xl font-bold text-white mb-4">{promo.title}</h3>
+                    <p className="text-zinc-400 mb-8 text-sm leading-relaxed flex-1">
+                      {promo.description}
+                    </p>
+                    <div className="flex flex-col gap-3">
+                      <button 
+                        onClick={() => setSelectedPromo(promo)}
+                        className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-900/40 transition-all active:scale-95 flex items-center justify-center gap-2"
+                      >
+                        {promo.cta} <Zap className="w-4 h-4 fill-current" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </SwiperSlide>
             ))}
-          </div>
+          </Swiper>
           
           <div className="mt-12 text-center">
             <Link to="/promotions" className="text-amber-500 font-bold hover:underline underline-offset-8">
@@ -2896,6 +2901,8 @@ function Bocker168Landing() {
         </div>
       </section>
       )}
+
+      {isHome && <SeoContentBlock />}
 
       {isContact && <ContactForm />}
 
