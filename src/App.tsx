@@ -344,7 +344,7 @@ const SectionTitle = ({ title, subtitle = null, centered = true, as = 'h2' }: Se
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className={`${as === 'h1' ? 'text-3xl md:text-4xl lg:text-5xl font-black' : 'text-2xl md:text-3xl lg:text-4xl font-bold'} text-white mb-4`}
+      className={`${as === 'h1' ? 'text-2xl md:text-3xl lg:text-4xl font-black' : 'text-xl md:text-2xl lg:text-3xl font-bold'} text-white mb-4`}
     >
       {title}
     </Tag>
@@ -898,7 +898,7 @@ const ContactForm = () => {
 
 const BaccaratGuide = () => {
   return (
-    <section className="py-16 bg-zinc-950">
+    <section className="py-8 bg-zinc-950">
       <div className="container mx-auto px-4">
         <SectionTitle 
           title="เริ่มต้นเล่นบาคาร่าง่ายๆ ใน 3 ขั้นตอน"
@@ -927,9 +927,9 @@ const BaccaratGuide = () => {
                 transition={{ delay: i * 0.2 }}
                 className="relative z-10 flex flex-col items-center text-center group h-full"
               >
-                <div className="flex flex-col items-center min-h-[200px] justify-end mb-8">
+                <div className="flex flex-col items-center min-h-[160px] justify-end mb-6">
                   {step.image ? (
-                    <div className="mb-6 rounded-2xl overflow-hidden border border-zinc-800 shadow-lg max-w-[280px] group-hover:border-red-500/50 transition-colors">
+                    <div className="mb-4 rounded-2xl overflow-hidden border border-zinc-800 shadow-lg max-w-[280px] group-hover:border-red-500/50 transition-colors">
                       <img 
                         src={step.image || null} 
                         alt={step.title} 
@@ -947,8 +947,8 @@ const BaccaratGuide = () => {
                     </span>
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-amber-500 transition-colors">{step.title}</h3>
-                <p className="text-zinc-500 max-w-xs mb-8">
+                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-amber-500 transition-colors">{step.title}</h3>
+                <p className="text-zinc-500 max-w-xs mb-6 text-sm">
                   {step.description}
                 </p>
               </motion.div>
@@ -962,7 +962,7 @@ const BaccaratGuide = () => {
 
 const SeoContentBlock = () => {
   return (
-    <section className="py-16 bg-black border-t border-zinc-900/50 border-b relative">
+    <section className="py-8 bg-black border-t border-zinc-900/50 border-b relative">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="prose prose-invert prose-lg prose-red mx-auto text-zinc-300">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-black mb-8 text-white">บาคาร่า เว็บตรงอันดับ 1 Bocker168 เว็บบาคาร่าออนไลน์ยอดนิยม</h2>
@@ -1706,7 +1706,7 @@ function Bocker168Landing() {
   }
 
   const renderArticlesSection = () => (
-      <section id="articles" className="py-24 relative bg-[#050505]">
+      <section id="articles" className="py-12 relative bg-[#050505]">
         <div className="container mx-auto px-4">
           <SectionTitle 
             title="บทความและเทคนิคบาคาร่า"
@@ -2070,7 +2070,7 @@ function Bocker168Landing() {
           <div className="container mx-auto px-4 pt-20 lg:pt-0">
             <div className="max-w-4xl mx-auto">
               <div className="mb-12">
-                <h1 className="text-3xl md:text-5xl font-black text-white mb-8 leading-tight">
+                <h1 className="text-2xl md:text-4xl font-black text-white mb-8 leading-tight">
                   {currentPage.title}
                 </h1>
               </div>
@@ -2130,7 +2130,7 @@ function Bocker168Landing() {
                       )}
                     </div>
                     
-                    <h1 className="text-3xl md:text-4xl font-black text-red-500 mb-8 leading-tight">
+                    <h1 className="text-2xl md:text-3xl font-black text-red-500 mb-8 leading-tight">
                       {currentPost.title}
                     </h1>
 
@@ -2644,7 +2644,7 @@ function Bocker168Landing() {
       {/* --- Hero Section --- */}
       {isHome && (
         <>
-          <section id="home" className="relative pt-40 pb-12 md:pt-48 md:pb-16 lg:pt-48 overflow-hidden">
+          <section id="home" className="relative pt-32 pb-8 md:pt-40 md:pb-12 lg:pt-40 overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto items-center">
             <motion.div
@@ -2668,7 +2668,7 @@ function Bocker168Landing() {
                  />
                </div>
 
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black leading-tight mb-8 max-w-5xl mx-auto text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-amber-500 to-red-500">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-black leading-tight mb-8 max-w-5xl mx-auto text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-amber-500 to-red-500">
                 บาคาร่า ออนไลน์ เว็บตรง ไม่ผ่านเอเย่นต์<br className="hidden md:block" /> คาสิโนครบจบ Bocker168 มีรางวัลใหญ่ทุกวัน
               </h1>
 
@@ -2711,10 +2711,10 @@ function Bocker168Landing() {
       </section>
 
       {/* --- SEO Content Block (Home & Baccarat) --- */}
-      {(isHome || isBaccarat) && <div className={isHome ? "mt-[-20px] md:mt-[-40px]" : ""}><SeoContentBlock /></div>}
+      {(isHome || isBaccarat) && <SeoContentBlock />}
     
       {/* --- Baccarat Guide Section --- */}
-      {isHome && <div className="mt-[-80px] md:mt-[-100px]"><BaccaratGuide /></div>}
+      {isHome && <BaccaratGuide />}
     
       {/* --- Baccarat Page - Top Guide --- */}
       {isBaccarat && (
@@ -2936,7 +2936,7 @@ function Bocker168Landing() {
 
       {/* --- Why Choose Section --- */}
       {isFeatures && (
-      <section id="features" className="py-32 relative overflow-hidden">
+      <section id="features" className="py-16 relative overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="mb-20">
             <SectionTitle 
@@ -3061,7 +3061,7 @@ function Bocker168Landing() {
       {/* --- Promotions Section --- */}
       {isPromotions && (
       <>
-      <section id="promotions" className="py-24 relative">
+      <section id="promotions" className="py-12 relative">
         <div className="container mx-auto px-4">
           <SectionTitle 
             title="โปรโมชั่นบาคาร่าสุดคุ้ม"
@@ -3148,7 +3148,7 @@ function Bocker168Landing() {
 
       {/* --- FAQ Section --- */}
       {(isHome || isFaq) && (
-      <section id="faq" className="py-24 bg-zinc-950">
+      <section id="faq" className="py-12 bg-zinc-950">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <SectionTitle 
@@ -3175,13 +3175,13 @@ function Bocker168Landing() {
 
       {/* --- Final CTA Section --- */}
       {(isHome || isContact) && (
-      <section className="py-24 relative overflow-hidden">
+      <section className="py-12 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-br from-red-600 via-red-700 to-amber-600 rounded-[3rem] p-12 md:p-20 text-center shadow-2xl shadow-red-900/40 relative overflow-hidden"
+            className="bg-gradient-to-br from-red-600 via-red-700 to-amber-600 rounded-[3rem] p-10 md:p-14 text-center shadow-2xl shadow-red-900/40 relative overflow-hidden"
           >
             {/* Decorative patterns */}
             <div className="absolute inset-0 opacity-10 pointer-events-none">
@@ -3191,7 +3191,7 @@ function Bocker168Landing() {
             <div className="relative z-10">
               {React.createElement(
                 isHome ? 'h2' : 'h1',
-                { className: "text-3xl md:text-4xl lg:text-5xl font-black text-white mb-8 leading-tight" },
+                { className: "text-2xl md:text-3xl lg:text-4xl font-black text-white mb-8 leading-tight" },
                 <>พร้อมที่จะทำกำไรจาก <br className="hidden md:block" /> บาคาร่าออนไลน์ หรือยัง?</>
               )}
               <p className="text-red-100 text-lg md:text-xl mb-12 max-w-3xl mx-auto leading-relaxed">

@@ -1063,29 +1063,54 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     e.target.value = '';
   };
 
-  const exportToExcel = (data: Article[]) => {
-    const exportData = data.map(article => ({
-      'ID': article.id,
-      'Title': article.title,
-      'Slug': article.slug,
-      'Category': article.category,
-      'Date': article.date,
-      'Status': article.status,
-      'Author': article.author,
-      'Meta Title': article.metaTitle,
-      'Meta Description': article.metaDescription,
-      'Meta Keywords': article.metaKeywords,
-      'Image URL': article.image,
-      'Excerpt': article.excerpt
-    }));
+  const exportToExcel = (data: any[]) => {
+    const isPages = activeTab === 'pages';
+    const exportData = data.map(item => {
+      if (isPages) {
+        return {
+          'รหัส (ID)': item.id,
+          'หัวข้อ (Title)': item.title,
+          'ลิงก์ (Slug)': item.slug,
+          'เนื้อหา (Content)': item.content,
+          'คำโปรย (Excerpt)': item.excerpt,
+          'รูปภาพ (Image)': item.image,
+          'สถานะ (Status)': item.status,
+          'Meta Title': item.metaTitle,
+          'Meta Description': item.metaDescription,
+          'Meta Keywords': item.metaKeywords
+        };
+      } else {
+        return {
+          'รหัส (ID)': item.id,
+          'หัวข้อ (Title)': item.title,
+          'ลิงก์ (Slug)': item.slug,
+          'หมวดหมู่ (Category)': item.category,
+          'วันที่ (Date)': item.date,
+          'สถานะ (Status)': item.status,
+          'ผู้เขียน (Author)': item.author,
+          'เนื้อหา (Content)': item.content,
+          'คำโปรย (Excerpt)': item.excerpt,
+          'รูปภาพ (Image)': item.image,
+          'Meta Title': item.metaTitle,
+          'Meta Description': item.metaDescription,
+          'Meta Keywords': item.metaKeywords
+        };
+      }
+    });
 
     const worksheet = xlsx.utils.json_to_sheet(exportData);
     const workbook = xlsx.utils.book_new();
-    xlsx.utils.book_append_sheet(workbook, worksheet, "Articles Report");
+    xlsx.utils.book_append_sheet(workbook, worksheet, isPages ? "รายงานหน้าเว็บ" : "รายงานบทความ");
     
     const excelBuffer = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    saveAs(blob, `Bocker168_Articles_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+    saveAs(blob, `Bocker168_${isPages ? 'Pages' : 'Articles'}_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  const exportToJSON = (data: any[]) => {
+    const isPages = activeTab === 'pages';
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    saveAs(blob, `Bocker168_${isPages ? 'Pages' : 'Articles'}_Data_${new Date().toISOString().split('T')[0]}.json`);
   };
 
   const exportToText = (article: Article) => {
@@ -1252,12 +1277,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
     saveAs(buffer, `${article.slug || 'article'}.docx`);
   };
 
-  const exportToJSON = (data: Article[]) => {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    saveAs(blob, `Bocker168_Articles_Backup_${new Date().toISOString().split('T')[0]}.json`);
-  };
-
-  if (!isAuthenticated) {
+   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center px-4 relative z-[60]">
         {onClose && (
