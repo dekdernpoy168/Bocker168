@@ -230,7 +230,7 @@ export default {
 
             const ext = filename.split('.').pop()?.toLowerCase();
             const mimeType = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : ext === 'svg' ? 'image/svg+xml' : ext === 'gif' ? 'image/gif' : 'image/jpeg';
-            const uniqueFilename = `${Date.now()}-${filename.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+            const uniqueFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
 
             await env.R2_IMAGES.put(uniqueFilename, bytes.buffer, {
                httpMetadata: { contentType: mimeType }
