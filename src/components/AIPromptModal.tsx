@@ -26,12 +26,36 @@ export default function AIPromptModal({ isOpen, onClose, onExecute, initialTopic
   const [secondaryKeywords, setSecondaryKeywords] = useState('');
   const [isFetchingKeywords, setIsFetchingKeywords] = useState(false);
   const [isGeneratingSecondaryKeywords, setIsGeneratingSecondaryKeywords] = useState(false);
+  const [keData, setKeData] = useState<Record<string, any>>({});
 
   React.useEffect(() => {
     if (isOpen) {
       setTopic(initialTopic);
     }
   }, [isOpen, initialTopic]);
+
+  const fetchVolumes = async (keywords: string[]) => {
+    if (keywords.length === 0) return {};
+    try {
+      const resp = await fetch('/api/keywords-volume', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ keywords })
+      });
+      const data = await resp.json();
+      if (data.configured && data.data) {
+        const newData: Record<string, any> = {};
+        data.data.forEach((item: any) => {
+          newData[item.keyword] = { vol: item.vol, cpc: item.cpc?.value, comp: item.competition };
+        });
+        setKeData(prev => ({ ...prev, ...newData }));
+        return newData;
+      }
+    } catch (e) {
+      console.error('Failed to fetch keyword volumes', e);
+    }
+    return {};
+  };
 
   const fetchKeywords = async (query: string, isPrimary: boolean) => {
     if (!query) return;
@@ -43,6 +67,7 @@ export default function AIPromptModal({ isOpen, onClose, onExecute, initialTopic
       
       if (keyword) {
         setPrimaryKeyword(keyword);
+        await fetchVolumes([keyword]);
       } else {
         alert('ไม่สามารถวิเคราะห์คีย์เวิร์ดได้ กรุณาลองใหม่อีกครั้ง');
       }
@@ -64,10 +89,12 @@ export default function AIPromptModal({ isOpen, onClose, onExecute, initialTopic
       
       const text = await generateAIContent(prompt);
       
-      const keywords = text.replace(/^[-\d.\s*"'\[\]]+/, '').replace(/["',\]]+$/, '').trim();
+      const keywords = text.replace(/^[-\d.\s*"'\\[\\]]+/, '').replace(/["',\]]+$/, '').trim();
       
       if (keywords) {
         setSecondaryKeywords(keywords);
+        const kwList = keywords.split(',').map(k => k.trim()).filter(k => k);
+        await fetchVolumes(kwList);
       } else {
         alert('ไม่สามารถสร้างคีย์เวิร์ดรองได้ กรุณาลองใหม่อีกครั้ง');
       }
@@ -229,6 +256,13 @@ export default function AIPromptModal({ isOpen, onClose, onExecute, initialTopic
                   {isGeneratingSecondaryKeywords ? 'Generating...' : 'Generate Keywords'}
                 </button>
               </div>
+              {primaryKeyword && keData[primaryKeyword] && (
+                <div className="text-[10px] text-zinc-400 mt-1 flex gap-3">
+                   <span><strong className="text-zinc-300">Vol:</strong> {keData[primaryKeyword].vol}</span>
+                   <span><strong className="text-zinc-300">CPC:</strong> ${keData[primaryKeyword].cpc || '0.00'}</span>
+                   <span><strong className="text-zinc-300">Comp:</strong> {keData[primaryKeyword].comp || '0.00'}</span>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">จำนวนคีย์รอง:</label>
@@ -245,6 +279,17 @@ export default function AIPromptModal({ isOpen, onClose, onExecute, initialTopic
               placeholder="คีย์รองจะแสดงที่นี่ แยกด้วยเครื่องหมายจุลภาค (,)"
               className="w-full bg-[#333333] border border-zinc-600 rounded p-3 text-white text-sm focus:border-zinc-400 outline-none resize-y"
             ></textarea>
+            {secondaryKeywords && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {secondaryKeywords.split(',').map(kw => kw.trim()).filter(Boolean).map(kw => (
+                  keData[kw] ? (
+                    <span key={kw} className="text-[10px] bg-[#333333] border border-zinc-700 px-2 py-1 rounded text-zinc-300">
+                       <strong className="text-white">{kw}</strong> · Vol: {keData[kw].vol} · CPC: ${keData[kw].cpc || '0.00'}
+                    </span>
+                  ) : null
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

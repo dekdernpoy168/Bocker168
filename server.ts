@@ -584,6 +584,44 @@ async function startServer() {
     }
   });
 
+  app.post('/api/keywords-volume', express.json(), async (req, res) => {
+    try {
+      const apiKey = process.env.KEYWORDS_EVERYWHERE_API_KEY;
+      if (!apiKey) {
+        return res.json({ configured: false });
+      }
+
+      const { keywords } = req.body;
+      if (!keywords || !Array.isArray(keywords)) {
+        return res.status(400).json({ error: 'Keywords array required' });
+      }
+
+      const params = new URLSearchParams();
+      keywords.forEach((kw: string) => params.append('kw[]', kw));
+
+      const response = await fetch('https://api.keywordseverywhere.com/v1/get_keyword_data', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        res.json({ configured: true, data: data.data });
+      } else {
+        const err = await response.text();
+        res.status(response.status).json({ error: err });
+      }
+    } catch (error: any) {
+      console.error('Error fetching keywords:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.get('/api/request-logs', async (req, res) => {
     try {
       if (!isD1Configured()) {

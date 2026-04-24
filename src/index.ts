@@ -256,6 +256,55 @@ export default {
           }
         }
 
+        // Route to get keyword volume
+        if (url.pathname === '/api/keywords-volume' && request.method === 'POST') {
+          try {
+            const apiKey = env.KEYWORDS_EVERYWHERE_API_KEY;
+            if (!apiKey) {
+               return new Response(JSON.stringify({ configured: false }), { status: 200, headers: { 'Content-Type': 'application/json' }});
+            }
+
+            const body = await request.json() as any;
+            const { keywords } = body;
+            
+            if (!keywords || !Array.isArray(keywords)) {
+              return new Response(JSON.stringify({ error: 'Keywords array required' }), { status: 400, headers: { 'Content-Type': 'application/json' }});
+            }
+
+            const params = new URLSearchParams();
+            keywords.forEach((kw: string) => params.append('kw[]', kw));
+
+            const response = await fetch('https://api.keywordseverywhere.com/v1/get_keyword_data', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              body: params.toString()
+            });
+
+            if (response.ok) {
+              const data = await response.json() as any;
+              return new Response(JSON.stringify({ configured: true, data: data.data }), {
+                 status: 200,
+                 headers: { 'Content-Type': 'application/json' }
+              });
+            } else {
+               const err = await response.text();
+               return new Response(JSON.stringify({ error: err }), { 
+                  status: response.status,
+                  headers: { 'Content-Type': 'application/json' }
+               });
+            }
+          } catch(error: any) {
+             return new Response(JSON.stringify({ error: error.message }), { 
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+             });
+          }
+        }
+
         // Route to check config status
         if (url.pathname === '/api/config-status') {
           return Response.json({ d1Configured: true, fallbackMode: false });
