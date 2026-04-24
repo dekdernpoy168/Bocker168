@@ -1384,23 +1384,6 @@ ${article.content?.replace(/<[^>]*>/g, '')}
           </div>
 
           <div className="flex gap-2">
-            {(activeTab === 'pages' || activeTab === 'articles') && (
-              <>
-                <button 
-                  onClick={exportTemplateExcel}
-                  className="bg-zinc-900 border border-zinc-700 text-zinc-300 px-4 py-3 rounded-full font-bold hover:bg-zinc-800 hover:text-white transition-colors flex items-center shadow-lg"
-                  title="ดาวน์โหลดไฟล์ต้นแบบสำหรับกรอกข้อมูล"
-                >
-                  <Download size={20} className="mr-2" /> โหลดไฟล์ต้นแบบ
-                </button>
-                
-                <label className="bg-zinc-900 border border-zinc-700 text-zinc-300 px-4 py-3 rounded-full font-bold hover:bg-zinc-800 hover:text-white transition-colors flex items-center shadow-lg cursor-pointer">
-                  <Upload size={20} className="mr-2" /> Import (.xlsx)
-                  <input type="file" accept=".xlsx, .xls" className="hidden" onChange={handleImportExcel} />
-                </label>
-              </>
-            )}
-            
             <button 
               onClick={() => { 
                 if (activeTab === 'pages') {
@@ -2399,8 +2382,22 @@ ${article.content?.replace(/<[^>]*>/g, '')}
           {activeTab === 'articles' && (
             <>
               {/* ตัวกรองและค้นหา */}
-              <div className="p-6 border-b border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+              <div className="p-6 border-b border-zinc-800 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+            <div className="flex flex-wrap gap-2 items-center">
+              <div className="flex gap-2 mr-4 bg-black/40 p-1.5 rounded-full border border-zinc-800">
+                <button 
+                  onClick={exportTemplateExcel}
+                  className="bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center"
+                  title="ดาวน์โหลดไฟล์ต้นแบบ"
+                >
+                  <Download size={14} className="mr-1.5" /> Template
+                </button>
+                <label className="bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center cursor-pointer">
+                  <Upload size={14} className="mr-1.5" /> Import
+                  <input type="file" accept=".xlsx, .xls" className="hidden" onChange={handleImportExcel} />
+                </label>
+              </div>
+
               {['all', 'published', 'draft', 'scheduled'].map((status) => (
                 <button
                   key={status}
@@ -2552,6 +2549,27 @@ ${article.content?.replace(/<[^>]*>/g, '')}
 
       {activeTab === 'pages' && (
         <div className="p-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div>
+              <h3 className="text-xl font-bold text-white flex items-center gap-2 text-red-500">
+                <LayoutTemplate size={20} /> จัดการหน้า (Pages)
+              </h3>
+              <p className="text-zinc-500 text-sm mt-1">จัดการข้อมูลหน้าหลักและหน้าย่อยของเว็บไซต์</p>
+            </div>
+            <div className="flex bg-black/40 p-1.5 rounded-full border border-zinc-800 gap-2">
+              <button 
+                onClick={exportTemplateExcel}
+                className="bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center"
+                title="ดาวน์โหลดไฟล์ต้นแบบหน้า"
+              >
+                <Download size={14} className="mr-1.5" /> Page Template
+              </button>
+              <label className="bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center cursor-pointer">
+                <Upload size={14} className="mr-1.5" /> Import Pages
+                <input type="file" accept=".xlsx, .xls" className="hidden" onChange={handleImportExcel} />
+              </label>
+            </div>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
