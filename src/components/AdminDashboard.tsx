@@ -3,7 +3,7 @@ import {
   Plus, Edit, Trash2, Save, X, FileText, Target, Upload, Copy,
   Type as TypeIcon, Link as LinkIcon, Search, Folder, Tag,
   Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2,
-  LayoutTemplate, Code, Database, Sparkles, Download, FileSpreadsheet, FileJson, FileCode, User, List
+  LayoutTemplate, Code, Database, Sparkles, Download, FileSpreadsheet, FileJson, FileCode, User, List, RefreshCw
 } from 'lucide-react';
 import { Article, Author, WebPage, Category } from '../types';
 import AIPromptModal from './AIPromptModal';
