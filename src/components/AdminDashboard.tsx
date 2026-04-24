@@ -867,6 +867,137 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     }
   };
 
+  const exportTemplateExcel = () => {
+    let exportData;
+    if (activeTab === 'pages') {
+      exportData = [{
+        'ID': '',
+        'Title': 'ชื่อหน้าตัวอย่าง',
+        'Slug': 'sample-page',
+        'Content': '<p>เนื้อหาหน้าตัวอย่าง...</p>',
+        'Excerpt': 'คำโปรยย่อ...',
+        'Image URL': 'https://example.com/img.jpg',
+        'Status': 'published',
+        'Meta Title': 'SEO Title',
+        'Meta Description': 'SEO Description',
+      }];
+    } else {
+      exportData = [{
+        'ID': '',
+        'Title': 'ชื่อบทความตัวอย่าง',
+        'Slug': 'sample-article',
+        'Content': '<p>เนื้อหาบทความตัวอย่าง...</p>',
+        'Excerpt': 'คำโปรยย่อ...',
+        'Category': categories.length > 0 ? categories[0].name : 'General',
+        'Image URL': 'https://example.com/img.jpg',
+        'Status': 'published',
+        'Author': authors.length > 0 ? authors[0].name : 'Admin',
+        'Author Image': '',
+        'Author Position': '',
+        'Author Description': '',
+        'Date': new Date().toISOString().split('T')[0],
+        'Meta Title': 'SEO Title',
+        'Meta Description': 'SEO Description',
+        'Meta Keywords': 'keyword1, keyword2',
+      }];
+    }
+
+    const worksheet = xlsx.utils.json_to_sheet(exportData);
+    const workbook = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(workbook, worksheet, activeTab === 'pages' ? "Pages Template" : "Articles Template");
+    
+    const excelBuffer = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `Template_${activeTab}_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+        try {
+            const arrayBuffer = evt.target?.result as ArrayBuffer;
+            const dataUint8 = new Uint8Array(arrayBuffer);
+            const wb = xlsx.read(dataUint8, { type: 'array' });
+            const wsname = wb.SheetNames[0];
+            const ws = wb.Sheets[wsname];
+            const data = xlsx.utils.sheet_to_json(ws);
+            
+            let successCount = 0;
+            let failCount = 0;
+
+            for (const row of data as any[]) {
+                if (!row['Title']) {
+                    continue; // Skip empty rows without title
+                }
+
+                if (activeTab === 'pages') {
+                    const newPage: WebPage = {
+                        id: row['ID'] ? String(row['ID']) : Date.now().toString() + Math.random().toString(36).substring(7),
+                        title: row['Title'] || '',
+                        slug: row['Slug'] || row['Title']?.toLowerCase().replace(/\s+/g, '-') || '',
+                        content: row['Content'] || '',
+                        excerpt: row['Excerpt'] || '',
+                        image: row['Image URL'] || '',
+                        status: (row['Status']?.toLowerCase() === 'published') ? 'published' : 'draft',
+                        metaTitle: row['Meta Title'] || '',
+                        metaDescription: row['Meta Description'] || '',
+                    };
+                    const res = await fetch('/api/pages', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newPage),
+                    });
+                    if (res.ok) successCount++;
+                    else failCount++;
+                } else {
+                    const newArticle: Article = {
+                        id: row['ID'] ? String(row['ID']) : Date.now().toString() + Math.random().toString(36).substring(7),
+                        title: row['Title'] || '',
+                        slug: row['Slug'] || row['Title']?.toLowerCase().replace(/\s+/g, '-') || '',
+                        content: row['Content'] || '',
+                        excerpt: row['Excerpt'] || '',
+                        category: row['Category'] || (categories.length > 0 ? categories[0].name : 'General'),
+                        image: row['Image URL'] || '',
+                        status: (row['Status']?.toLowerCase() === 'published') ? 'published' : 'draft',
+                        author: row['Author'] || 'Admin',
+                        authorImage: row['Author Image'] || '',
+                        authorPosition: row['Author Position'] || '',
+                        authorDescription: row['Author Description'] || '',
+                        date: row['Date'] || new Date().toISOString().split('T')[0],
+                        metaTitle: row['Meta Title'] || '',
+                        metaDescription: row['Meta Description'] || '',
+                        metaKeywords: row['Meta Keywords'] || '',
+                    };
+                    const res = await fetch('/api/articles', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newArticle),
+                    });
+                    if (res.ok) successCount++;
+                    else failCount++;
+                }
+            }
+            
+            alert(`นำข้อมูลเข้าสำเร็จ ${successCount} รายการ, ล้มเหลว ${failCount} รายการ`);
+            if (activeTab === 'pages') {
+                fetchPages();
+            } else {
+                fetchArticles();
+            }
+            if (onSaveSuccess) onSaveSuccess();
+        } catch (error) {
+            console.error('Error importing Excel:', error);
+            alert('เกิดข้อผิดพลาดในการนำเข้าไฟล์ กรุณาตรวจสอบรูปแบบไฟล์');
+        }
+    };
+    reader.readAsArrayBuffer(file);
+    // Reset file input
+    e.target.value = '';
+  };
+
   const exportToExcel = (data: Article[]) => {
     const exportData = data.map(article => ({
       'ID': article.id,
@@ -1187,20 +1318,39 @@ ${article.content?.replace(/<[^>]*>/g, '')}
             </div>
           </div>
 
-          <button 
-            onClick={() => { 
-              if (activeTab === 'pages') {
-                setIsEditing(true);
-                setCurrentWebPage({});
-              } else {
-                setIsEditing(true); 
-                setCurrentArticle({}); 
-              }
-            }}
-            className="bg-red-600 text-white px-8 py-3 rounded-full font-black hover:bg-red-700 transition-colors flex items-center shadow-lg shadow-red-600/20"
-          >
-            <Plus size={20} className="mr-2" /> {activeTab === 'pages' ? 'เพิ่มหน้าใหม่' : 'เพิ่มบทความใหม่'}
-          </button>
+          <div className="flex gap-2">
+            {(activeTab === 'pages' || activeTab === 'articles') && (
+              <>
+                <button 
+                  onClick={exportTemplateExcel}
+                  className="bg-zinc-900 border border-zinc-700 text-zinc-300 px-4 py-3 rounded-full font-bold hover:bg-zinc-800 hover:text-white transition-colors flex items-center shadow-lg"
+                  title="ดาวน์โหลดไฟล์ต้นแบบสำหรับกรอกข้อมูล"
+                >
+                  <Download size={20} className="mr-2" /> โหลดไฟล์ต้นแบบ
+                </button>
+                
+                <label className="bg-zinc-900 border border-zinc-700 text-zinc-300 px-4 py-3 rounded-full font-bold hover:bg-zinc-800 hover:text-white transition-colors flex items-center shadow-lg cursor-pointer">
+                  <Upload size={20} className="mr-2" /> Import (.xlsx)
+                  <input type="file" accept=".xlsx, .xls" className="hidden" onChange={handleImportExcel} />
+                </label>
+              </>
+            )}
+            
+            <button 
+              onClick={() => { 
+                if (activeTab === 'pages') {
+                  setIsEditing(true);
+                  setCurrentWebPage({});
+                } else {
+                  setIsEditing(true); 
+                  setCurrentArticle({}); 
+                }
+              }}
+              className="bg-red-600 text-white px-8 py-3 rounded-full font-black hover:bg-red-700 transition-colors flex items-center shadow-lg shadow-red-600/20"
+            >
+              <Plus size={20} className="mr-2" /> {activeTab === 'pages' ? 'เพิ่มหน้าใหม่' : 'เพิ่มบทความใหม่'}
+            </button>
+          </div>
         </div>
       </div>
 
