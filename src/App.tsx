@@ -1104,7 +1104,8 @@ function Bocker168Landing() {
       toc.push({ id, text: finalTitle, level });
       
       let articleTitleHtml = textRaw.replace(/^(\s*(?:<[^>]+>\s*)*)(?:(?:\d+\.)+\s*|\d+\s+)/i, '$1');
-      return `<h${levelStr} id="${id}"${attrs}>${articleTitleHtml}</h${levelStr}>`;
+      let cleanAttrs = attrs.replace(/\s*id=["'][^"']*["']/i, '');
+      return `<h${levelStr} id="${id}"${cleanAttrs}>${articleTitleHtml}</h${levelStr}>`;
     });
     
     return returnType === 'toc' ? toc : html;
@@ -1113,12 +1114,23 @@ function Bocker168Landing() {
   const getTableOfContents = (content: string) => processHeadingLogic(content, 'toc') as any[];
   const addIdsToHeadings = (content: string) => processHeadingLogic(content, 'html') as string;
 
-const lazyLoadImages = (content: string, defaultAlt: string = 'Image related to the article') => {
+  const lazyLoadImages = (content: string, articleTitle: string = '') => {
     if (!content) return '';
     return content.replace(/<img([^>]*)>/gis, (match, attrs) => {
       let newAttrs = attrs;
       if (!newAttrs.includes('alt=')) {
-        newAttrs += ` alt="${defaultAlt}"`;
+        let altText = `รูปภาพประกอบบทความ: ${articleTitle || 'คาสิโนออนไลน์ Bocker168'}`;
+        const srcMatch = attrs.match(/src=["'](.*?)["']/);
+        if (srcMatch && srcMatch[1]) {
+          const pathSegments = srcMatch[1].split('/');
+          const filenameWithExt = pathSegments[pathSegments.length - 1];
+          const filename = filenameWithExt.split('.')[0] || '';
+          if (filename && filename.length > 2) {
+            const cleanFilename = filename.replace(/[-_]/g, ' ');
+            altText = `${cleanFilename} - ${articleTitle || 'Bocker168'}`;
+          }
+        }
+        newAttrs += ` alt="${altText}"`;
       }
       if (!newAttrs.includes('loading=')) {
         newAttrs += ' loading="lazy"';
@@ -1130,29 +1142,44 @@ const lazyLoadImages = (content: string, defaultAlt: string = 'Image related to 
   const splitArticleContent = (content: string) => {
     if (!content) return ['', ''];
     
-    // 1. Look for a paragraph immediately following an H2 or H3.
-    const headingWithParagraph = content.match(/<(h2|h3)[^>]*>.*?<\/\1>\s*<p[^>]*>.*?<\/p>/is);
-    if (headingWithParagraph && headingWithParagraph.index !== undefined) {
-      const splitIndex = headingWithParagraph.index + headingWithParagraph[0].length;
-      return [content.slice(0, splitIndex), content.slice(splitIndex)];
-    }
-
-    // 2. Find a substantial paragraph suitable for splitting after.
-    const pMatches = Array.from(content.matchAll(/<p[^>]*>(.*?)<\/p>/gis));
-    for (const match of pMatches) {
-      const innerText = match[1].replace(/<[^>]*>/g, '').trim();
-      if (innerText.length > 80 && !match[0].toLowerCase().includes('<img')) {
-        const splitIndex = match.index! + match[0].length;
-        return [content.slice(0, splitIndex), content.slice(splitIndex)];
+    let textLength = 0;
+    const minThreshold = 400; // Aim for about 400 characters in the preview
+    
+    // Find block-level elements using matchAll
+    const matches = Array.from(content.matchAll(/(<p[^>]*>.*?<\/p>|<h[2-6][^>]*>.*?<\/h[2-6]>|<ul[^>]*>.*?<\/ul>|<ol[^>]*>.*?<\/ol>|<blockquote[^>]*>.*?<\/blockquote>)/gis));
+    
+    let splitIndex = -1;
+    let fallbackIndex = -1;
+    let pCount = 0;
+    
+    for (const m of matches) {
+      const outerHtml = m[0];
+      const innerText = outerHtml.replace(/<[^>]*>/g, '').trim();
+      textLength += innerText.length;
+      
+      if (outerHtml.toLowerCase().startsWith('<p')) {
+        pCount++;
+        // Fallback: at least one paragraph
+        if (fallbackIndex === -1 && innerText.length > 50 && !outerHtml.toLowerCase().includes('<img')) {
+          fallbackIndex = m.index! + outerHtml.length;
+        }
+      }
+      
+      // If we crossed the threshold and we are currently on a paragraph
+      // (We don't want to split immediately after a heading to avoid dangling headings)
+      if (textLength >= minThreshold && outerHtml.toLowerCase().startsWith('<p') && !outerHtml.toLowerCase().includes('<img')) {
+        splitIndex = m.index! + outerHtml.length;
+        break;
       }
     }
-
-    // 3. Fallback to first block element
-    if (pMatches.length > 0) {
-      const splitIndex = pMatches[0].index! + pMatches[0][0].length;
-      return [content.slice(0, splitIndex), content.slice(splitIndex)];
+    
+    // Choose the best split point
+    const finalSplitIndex = splitIndex !== -1 ? splitIndex : fallbackIndex;
+    
+    if (finalSplitIndex !== -1 && finalSplitIndex < content.length) {
+      return [content.slice(0, finalSplitIndex), content.slice(finalSplitIndex)];
     }
-
+    
     return [content, ''];
   };
 
@@ -1448,12 +1475,12 @@ const lazyLoadImages = (content: string, defaultAlt: string = 'Image related to 
                               </h3>
                               <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
                                 {toc.map((item, i) => {
-                                  const indentClass = item.level >= 4 ? 'ml-6' : item.level === 3 ? 'ml-3' : '';
+                                  const indentClass = item.level >= 4 ? 'ml-8 pl-4 border-l-2 border-zinc-800' : item.level === 3 ? 'ml-4 pl-3 border-l text-[13px]' : '';
                                   return (
-                                    <li key={i} className={indentClass}>
+                                    <li key={i} className={`${indentClass} mb-1`}>
                                       <a 
                                         href={`#${item.id}`} 
-                                        className="text-zinc-400 hover:text-red-400 text-sm transition-colors flex items-start gap-2 py-1"
+                                        className="text-zinc-400 hover:text-red-400 text-sm transition-colors block py-1.5"
                                         onClick={(e) => {
                                           e.preventDefault();
                                           document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
@@ -1572,6 +1599,18 @@ const lazyLoadImages = (content: string, defaultAlt: string = 'Image related to 
                                   <Link to={`/author/${encodeURIComponent(currentPost.author || 'Admin Bocker168')}`} className="text-red-500 hover:text-red-400 text-[11px] font-mono flex items-center gap-1 border-l border-zinc-800 pl-4 transition-colors">
                                     อ่านบทความทั้งหมด <ArrowRight className="w-3 h-3" />
                                   </Link>
+                                </div>
+                                <div className="mt-4 flex items-center gap-3">
+                                  <span className="text-xs text-zinc-500 font-medium">ติดตามผู้เขียน:</span>
+                                  <a href="https://facebook.com/bocker168" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-[#1877F2] transition-colors">
+                                    <Facebook size={16} />
+                                  </a>
+                                  <a href="https://twitter.com/bocker168" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-white transition-colors">
+                                    <Twitter size={16} />
+                                  </a>
+                                  <a href="mailto:contact@bocker168.com" className="text-zinc-500 hover:text-red-500 transition-colors">
+                                    <Mail size={16} />
+                                  </a>
                                 </div>
                               </div>
                             </div>
@@ -1756,6 +1795,18 @@ const lazyLoadImages = (content: string, defaultAlt: string = 'Image related to 
                           <div className="text-center">
                             <div className="text-3xl font-black text-white mb-1">{authorArticles.length}</div>
                             <div className="text-xs text-zinc-500 uppercase tracking-wider font-bold">Articles</div>
+                          </div>
+                          <div className="w-px h-12 bg-zinc-800/50 hidden md:block"></div>
+                          <div className="flex gap-3">
+                            <a href="https://facebook.com/bocker168" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-[#1877F2] hover:border-[#1877F2] transition-colors" title="Facebook">
+                              <Facebook size={18} />
+                            </a>
+                            <a href="https://twitter.com/bocker168" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:border-white transition-colors" title="Twitter (X)">
+                              <Twitter size={18} />
+                            </a>
+                            <a href="mailto:contact@bocker168.com" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-red-500 hover:border-red-500 transition-colors" title="Email">
+                              <Mail size={18} />
+                            </a>
                           </div>
                         </div>
                       </div>

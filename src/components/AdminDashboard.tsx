@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Plus, Edit, Trash2, Save, X, FileText, Target, Upload,
+  Plus, Edit, Trash2, Save, X, FileText, Target, Upload, Copy,
   Type as TypeIcon, Link as LinkIcon, Search, Folder, Tag,
   Image as ImageIcon, Calendar, Edit3, Eye, Check, Wand2,
   LayoutTemplate, Code, Database, Sparkles, Download, FileSpreadsheet, FileJson, FileCode, User, List
@@ -46,7 +46,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [pages, setPages] = useState<WebPage[]>([]);
   const [currentWebPage, setCurrentWebPage] = useState<Partial<WebPage>>({});
   const [isLoadingPages, setIsLoadingPages] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft' | 'scheduled'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: keyof Article; direction: 'asc' | 'desc' }>({ key: 'date', direction: 'desc' });
   const [editorMode, setEditorMode] = useState<'visual' | 'text'>('visual');
@@ -128,7 +128,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
 
     // Prepare payload
     const authorPayload = {
-      id: currentAuthor.id, // Server will generate if empty
+      id: currentAuthor.id || Date.now().toString(),
       name: currentAuthor.name,
       image: currentAuthor.image || currentAuthor.avatar_url || '',
       position: currentAuthor.position || '',
@@ -194,11 +194,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       return;
     }
 
+    const payload = {
+      ...currentCategory,
+      id: currentCategory.id || `cat-${Date.now()}`
+    };
+
     try {
       const response = await fetch('/api/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentCategory),
+        body: JSON.stringify(payload),
       });
       if (response.ok) {
         await fetchCategories();
@@ -424,7 +429,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
 
   const filteredArticles = articles
     .filter(article => {
-      const matchesStatus = filterStatus === 'all' || article.status === filterStatus;
+      const now = new Date();
+      const isScheduled = article.status === 'published' && article.date && new Date(article.date) > now;
+      let matchesStatus = false;
+      
+      if (filterStatus === 'all') matchesStatus = true;
+      else if (filterStatus === 'scheduled') matchesStatus = isScheduled;
+      else if (filterStatus === 'published') matchesStatus = article.status === 'published' && !isScheduled;
+      else if (filterStatus === 'draft') matchesStatus = article.status === 'draft';
+
       const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                             article.category.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesStatus && matchesSearch;
@@ -1433,13 +1446,28 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                     {isGeneratingSlug ? 'Generating...' : 'Generate Slug'}
                   </button>
                 </div>
-                <input 
-                  type="text" 
-                  value={currentArticle.slug || ''}
-                  onChange={e => setCurrentArticle({...currentArticle, slug: e.target.value})}
-                  className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
-                  placeholder="เช่น how-to-play-baccarat"
-                />
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="text" 
+                    value={currentArticle.slug || ''}
+                    onChange={e => setCurrentArticle({...currentArticle, slug: e.target.value})}
+                    className="flex-1 bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
+                    placeholder="เช่น how-to-play-baccarat"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (currentArticle.slug) {
+                        navigator.clipboard.writeText(currentArticle.slug);
+                        alert('คัดลอก Slug ลงคลิปบอร์ดแล้ว');
+                      }
+                    }}
+                    className="p-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-400 hover:text-white hover:border-red-500 hover:bg-zinc-800 transition-colors"
+                    title="คัดลอก Slug"
+                  >
+                    <Copy size={16} />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1904,7 +1932,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
               {/* ตัวกรองและค้นหา */}
               <div className="p-6 border-b border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
-              {['all', 'published', 'draft'].map((status) => (
+              {['all', 'published', 'draft', 'scheduled'].map((status) => (
                 <button
                   key={status}
                   onClick={() => setFilterStatus(status as any)}
@@ -1914,7 +1942,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                       : 'bg-black text-zinc-400 border border-zinc-800 hover:border-red-500'
                   }`}
                 >
-                  {status}
+                  {status === 'all' ? 'All' : status === 'published' ? 'Published' : status === 'draft' ? 'Draft' : 'Scheduled'}
                 </button>
               ))}
             </div>
@@ -1988,11 +2016,20 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                       <td className="p-4 text-zinc-400">{article.category}</td>
                       <td className="p-4 text-zinc-500 text-xs">{article.date}</td>
                       <td className="p-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          article.status === 'published' ? 'bg-green-500/20 text-green-400' : 'bg-zinc-900 text-zinc-400'
-                        }`}>
-                          {article.status}
-                        </span>
+                        {(() => {
+                           const now = new Date();
+                           const isScheduled = article.status === 'published' && article.date && new Date(article.date) > now;
+                           const displayStatus = isScheduled ? 'scheduled' : article.status;
+                           return (
+                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                               displayStatus === 'published' ? 'bg-green-500/20 text-green-400' : 
+                               displayStatus === 'scheduled' ? 'bg-blue-500/20 text-blue-400' : 
+                               'bg-zinc-900 text-zinc-400'
+                             }`}>
+                               {displayStatus}
+                             </span>
+                           );
+                        })()}
                       </td>
                       <td className="p-4 text-right space-x-2 whitespace-nowrap">
                         <div className="inline-flex items-center gap-1 mr-2 border-r border-zinc-800 pr-2">
@@ -2381,6 +2418,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                   <tr className="border-b border-zinc-900">
                     <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-widest">ชื่อหมวดหมู่</th>
                     <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-widest">Slug</th>
+                    <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-widest hidden md:table-cell">คำอธิบาย</th>
                     <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-widest text-right">จัดการ</th>
                   </tr>
                 </thead>
@@ -2389,6 +2427,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                     <tr key={cat.id} className="hover:bg-zinc-900/40 transition-colors group">
                       <td className="p-4 text-sm font-bold text-white">{cat.name}</td>
                       <td className="p-4"><code className="text-xs text-red-500 bg-red-500/5 px-2 py-1 rounded">{cat.slug}</code></td>
+                      <td className="p-4 hidden md:table-cell text-xs text-zinc-400 max-w-[200px] truncate">{cat.description || '-'}</td>
                       <td className="p-4 text-right">
                         <div className="flex justify-end gap-2">
                           <button onClick={() => { setCurrentCategory(cat); setIsEditingCategory(true); }} className="p-2 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-lg transition-all">
