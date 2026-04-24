@@ -5,6 +5,23 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Custom Scrollbar for horizontal scrolling elements */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #3f3f46; /* zinc-700 */
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #52525b; /* zinc-600 */
+}
+
 /* Swiper Overrides for Dark Theme */
 .swiper-button-next,
 .swiper-button-prev {

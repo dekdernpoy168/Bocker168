@@ -5,6 +5,13 @@ export async function generateAIContent(prompt: string): Promise<string> {
   const geminiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
   const openAIKey = process.env.OPENAI_API_KEY || import.meta.env.VITE_OPENAI_API_KEY;
 
+  if (!geminiKey && !openAIKey) {
+    if (typeof window !== "undefined") {
+      alert("⚠️ ไม่พบ API Keys สำหรับ AI\n\nระบบต้องการ VITE_GEMINI_API_KEY หรือ VITE_OPENAI_API_KEY\nกรุณาตั้งค่า Environment Variables ในไฟล์ .env หรือตั้งค่าผ่านเมนู Settings ของระบบก่อนใช้งานฟีเจอร์นี้");
+    }
+    throw new Error("API_KEYS_MISSING");
+  }
+
   // Try Gemini first
   if (geminiKey) {
     try {

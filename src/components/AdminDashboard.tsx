@@ -75,7 +75,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [isLoadingR2, setIsLoadingR2] = useState(false);
   const [isUploadingR2, setIsUploadingR2] = useState(false);
   const [r2TargetField, setR2TargetField] = useState<'cover' | 'editor' | 'author'>('cover');
-  const [selectedR2Image, setSelectedR2Image] = useState<any>(null);
+  const [selectedR2Images, setSelectedR2Images] = useState<any[]>([]);
   const [r2AltText, setR2AltText] = useState('');
   const [r2ImageWidth, setR2ImageWidth] = useState('');
   const [r2ImageHeight, setR2ImageHeight] = useState('');
@@ -304,7 +304,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
           await fetchR2Images();
           // Auto-select the uploaded image
           if (resData.url) {
-            setSelectedR2Image({ url: resData.url, key: file.name });
+            setSelectedR2Images([{ url: resData.url, key: file.name }]);
             setR2AltText(file.name.split('.')[0] || '');
           }
         } else {
@@ -322,46 +322,60 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   };
 
   const handleSelectR2Image = (imageUrl: string, defaultAlt: string = '') => {
-    setSelectedR2Image({ url: imageUrl, key: defaultAlt });
-    setR2AltText(defaultAlt.split('.')[0] || '');
+    const isEditingContent = r2TargetField === 'editor';
+    const isSelected = selectedR2Images.some(img => img.url === imageUrl);
+    
+    if (isSelected) {
+      setSelectedR2Images(prev => prev.filter(img => img.url !== imageUrl));
+    } else {
+      if (isEditingContent) {
+        setSelectedR2Images(prev => [...prev, { url: imageUrl, key: defaultAlt }]);
+      } else {
+        setSelectedR2Images([{ url: imageUrl, key: defaultAlt }]);
+      }
+      setR2AltText(defaultAlt.split('.')[0] || '');
+    }
   };
 
   const confirmUseR2Image = () => {
-    if (!selectedR2Image) return;
+    if (selectedR2Images.length === 0) return;
     
-    const imageUrl = selectedR2Image.url;
-    const altText = r2AltText;
-
-    if (r2TargetField === 'cover') {
-      if (activeTab === 'pages') {
-        setCurrentWebPage({ ...currentWebPage, image: imageUrl });
-      } else {
-        setCurrentArticle({ ...currentArticle, image: imageUrl });
+    if (r2TargetField === 'cover' || r2TargetField === 'author') {
+      const imageUrl = selectedR2Images[0].url;
+      if (r2TargetField === 'cover') {
+        if (activeTab === 'pages') {
+          setCurrentWebPage({ ...currentWebPage, image: imageUrl });
+        } else {
+          setCurrentArticle({ ...currentArticle, image: imageUrl });
+        }
+      } else if (r2TargetField === 'author') {
+        setCurrentAuthor({ ...currentAuthor, image: imageUrl });
       }
-    } else if (r2TargetField === 'author') {
-      setCurrentAuthor({ ...currentAuthor, image: imageUrl });
     } else {
-      let imgAttrs = `src="${imageUrl}" alt="${altText}"`;
-      if (r2ImageWidth) imgAttrs += ` width="${r2ImageWidth}"`;
-      if (r2ImageHeight) imgAttrs += ` height="${r2ImageHeight}"`;
-      if (r2ImageClass) imgAttrs += ` class="${r2ImageClass}"`;
-      const imgHtml = `<img ${imgAttrs} />`;
+      let allImgHtml = '';
+      
+      for (const img of selectedR2Images) {
+        const altText = r2AltText || img.key?.split('.')[0] || '';
+        let imgAttrs = `src="${img.url}" alt="${altText}"`;
+        if (r2ImageWidth) imgAttrs += ` width="${r2ImageWidth}"`;
+        if (r2ImageHeight) imgAttrs += ` height="${r2ImageHeight}"`;
+        if (r2ImageClass) imgAttrs += ` class="${r2ImageClass}"`;
+        allImgHtml += `<img ${imgAttrs} />\n`;
+      }
 
-      // For editor, we insert into content
       if (editorMode === 'visual') {
         const quill = quillRef.current?.getEditor();
         if (quill) {
           const range = quill.getSelection(true) || { index: quill.getLength() };
-          quill.clipboard.dangerouslyPasteHTML(range.index, imgHtml);
+          quill.clipboard.dangerouslyPasteHTML(range.index, allImgHtml);
         }
       } else {
-        // Text mode
         const textarea = contentTextareaRef.current;
         if (textarea) {
           const start = textarea.selectionStart;
           const end = textarea.selectionEnd;
           const text = textarea.value;
-          const newText = text.substring(0, start) + imgHtml + text.substring(end);
+          const newText = text.substring(0, start) + allImgHtml + text.substring(end);
           if (activeTab === 'pages') {
             setCurrentWebPage({ ...currentWebPage, content: newText });
           } else {
@@ -371,7 +385,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       }
     }
     setIsR2ModalOpen(false);
-    setSelectedR2Image(null);
+    setSelectedR2Images([]);
     setR2AltText('');
     setR2ImageWidth('');
     setR2ImageHeight('');
@@ -2760,14 +2774,14 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                     <button
                       key={idx}
                       onClick={() => handleSelectR2Image(img.url || '', img.key || '')}
-                      className={`group flex flex-col text-left bg-black rounded-xl border overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-red-500/50 ${selectedR2Image?.url === img.url ? 'border-red-500 ring-2 ring-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-zinc-800 hover:border-zinc-700 hover:shadow-lg'}`}
+                      className={`group flex flex-col text-left bg-black rounded-xl border overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-red-500/50 ${selectedR2Images.some(s => s.url === img.url) ? 'border-red-500 ring-2 ring-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-zinc-800 hover:border-zinc-700 hover:shadow-lg'}`}
                     >
                       <div className="relative w-full aspect-video bg-zinc-900/50 overflow-hidden">
                         {img.url ? (
                           <img 
                             src={img.url} 
                             alt={img.key} 
-                            className={`w-full h-full object-cover transition-transform duration-500 ${selectedR2Image?.url === img.url ? 'scale-105 opacity-80' : 'group-hover:scale-110'}`} 
+                            className={`w-full h-full object-cover transition-transform duration-500 ${selectedR2Images.some(s => s.url === img.url) ? 'scale-105 opacity-80' : 'group-hover:scale-110'}`} 
                             referrerPolicy="no-referrer"
                             loading="lazy"
                             onError={(e) => {
@@ -2779,7 +2793,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                             (No URL)
                           </div>
                         )}
-                        {selectedR2Image?.url === img.url && (
+                        {selectedR2Images.some(s => s.url === img.url) && (
                           <div className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 shadow-lg z-10 animate-in zoom-in duration-200">
                              <Check size={14} />
                           </div>
@@ -2806,16 +2820,19 @@ ${article.content?.replace(/<[^>]*>/g, '')}
             </div>
             
             <div className="p-5 border-t border-zinc-800 bg-zinc-900/50 flex flex-col justify-center min-h-[80px]">
-              {selectedR2Image ? (
+              {selectedR2Images.length > 0 ? (
                 <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-4 animate-in slide-in-from-bottom-2 fade-in duration-300">
                   <div className="flex-1 w-full space-y-2">
-                    <label className="text-xs font-bold text-red-400 flex items-center gap-1"><Sparkles size={12}/> Alt Text (คำอธิบายรูปภาพสำหรับ SEO)</label>
+                    <label className="text-xs font-bold text-red-400 flex items-center gap-1">
+                      <Sparkles size={12}/> 
+                      {selectedR2Images.length > 1 ? `เลือกรูปภาพแล้วจำนวน ${selectedR2Images.length} รูป` : 'Alt Text (คำอธิบายรูปภาพสำหรับ SEO)'}
+                    </label>
                     <input 
                       type="text" 
                       value={r2AltText} 
                       onChange={e => setR2AltText(e.target.value)}
                       className="w-full bg-black border border-zinc-700/50 rounded-lg px-4 py-2.5 text-white focus:border-red-500 outline-none text-sm transition-all"
-                      placeholder="อธิบายรูปภาพสำหรับ SEO..."
+                      placeholder={selectedR2Images.length > 1 ? "ใช้ Alt text นี้กับทุกรูป (ถ้าปล่อยว่างจะใช้ชื่อไฟล์แต่ละรูป)" : "อธิบายรูปภาพสำหรับ SEO..."}
                     />
                     {r2TargetField === 'editor' && (
                       <div className="flex gap-2 mt-2">
@@ -2845,7 +2862,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                   </div>
                   <div className="flex shrink-0 gap-3 w-full sm:w-auto">
                     <button 
-                      onClick={() => { setSelectedR2Image(null); setR2AltText(''); setR2ImageWidth(''); setR2ImageHeight(''); setR2ImageClass(''); }}
+                      onClick={() => { setSelectedR2Images([]); setR2AltText(''); setR2ImageWidth(''); setR2ImageHeight(''); setR2ImageClass(''); }}
                       className="flex-1 sm:flex-none px-4 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors border border-transparent"
                     >
                       ยกเลิก

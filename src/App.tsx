@@ -1042,8 +1042,8 @@ const SeoContentBlock = () => {
             
             <div className="pt-8 border-t border-zinc-800/50">
               <h4 className="text-xl font-bold text-white mb-6">กฎการจั่วไพ่ใบที่ 3 (Third Card Rule)</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
+              <div className="flex gap-6 mb-8 overflow-x-auto pb-6 snap-x snap-mandatory scroll-smooth custom-scrollbar">
+                <div className="min-w-[85%] md:min-w-[calc(50%-12px)] shrink-0 snap-center bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
                   <div className="text-blue-400 font-bold mb-4 flex items-center gap-2 text-lg">
                     <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                     ฝั่งผู้เล่น (Player)
@@ -1054,7 +1054,7 @@ const SeoContentBlock = () => {
                     <li><span className="text-red-500 mr-2">•</span>แต้ม 8-9 : <strong className="text-white">ป๊อก (Natural)</strong> ชนะหรือเสมอทันที</li>
                   </ul>
                 </div>
-                <div className="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
+                <div className="min-w-[85%] md:min-w-[calc(50%-12px)] shrink-0 snap-center bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
                   <div className="text-red-400 font-bold mb-4 flex items-center gap-2 text-lg">
                     <div className="w-3 h-3 rounded-full bg-red-500"></div>
                     ฝั่งเจ้ามือ (Banker)
@@ -2666,25 +2666,26 @@ function Bocker168Landing() {
             >
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-950/30 border border-red-900/50 text-red-500 text-xs font-bold uppercase tracking-widest mb-6">
                 <Zap className="w-4 h-4 fill-current" />
-                บาคาร่า เว็บตรงอันดับ 1
-              </div>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6">
-                บาคาร่า เว็บตรงอันดับ 1 Bocker168 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-500 to-red-600">ฝากถอนไม่มีขั้นต่ำ</span>
-              </h1>
-              
-              <div className="mb-8 rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl shadow-red-900/20 max-w-xl relative group mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none" />
-                <img 
-                  src="https://img.hongkonglex.com/Baccarat-2.png" 
-                  alt="บาคาร่าออนไลน์ Bocker168" 
-                  className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
-                  referrerPolicy="no-referrer"
-                />
+                บาคาร่า เว็บตรงอันดับ 1 ฝากถอนไม่มีขั้นต่ำ
               </div>
 
-              <p className="text-lg text-zinc-400 mb-10 leading-relaxed max-w-xl mx-auto">
-                เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม
-              </p>
+               <div className="mb-8 rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl shadow-red-900/20 max-w-xl relative group mx-auto">
+                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none" />
+                 <img 
+                   src="https://img.hongkonglex.com/Baccarat-2.png" 
+                   alt="บาคาร่าออนไลน์ Bocker168" 
+                   className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
+                   referrerPolicy="no-referrer"
+                 />
+               </div>
+
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-8 max-w-4xl mx-auto">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-500 to-red-600">บาคาร่า ออนไลน์</span> เว็บตรง ไม่ผ่านเอเย่นต์ คาสิโนครบจบ Bocker168 มีรางวัลใหญ่ทุกวัน
+              </h1>
+
+               <p className="text-lg text-zinc-400 mb-10 leading-relaxed max-w-2xl mx-auto">
+                 สัมผัสประสบการณ์เดิมพันระดับโลกไปกับ Bocker168 บาคาร่าเว็บตรงของแท้ 100% เล่นง่าย ได้เงินจริง ไม่ล็อคยูส! หมดกังวลเรื่องโดนโกง เพราะเรามีฐานการเงินมั่นคงระดับประเทศ พร้อมระบบฝาก-ถอนออโต้ที่รวดเร็วที่สุดใน 5 วินาที ทุนน้อยก็บวกได้ เริ่มต้นความสนุกและรับกำไรไปกับเราได้เลยตอนนี้!
+               </p>
               
               <div className="flex flex-wrap justify-center gap-4 mb-12">
                 <a 
@@ -2722,6 +2723,16 @@ function Bocker168Landing() {
 
       {/* --- SEO Content Block (Home only) --- */}
       {isHome && <SeoContentBlock />}
+
+      {/* --- Baccarat Guide Section --- */}
+      {isHome && <BaccaratGuide />}
+
+      {/* --- Baccarat Page - Top Guide --- */}
+      {isBaccarat && (
+        <div className="pt-24 md:pt-32 bg-zinc-950">
+          <BaccaratGuide />
+        </div>
+      )}
 
       {/* --- Baccarat SEO Article Section --- */}
       {isBaccarat && (
@@ -2791,8 +2802,8 @@ function Bocker168Landing() {
                 {/* --- เพิ่มเติมกติกาการจั่วไพ่และอัตราจ่าย --- */}
                 <div className="mt-8 pt-8 border-t border-zinc-800">
                   <h4 className="text-lg font-bold text-white mb-4">กฎการจั่วไพ่ใบที่ 3 (Third Card Rule)</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-zinc-900/50 p-5 rounded-xl border border-zinc-800">
+                  <div className="flex gap-6 mb-8 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth custom-scrollbar">
+                    <div className="min-w-[85%] md:min-w-[calc(50%-12px)] shrink-0 snap-center bg-zinc-900/50 p-5 rounded-xl border border-zinc-800">
                       <div className="text-blue-400 font-bold mb-3 flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                         ฝั่งผู้เล่น (Player)
@@ -2803,7 +2814,7 @@ function Bocker168Landing() {
                         <li>• แต้ม 8-9 : <strong className="text-white">ป๊อก (Natural)</strong> ชนะหรือเสมอทันที ไม่มีการจั่วไพ่เพิ่มทั้งสองฝั่ง</li>
                       </ul>
                     </div>
-                    <div className="bg-zinc-900/50 p-5 rounded-xl border border-zinc-800">
+                    <div className="min-w-[85%] md:min-w-[calc(50%-12px)] shrink-0 snap-center bg-zinc-900/50 p-5 rounded-xl border border-zinc-800">
                       <div className="text-red-400 font-bold mb-3 flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-red-500"></div>
                         ฝั่งเจ้ามือ (Banker)
@@ -3139,9 +3150,6 @@ function Bocker168Landing() {
       />
       </>
       )}
-
-      {/* --- Baccarat Guide Section --- */}
-      {isHome && <BaccaratGuide />}
 
       {/* --- Baccarat Categories (At Bottom of Baccarat Page) --- */}
       {isBaccarat && renderCategoriesSection(false)}
