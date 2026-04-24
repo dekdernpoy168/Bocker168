@@ -1056,36 +1056,38 @@ ${dynamicPages.map(p => `  <url>
     const DOMAIN = 'https://hongkonglex.com';
     const today = new Date().toISOString().split('T')[0];
     
-    let categories: string[] = [];
+    let categoryData: {name: string, slug: string}[] = [];
     try {
       if (isD1Configured()) {
-        const result = await queryD1('SELECT DISTINCT category FROM articles WHERE category IS NOT NULL AND status = "published"');
-        categories = (result.results || []).map((r: any) => r.category);
+        const result = await queryD1('SELECT name, slug FROM categories');
+        if (result.results && result.results.length > 0) {
+          categoryData = result.results as any;
+        } else {
+          // Fallback if categories table is empty
+          const artResult = await queryD1('SELECT DISTINCT category FROM articles WHERE category IS NOT NULL AND status = "published"');
+          categoryData = (artResult.results || []).map((r: any) => ({ name: r.category, slug: r.category }));
+        }
+      } else {
+        const result = await getLocalArticles();
+        const cats = [...new Set(result.map(a => a.category).filter(Boolean))];
+        categoryData = cats.map(c => ({ name: c, slug: CATEGORY_MAP[c] || c }));
       }
     } catch (error) {
       console.error('Error fetching categories for category-sitemap:', error);
     }
+    
+    if (categoryData.length === 0) {
+      categoryData = Object.entries(CATEGORY_MAP).map(([name, slug]) => ({ name, slug }));
+    }
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${await Promise.all(categories.map(async cat => {
-  let slug = cat;
-  try {
-    if (isD1Configured()) {
-      const result = await queryD1('SELECT slug FROM categories WHERE name = ? LIMIT 1', [cat]);
-      if (result.results?.[0]) slug = result.results[0].slug;
-    } else {
-      slug = CATEGORY_MAP[cat] || cat;
-    }
-  } catch (e) {}
-  
-  return `  <url>
-    <loc>${DOMAIN}/category/${slug}</loc>
+${categoryData.map(cat => `  <url>
+    <loc>${DOMAIN}/category/${encodeURI(cat.slug || cat.name)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-  </url>`;
-}))}
+  </url>`).join('\n')}
 </urlset>`.replace(/>\n\s*</g, '><');
     res.header('Content-Type', 'application/xml');
     res.send(sitemap);
