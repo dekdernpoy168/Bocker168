@@ -57,7 +57,18 @@ import {
   Link as LinkIcon,
   List,
   Check,
-  Sparkles
+  Sparkles,
+  Copy,
+  User,
+  MapPin,
+  Trophy,
+  Gem,
+  ShieldCheck,
+  Star,
+  CheckCircle2,
+  AlertCircle,
+  RefreshCw,
+  MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -92,8 +103,6 @@ const MENU_ITEMS = [
   { label: 'โปรโมชั่น', path: '/promotions' },
   { label: 'บทความ', path: '/articles' },
   { label: 'ติดต่อเรา', path: '/contact' },
-  { label: 'วิธีสมัครสมาชิก', path: '/register-guide' },
-  { label: 'วิธีฝาก-ถอน', path: '/deposit-withdraw-guide' },
 ];
 
 const LIVE_STATS = [
@@ -363,6 +372,7 @@ interface FAQItemProps {
 
 const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => {
   const itemRef = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (isOpen && itemRef.current) {
@@ -380,6 +390,13 @@ const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => {
     }
   }, [isOpen]);
 
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(faq.question);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const faqId = faq.question
     .toLowerCase()
     .replace(/\s+/g, '-')
@@ -387,19 +404,30 @@ const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => {
     .replace(/(^-|-$)/g, '');
     
   return (
-  <div ref={itemRef} className="border-b border-zinc-800 last:border-0">
-    <button 
-      onClick={onClick}
-      aria-expanded={isOpen}
-      aria-controls={`faq-answer-${faqId}`}
-      id={`faq-question-${faqId}`}
-      className="w-full py-6 flex items-center justify-between text-left focus:outline-none group"
-    >
-      <h3 className={`text-lg font-medium transition-colors ${isOpen ? 'text-amber-500' : 'text-white group-hover:text-red-500'}`}>
-        {faq.question}
-      </h3>
-      {isOpen ? <ChevronUp className="text-amber-500" aria-hidden="true" /> : <ChevronDown className="text-zinc-500" aria-hidden="true" />}
-    </button>
+  <div ref={itemRef} className="border-b border-zinc-800 last:border-0 group">
+    <div className="flex items-start gap-2">
+      <button 
+        onClick={onClick}
+        aria-expanded={isOpen}
+        aria-controls={`faq-answer-${faqId}`}
+        id={`faq-question-${faqId}`}
+        className="w-full py-6 flex items-center justify-between text-left focus:outline-none group"
+      >
+        <h3 className={`text-lg font-medium transition-colors ${isOpen ? 'text-amber-500' : 'text-white group-hover:text-amber-500/80'}`}>
+          {faq.question}
+        </h3>
+        {isOpen ? <ChevronUp className="text-amber-500 shrink-0" aria-hidden="true" /> : <ChevronDown className="text-zinc-500 shrink-0" aria-hidden="true" />}
+      </button>
+
+      <button
+        onClick={handleCopy}
+        aria-label="คัดลอกคำถาม"
+        className="mt-6 p-1.5 rounded-lg bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors shrink-0 outline-none"
+      >
+        {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+      </button>
+    </div>
+
     <AnimatePresence>
       {isOpen && (
         <motion.div 
@@ -412,7 +440,7 @@ const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => {
           transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
           className="overflow-hidden"
         >
-          <p className="pb-6 text-zinc-400 leading-relaxed">
+          <p className="pb-6 pr-8 text-zinc-400 leading-relaxed text-sm md:text-base">
             {faq.answer}
           </p>
         </motion.div>
@@ -770,6 +798,270 @@ const ArticleCard = ({ article, index, dynamicCategoryMap }: { article: Article,
 };
 
 
+
+const ContactForm = () => {
+  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('submitting');
+    setTimeout(() => {
+      setStatus('success');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setTimeout(() => setStatus('idle'), 3000);
+    }, 1500);
+  };
+
+  return (
+    <section className="py-24 bg-zinc-950/50 relative overflow-hidden" id="contact-form-section">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-6">ติดต่อ Bocker168</h1>
+            <p className="text-zinc-400 text-lg">มีข้อสงสัยหรือต้องการความช่วยเหลือ? ทีมงานของเราพร้อมให้บริการคุณตลอด 24 ชั่วโมง</p>
+          </div>
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-amber-500" />
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-zinc-400 mb-2">ชื่อของคุณ</label>
+                  <input
+                    required
+                    type="text"
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-sans"
+                    placeholder="ใส่ชื่อของคุณ"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-zinc-400 mb-2">อีเมล (ถ้ามี)</label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-sans"
+                    placeholder="your@email.com"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium text-zinc-400 mb-2">หัวข้อที่ต้องการติดต่อ</label>
+                <select
+                  id="subject"
+                  value={formData.subject}
+                  onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-sans"
+                >
+                  <option value="">เลือกหัวข้อ...</option>
+                  <option value="deposit">แจ้งปัญหา ฝาก-ถอน</option>
+                  <option value="register">สอบถามวิธีสมัครสมาชิก</option>
+                  <option value="promotion">สอบถามโปรโมชั่น</option>
+                  <option value="other">อื่นๆ</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-zinc-400 mb-2">ข้อความ</label>
+                <textarea
+                  required
+                  id="message"
+                  rows={5}
+                  value={formData.message}
+                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-sans resize-none"
+                  placeholder="พิมพ์ข้อความของคุณที่นี่..."
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                disabled={status === 'submitting' || status === 'success'}
+                className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 disabled:from-zinc-800 disabled:to-zinc-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95"
+              >
+                {status === 'submitting' ? (
+                  <RefreshCw className="w-5 h-5 animate-spin" />
+                ) : status === 'success' ? (
+                  <>ส่งข้อความสำเร็จแล้ว <CheckCircle2 className="w-5 h-5" /></>
+                ) : (
+                  <>ส่งข้อความ <MessageSquare className="w-5 h-5" /></>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const BaccaratGuide = () => {
+  const steps = [
+    {
+      icon: <User className="w-8 h-8 text-red-500" />,
+      title: "1. สมัครสมาชิก",
+      desc: "กรอกข้อมูลพื้นฐานในระบบออโต้ ใช้เวลาเพียง 30 วินาที เพื่อรับยูสเซอร์เข้าเล่นทันที"
+    },
+    {
+      icon: <MapPin className="w-8 h-8 text-red-500" />,
+      title: "2. ฝากเงินเข้าบัญชีเล่น",
+      desc: "รองรับทุกธนาคารชั้นนำและ true wallet ฝากปุ๊บ เงินเข้าปั๊บ โดยไม่ต้องแจ้งสลิป"
+    },
+    {
+      icon: <Gem className="w-8 h-8 text-red-500" />,
+      title: "3. เลือกค่ายคาสิโนสด",
+      desc: "เลือกค่ายที่คุณชื่นชอบ เช่น SA Gaming, Sexy Baccarat ที่มีดีลเลอร์สาวสวยรอให้บริการ"
+    },
+    {
+      icon: <Trophy className="w-8 h-8 text-red-500" />,
+      title: "4. วางเดิมพันและรับเงิน",
+      desc: "ลงเดิมพันฝั่ง Player, Banker หรือ Tie เมื่อชนะสามารถแจ้งถอนเงินได้ทันที ทุกเวลา"
+    }
+  ];
+
+  return (
+    <section className="py-24 relative overflow-hidden bg-zinc-950">
+      <div className="container mx-auto px-4">
+        <SectionTitle 
+          title="วิธีการเล่นบาคาร่ากับ Bocker168"
+          subtitle="เริ่มต้นทำกำไรกับเว็บบาคาร่าอันดับ 1 ใน 4 ขั้นตอนง่ายๆ"
+          centered={true}
+          as="h2"
+        />
+
+        <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
+          {steps.map((step, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-zinc-900 border border-zinc-800 p-8 rounded-[2rem] hover:border-red-600/50 transition-all relative group overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 rounded-full blur-3xl group-hover:bg-red-600/10 transition-colors" />
+              <div className="w-16 h-16 bg-black/50 border border-zinc-800 rounded-2xl flex items-center justify-center mb-6 shadow-xl relative z-10">
+                {step.icon}
+              </div>
+              <h3 className="text-xl font-bold text-white mb-4 relative z-10">{step.title}</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed relative z-10">{step.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const ResponsibleGambling = () => {
+  return (
+    <div className="py-24 bg-zinc-950 relative overflow-hidden">
+      <div className="container mx-auto px-4 max-w-4xl relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-16"
+        >
+          <div className="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ShieldCheck className="w-10 h-10 text-amber-500" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-white mb-6">ความรับผิดชอบต่อสังคม (Responsible Gambling)</h1>
+          <p className="text-zinc-400 text-lg leading-relaxed max-w-2xl mx-auto">
+            Bocker168 ให้ความสำคัญอย่างยิ่งกับการเล่นพนันอย่างมีความรับผิดชอบ เรามุ่งมั่นสร้างสภาพแวดล้อมที่ปลอดภัย และสนับสนุนให้ทุกคนเล่นเพื่อความบันเทิงเท่านั้น
+          </p>
+        </motion.div>
+
+        <div className="space-y-12">
+          {/* Commitment Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-zinc-900 border border-zinc-800 rounded-[2rem] p-8 md:p-12 relative overflow-hidden group"
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-colors" />
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <Star className="w-6 h-6 text-amber-500" /> 
+              ความมุ่งมั่นของเรา
+            </h2>
+            <div className="space-y-4 text-zinc-400 leading-relaxed">
+              <p>เราตระหนักดีว่า แม้การพนันออนไลน์จะเป็นกิจกรรมที่สนุกสนานสำหรับผู้คนส่วนใหญ่ แต่สำหรับบางคน อาจนำไปสู่ปัญหาและผลกระทบเชิงลบได้ เราจึงมีมาตรการต่างๆ เพื่อป้องกันปัญหาเหล่านี้แต่เนิ่นๆ</p>
+              <ul className="list-disc pl-6 space-y-2 mt-4 text-zinc-300">
+                <li>ไม่อนุญาตให้ผู้ที่มีอายุต่ำกว่า 18 ปี เข้าใช้บริการอย่างเด็ดขาด</li>
+                <li>มีระบบช่วยจำกัดวงเงินฝาก-ถอน และจำกัดเวลาเข้าใช้งาน หากสมาชิกร้องขอ</li>
+                <li>ให้ข้อมูลและเครื่องมือในการประเมินตนเองอย่างสม่ำเสมอ</li>
+              </ul>
+            </div>
+          </motion.section>
+
+          {/* Tips Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-zinc-900 border border-zinc-800 rounded-[2rem] p-8 md:p-12 relative overflow-hidden group"
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-3xl group-hover:bg-red-500/10 transition-colors" />
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <CheckCircle2 className="w-6 h-6 text-red-500" /> 
+              คำแนะนำสำหรับการเล่นอย่างปลอดภัย
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6 mt-8">
+              {[
+                "มองการพนันเป็นเพียง 'ความบันเทิง' รูปแบบหนึ่ง ไม่ใช่วิธีหาเงิน",
+                "อย่าเล่นเพื่อถอนทุนคืน",
+                "กำหนดงบประมาณที่ยอมเสียได้ก่อนเล่นเสมอ",
+                "จำกัดเวลาในการเล่น และอย่าให้กระทบเวลาพักผ่อน",
+                "อย่าเล่นพนันเมื่อคุณรู้สึกเศร้า เครียด หรืออยู่ภายใต้ฤทธิ์แอลกอฮอล์",
+                "รักษาสมดุลของชีวิตด้วยกิจกรรมอื่นๆ ควบคู่ไปด้วย"
+              ].map((tip, idx) => (
+                <div key={idx} className="flex gap-3 items-start bg-zinc-950 p-4 rounded-xl border border-zinc-800/50">
+                  <Check className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-zinc-300 text-sm">{tip}</p>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* Resources Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-zinc-900 border border-zinc-800 rounded-[2rem] p-8 md:p-12"
+          >
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <AlertCircle className="w-6 h-6 text-amber-500" /> 
+              ต้องการความช่วยเหลือ?
+            </h2>
+            <p className="text-zinc-400 leading-relaxed mb-6">
+              หากคุณรู้สึกว่าการพนันเริ่มส่งผลกระทบต่อชีวิตคุณหรือคนรอบข้าง โปรดอย่าลังเลที่จะขอความช่วยเหลือ มีหน่วยงานและเครื่องมือมากมายที่พร้อมช่วยเหลือ:
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-800 flex flex-col gap-2">
+                <h3 className="text-white font-bold">1. ประเมินตนเองเบื้องต้น</h3>
+                <p className="text-sm text-zinc-500">ตอบแบบสอบถามพฤติกรรมการเล่นเพื่อตรวจสอบความเสี่ยง</p>
+                <button className="text-left mt-2 text-red-500 hover:text-red-400 font-medium text-sm transition-colors uppercase tracking-widest flex items-center gap-1">เริ่มประเมิน <ChevronRight className="w-4 h-4" /></button>
+              </div>
+              <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-800 flex flex-col gap-2">
+                <h3 className="text-white font-bold">2. ติดต่อทีมงาน Bocker168</h3>
+                <p className="text-sm text-zinc-500">ขอยูสเซอร์พักชั่วคราว หรือจำกัดการฝากเงิน (Self-Exclusion)</p>
+                <Link to="/contact" className="text-left mt-2 text-amber-500 hover:text-amber-400 font-medium text-sm transition-colors uppercase tracking-widest flex items-center gap-1">ติดต่อเจ้าหน้าที่ <ChevronRight className="w-4 h-4" /></Link>
+              </div>
+            </div>
+          </motion.section>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function App() {
   return (
@@ -2030,28 +2322,7 @@ function Bocker168Landing() {
       )}
 
       {/* --- Responsible Gambling Section --- */}
-      {isResponsibleGambling && (
-        <section className="py-24 bg-zinc-950 min-h-[60vh]">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <SectionTitle title="ความรับผิดชอบต่อสังคม" centered={false} as="h1" />
-              <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
-                <p>Bocker168 สนับสนุนการเล่นพนันอย่างมีความรับผิดชอบ เพื่อให้การเดิมพันเป็นเพียงกิจกรรมสันทนาการที่สนุกสนาน:</p>
-                <h3 className="text-red-500 text-xl font-bold mt-8 mb-4">คำแนะนำในการเล่นอย่างมีความรับผิดชอบ</h3>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li>เล่นเพื่อความสนุกสนาน ไม่ใช่เพื่อหารายได้หลัก</li>
-                  <li>กำหนดงบประมาณที่สามารถเสียได้และไม่เดือดร้อนต่อตนเองและครอบครัว</li>
-                  <li>ไม่ควรใช้เวลาในการเล่นมากเกินไปจนกระทบต่อหน้าที่การงานหรือการเรียน</li>
-                  <li>หากรู้สึกว่าการเล่นเริ่มส่งผลเสียต่อชีวิตประจำวัน ควรหยุดพักและขอคำปรึกษา</li>
-                </ul>
-                <p className="mt-8 p-6 bg-red-600/10 border border-red-600/20 rounded-2xl text-red-500 font-bold">
-                  "การพนันควรเป็นเรื่องของความบันเทิง กรุณาเล่นอย่างมีสติ"
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+      {isResponsibleGambling && <ResponsibleGambling />}
 
       {/* --- Hero Section --- */}
       {isHome && (
@@ -2547,6 +2818,29 @@ function Bocker168Landing() {
               <h3 className="text-xl font-bold text-white mb-2">ยังไม่มีบทความในขณะนี้</h3>
               <p className="text-zinc-400">บทความใหม่ๆ จะถูกอัปเดตและแสดงผลที่นี่เร็วๆ นี้</p>
             </div>
+          ) : isHome ? (
+            <div className="mt-16 relative">
+              <Swiper
+                modules={[Autoplay, Pagination, Navigation]}
+                spaceBetween={30}
+                slidesPerView={1}
+                breakpoints={{
+                  640: { slidesPerView: 2 },
+                  1024: { slidesPerView: 3 },
+                  1280: { slidesPerView: 4 }
+                }}
+                autoplay={{ delay: 3000, disableOnInteraction: false }}
+                pagination={{ clickable: true }}
+                navigation
+                className="py-10"
+              >
+                {articles.filter(a => a.status !== 'draft').slice(0, 12).map((article, index) => (
+                  <SwiperSlide key={article.id || index} className="h-auto">
+                    <ArticleCard article={article} index={index} dynamicCategoryMap={dynamicCategoryMap} />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
           ) : (
            <div className="space-y-16 mt-16">
              {Array.from(new Set(articles.filter(a => a.status !== 'draft').map(a => a.category))).map(category => (
@@ -2575,6 +2869,9 @@ function Bocker168Landing() {
       </section>
       )}
 
+      {/* --- Baccarat Guide Section --- */}
+      {(isHome || isBaccarat) && <BaccaratGuide />}
+
       {/* --- FAQ Section --- */}
       {(isHome || isFaq) && (
       <section id="faq" className="py-24 bg-zinc-950">
@@ -2599,6 +2896,8 @@ function Bocker168Landing() {
         </div>
       </section>
       )}
+
+      {isContact && <ContactForm />}
 
       {/* --- Final CTA Section --- */}
       {(isHome || isContact) && (

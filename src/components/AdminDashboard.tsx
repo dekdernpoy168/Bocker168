@@ -74,7 +74,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [r2Images, setR2Images] = useState<any[]>([]);
   const [isLoadingR2, setIsLoadingR2] = useState(false);
   const [isUploadingR2, setIsUploadingR2] = useState(false);
-  const [r2TargetField, setR2TargetField] = useState<'cover' | 'editor'>('cover');
+  const [r2TargetField, setR2TargetField] = useState<'cover' | 'editor' | 'author'>('cover');
   const [selectedR2Image, setSelectedR2Image] = useState<any>(null);
   const [r2AltText, setR2AltText] = useState('');
   const [r2ImageWidth, setR2ImageWidth] = useState('');
@@ -338,6 +338,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       } else {
         setCurrentArticle({ ...currentArticle, image: imageUrl });
       }
+    } else if (r2TargetField === 'author') {
+      setCurrentAuthor({ ...currentAuthor, image: imageUrl });
     } else {
       let imgAttrs = `src="${imageUrl}" alt="${altText}"`;
       if (r2ImageWidth) imgAttrs += ` width="${r2ImageWidth}"`;
@@ -1389,13 +1391,26 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                 <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
                   <ImageIcon size={16} /> URL รูปภาพหน้าปก (Featured Image)
                 </label>
-                <input 
-                  type="text" 
-                  value={currentWebPage.image || ''}
-                  onChange={e => setCurrentWebPage({...currentWebPage, image: e.target.value})}
-                  className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
-                  placeholder="https://example.com/image.jpg"
-                />
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    value={currentWebPage.image || ''}
+                    onChange={e => setCurrentWebPage({...currentWebPage, image: e.target.value})}
+                    className="flex-1 bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all min-w-0"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setR2TargetField('cover');
+                      setIsR2ModalOpen(true);
+                      fetchR2Images();
+                    }}
+                    className="flex-shrink-0 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-lg px-3 flex items-center gap-2 font-medium text-xs transition-colors"
+                  >
+                    <Image size={14} /> <span className="hidden sm:inline">เลือกรูป/อัปโหลด</span>
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -1424,7 +1439,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                     }}
                     className="flex items-center gap-1 px-3 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-medium transition-colors border border-zinc-800"
                   >
-                    <Download size={14} /> Pull R2
+                    <Image size={14} /> เลือกรูป/อัปโหลด
                   </button>
                 </div>
                 <div className="border border-zinc-800 rounded-xl overflow-hidden bg-black">
@@ -1444,26 +1459,13 @@ ${article.content?.replace(/<[^>]*>/g, '')}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-zinc-900/20 border border-zinc-800 rounded-2xl mt-8">
                 <div className="space-y-2">
                   <label className="text-red-500 text-sm font-medium">Meta Title</label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      value={currentWebPage.metaTitle || ''}
-                      onChange={e => setCurrentWebPage({...currentWebPage, metaTitle: e.target.value})}
-                      className="flex-1 bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 outline-none text-sm transition-all min-w-0"
-                      placeholder="Meta Title สำหรับ SEO"
-                    />
-                    <button 
-                      type="button" 
-                      onClick={() => {
-                        setR2TargetField('cover');
-                        setIsR2ModalOpen(true);
-                        fetchR2Images();
-                      }}
-                      className="flex-shrink-0 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-lg px-3 flex items-center gap-2 font-medium text-xs transition-colors"
-                    >
-                      <Download size={14} /> <span className="hidden sm:inline">Pull R2</span>
-                    </button>
-                  </div>
+                  <input 
+                    type="text" 
+                    value={currentWebPage.metaTitle || ''}
+                    onChange={e => setCurrentWebPage({...currentWebPage, metaTitle: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 outline-none text-sm transition-all"
+                    placeholder="Meta Title สำหรับ SEO"
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-red-500 text-sm font-medium">Meta Description</label>
@@ -1708,7 +1710,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                     }}
                     className="flex-shrink-0 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-lg px-3 flex items-center gap-2 font-medium text-xs transition-colors"
                   >
-                    <Download size={14} /> <span className="hidden sm:inline">Pull R2</span>
+                    <Image size={14} /> <span className="hidden sm:inline">เลือกรูป/อัปโหลด</span>
                   </button>
                 </div>
               </div>
@@ -1844,7 +1846,7 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                       }}
                       className="flex items-center gap-1 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-medium transition-colors border border-zinc-800"
                     >
-                      <Download size={14} /> Pull R2
+                      <Image size={14} /> อัปโหลดรูปลงเนื้อหา
                     </button>
                     <button
                       type="button"
@@ -2268,13 +2270,26 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                 
                 <div className="space-y-2">
                   <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider">URL รูปโปรไฟล์</label>
-                  <input 
-                    type="text" 
-                    value={currentAuthor.image || ''}
-                    onChange={e => setCurrentAuthor({...currentAuthor, image: e.target.value})}
-                    className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-all text-sm"
-                    placeholder="https://..."
-                  />
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={currentAuthor.image || ''}
+                      onChange={e => setCurrentAuthor({...currentAuthor, image: e.target.value})}
+                      className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none min-w-0 transition-all text-sm"
+                      placeholder="https://..."
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setR2TargetField('author');
+                        setIsR2ModalOpen(true);
+                        fetchR2Images();
+                      }}
+                      className="flex-shrink-0 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-lg px-3 flex items-center gap-2 font-medium text-xs transition-colors"
+                    >
+                      <Image size={14} /> <span className="hidden sm:inline">อัปโหลดรูป</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
