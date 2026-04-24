@@ -42,7 +42,7 @@ export default function AIPromptModal({ isOpen, onClose, onExecute, initialTopic
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({ keywords })
       });
-      const data = await resp.json();
+      const data = await resp.json() as any;
       if (data.configured && data.data) {
         const newData: Record<string, any> = {};
         data.data.forEach((item: any) => {

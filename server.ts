@@ -610,8 +610,8 @@ async function startServer() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        res.json({ configured: true, data: data.data });
+        const data = await response.json() as any;
+        res.json({ configured: true, data: data?.data });
       } else {
         const err = await response.text();
         res.status(response.status).json({ error: err });
@@ -997,7 +997,7 @@ async function startServer() {
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${articles.map(article => `  <url>
-    <loc>${DOMAIN}/${article.slug}</loc>
+    <loc>${DOMAIN}/${article.slug || article.title.replace(/\s+/g, '-').toLowerCase()}</loc>
     <lastmod>${article.date || today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1069,7 +1069,7 @@ ${dynamicPages.map(p => `  <url>
         }
       } else {
         const result = await getLocalArticles();
-        const cats = [...new Set(result.map(a => a.category).filter(Boolean))];
+        const cats = [...new Set(result.map(a => a.category).filter(Boolean))] as string[];
         categoryData = cats.map(c => ({ name: c, slug: CATEGORY_MAP[c] || c }));
       }
     } catch (error) {

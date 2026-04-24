@@ -255,7 +255,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     try {
       const response = await fetch('/api/r2/images');
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json() as any[];
         const sortedData = data.sort((a: any, b: any) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
         setR2Images(sortedData);
       } else {

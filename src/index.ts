@@ -44,6 +44,7 @@ export interface Env {
   ASSETS: { fetch: (request: Request) => Promise<Response> };
   R2_IMAGES: R2Bucket;
   R2_PUBLIC_URL: string;
+  KEYWORDS_EVERYWHERE_API_KEY?: string;
 }
 
 export default {
@@ -521,7 +522,7 @@ export default {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   ${allArticles.map(article => `
   <url>
-    <loc>${url.origin}/${article.slug}</loc>
+    <loc>${url.origin}/${article.slug || article.title.replace(/\s+/g, '-').toLowerCase()}</loc>
     <lastmod>${article.updatedAt ? article.updatedAt.split(' ')[0] : (article.date ? new Date(article.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0])}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -583,17 +584,29 @@ export default {
         } catch (e) {}
 
         if (!xml) {
+          const CATEGORY_MAP: Record<string, string> = {
+            'บาคาร่า': 'baccarat',
+            'วิธีเล่นเบื้องต้น': 'beginner-guide',
+            'สูตรบาคาร่า': 'baccarat-strategy',
+            'ทริคระดับเซียน': 'expert-tips',
+            'ข่าวสารคาสิโน': 'casino-news',
+            'เทคนิคการเดินเงิน': 'money-management',
+            'เคล็ดลับการเล่น': 'playing-tips'
+          };
           const allArticles = await db.select().from(articles).where(eq(articles.status, 'published')).all();
           const categories = Array.from(new Set(allArticles.map(a => a.category).filter(Boolean)));
           xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  ${categories.map(cat => `
+  ${categories.map(cat => {
+    const slug = CATEGORY_MAP[cat as string] || cat as string;
+    return `
   <url>
-    <loc>${url.origin}/category/${encodeURIComponent(cat as string)}</loc>
+    <loc>${url.origin}/category/${encodeURIComponent(slug)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-  </url>`).join('')}
+  </url>`;
+  }).join('')}
 </urlset>`.trim();
         }
         return new Response(xml, { headers: { 'Content-Type': 'application/xml', 'Cache-Control': 'public, max-age=3600' } });

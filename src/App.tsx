@@ -1027,13 +1027,27 @@ function Bocker168Landing() {
     if (isPrivacy) return 'นโยบายความเป็นส่วนตัว - Bocker168';
     if (isCookies) return 'นโยบายคุกกี้ - Bocker168';
     if (isResponsibleGambling) return 'ความรับผิดชอบต่อสังคม - Bocker168';
+    if (isCategoryPage && currentCategory) {
+      if (urlCategorySlug === 'baccarat') return 'หมวดหมู่บาคาร่า | รวมบทความบาคาร่าออนไลน์ Bocker168';
+      if (urlCategorySlug === 'baccarat-strategy') return 'หมวดหมู่สูตรบาคาร่า | รวมเทคนิคและกลยุทธ์บาคาร่า';
+      if (urlCategorySlug === 'beginner-guide') return 'วิธีเล่นบาคาร่าเบื้องต้น | คู่มือสำหรับมือใหม่';
+      return `หมวดหมู่${currentCategory} | รวมบทความเกี่ยวกับ${currentCategory} - Bocker168`;
+    }
     if (isPostDetail && currentPost) {
-      return currentPost.metaTitle || `${currentPost.title} - Bocker168`;
+      if (currentPost.metaTitle) {
+        // Anti-duplicate logic: if more than 2 posts share this EXACT metaTitle, it's likely a generic fallback that was saved
+        const countWithSameMeta = articles.filter(a => a.metaTitle === currentPost.metaTitle).length;
+        if (countWithSameMeta > 2) {
+          return `${currentPost.title} | Bocker168`;
+        }
+        return currentPost.metaTitle;
+      }
+      return `${currentPost.title} | Bocker168`;
     }
     if (isPageDetail && currentPage) {
-      return currentPage.metaTitle || `${currentPage.title} - Bocker168`;
+      return currentPage.metaTitle || `${currentPage.title} | Bocker168`;
     }
-    return 'Bocker168 - บาคาร่าออนไลน์';
+    return 'Bocker168 - เว็บบาคาร่าออนไลน์ อันดับ 1';
   };
 
   const getPageDescription = () => {
@@ -1043,6 +1057,16 @@ function Bocker168Landing() {
     if (isArticles) return 'อ่านบทความและเทคนิคการเล่นบาคาร่าให้ได้เงินทุกวัน อัปเดตสูตรบาคาร่า เคล็ดลับคาสิโนออนไลน์จากผู้เชี่ยวชาญ Bocker168 เว็บตรงอันดับ 1';
     if (isFaq) return 'คำถามที่พบบ่อยเกี่ยวกับการเล่นบาคาร่าออนไลน์และคาสิโนเว็บตรง Bocker168 ข้อสงสัยเรื่องการฝากถอน สมัครสมาชิก หรือปัญหาการเดิมพัน';
     if (isContact) return 'ติดต่อ Bocker168 เว็บบาคาร่าออนไลน์ ทีมงานแอดมินมืออาชีพพร้อมให้บริการและดูแลคุณตลอด 24 ชั่วโมง ผ่านช่องทาง Line และอื่นๆ';
+    if (isCategoryPage && currentCategory) {
+      if (urlCategorySlug === 'baccarat') return 'รวมบทความบาคาร่า เทคนิคการเล่น วิธีเริ่มต้น และคำแนะนำสำหรับผู้เล่นที่ต้องการศึกษาเกมบาคาร่าออนไลน์กับ Bocker168';
+      if (urlCategorySlug === 'baccarat-strategy') return 'รวมบทความสูตรบาคาร่า วิธีอ่านเค้าไพ่ เทคนิคการวางเดิมพัน และแนวทางเล่นอย่างมีระบบ';
+      if (urlCategorySlug === 'beginner-guide') return 'รวมบทความแนะนำวิธีเล่นบาคาร่าเบื้องต้น กติกา คำศัพท์ และแนวทางเริ่มต้นสำหรับผู้เล่นใหม่';
+      // Added other requested slugs here
+      if (urlCategorySlug === 'casino-news') return 'อัปเดตข่าวสารวงการคาสิโน เกมใหม่ โปรโมชั่นเด็ด และกิจกรรมพิเศษที่ Bocker168 ก่อนใคร';
+      if (urlCategorySlug === 'money-management') return 'เทคนิคการเดินเงิน บริหารเงินทุนในการเล่นคาสิโนออนไลน์ให้ได้กำไรอย่างยั่งยืน เพิ่มโอกาสชนะ ลดความเสี่ยง';
+      if (urlCategorySlug === 'expert-tips') return 'รวมเคล็ดลับคาสิโนระดับเซียน เทคนิคการเล่นขั้นสูง และกลยุทธ์ลับที่นักพนันมืออาชีพใช้ทำกำไร';
+      return `รวบรวมเทคนิค วิธีการ และข่าวสารน่าสนใจในหมวดหมู่${currentCategory} ส่งตรงจากผู้เชี่ยวชาญ Bocker168`;
+    }
     if (isPostDetail && currentPost) {
       if (currentPost.metaDescription) {
         return currentPost.metaDescription;
@@ -1064,6 +1088,32 @@ function Bocker168Landing() {
   const getPageKeywords = () => {
     if (isPostDetail && currentPost && currentPost.metaKeywords) return currentPost.metaKeywords;
     return 'บาคาร่า, บาคาร่าออนไลน์, บาคาร่าเว็บตรง, สมัครบาคาร่า, คาสิโนสด, bocker168';
+  };
+
+  const getCanonicalUrl = () => {
+    let path = location.pathname.replace(/\/$/, '');
+    if (path === '') path = '/';
+    
+    // Deduplicate / alias paths
+    if (path === '/baccarat-what-is-it') {
+      return 'https://hongkonglex.com/what-is-baccarat';
+    }
+
+    if (isPostDetail && currentPost) {
+       const properSlug = currentPost.slug || currentPost.title.replace(/\s+/g, '-').toLowerCase();
+       return `https://hongkonglex.com/${properSlug}`;
+    }
+    
+    if (isCategoryPage && urlCategorySlug) {
+       return `https://hongkonglex.com/category/${urlCategorySlug}`;
+    }
+    
+    if (isPageDetail && currentPage) {
+       const properSlug = currentPage.slug || currentPage.title.replace(/\s+/g, '-').toLowerCase();
+       return `https://hongkonglex.com/${properSlug}`;
+    }
+
+    return `https://hongkonglex.com${path}`;
   };
 
   const processHeadingLogic = (content: string, returnType: 'toc' | 'html') => {
@@ -1205,7 +1255,7 @@ function Bocker168Landing() {
         <meta name="twitter:description" content={getPageDescription()} />
         <meta name="twitter:image" content={isPostDetail && currentPost?.image ? currentPost.image : "https://img2.pic.in.th/A2-Logo-Bocker-168.png"} />
         
-        <link rel="canonical" href={`https://hongkonglex.com${location.pathname}`} />
+        <link rel="canonical" href={getCanonicalUrl()} />
         
         <script type="application/ld+json">
           {JSON.stringify([
@@ -1752,11 +1802,11 @@ function Bocker168Landing() {
         <section className="py-24 relative bg-[#050505] min-h-screen">
           <div className="container mx-auto px-4">
             <h1 className="text-3xl md:text-5xl font-black text-white mb-12 text-center">
-              หมวดหมู่: <span className="text-red-500">{currentCategory}</span>
+              <span className="text-red-500">หมวดหมู่{currentCategory}</span>
             </h1>
             <div className="max-w-6xl mx-auto">
               <ArticlesPagination 
-                items={articles.filter(a => a.category === currentCategory && a.status !== 'draft')} 
+                items={articles.filter(a => (dynamicCategoryMap[a.category] || a.category) === urlCategorySlug && a.status !== 'draft')} 
                 dynamicCategoryMap={dynamicCategoryMap} 
               />
             </div>
