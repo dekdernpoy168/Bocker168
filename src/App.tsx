@@ -942,25 +942,37 @@ const BaccaratGuide = () => {
           as="h2"
         />
 
-        <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
+        <Swiper
+          modules={[Autoplay, Pagination]}
+          spaceBetween={24}
+          breakpoints={{
+            320: { slidesPerView: 1 },
+            640: { slidesPerView: 2 },
+            1024: { slidesPerView: 4 },
+          }}
+          autoplay={{ delay: 3000, disableOnInteraction: false }}
+          pagination={{ clickable: true, dynamicBullets: true }}
+          className="mt-16 pb-16 relative z-10"
+        >
           {steps.map((step, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-zinc-900 border border-zinc-800 p-8 rounded-[2rem] hover:border-red-600/50 transition-all relative group overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 rounded-full blur-3xl group-hover:bg-red-600/10 transition-colors" />
-              <div className="w-16 h-16 bg-black/50 border border-zinc-800 rounded-2xl flex items-center justify-center mb-6 shadow-xl relative z-10">
-                {step.icon}
-              </div>
-              <h3 className="text-xl font-bold text-white mb-4 relative z-10">{step.title}</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed relative z-10">{step.desc}</p>
-            </motion.div>
+            <SwiperSlide key={index} className="h-auto">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-zinc-900 border border-zinc-800 p-8 rounded-[2rem] hover:border-red-600/50 transition-all relative group overflow-hidden h-full flex flex-col"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 rounded-full blur-3xl group-hover:bg-red-600/10 transition-colors" />
+                <div className="w-16 h-16 bg-black/50 border border-zinc-800 rounded-2xl flex items-center justify-center mb-6 shadow-xl relative z-10 shrink-0">
+                  {step.icon}
+                </div>
+                <h3 className="text-xl font-bold text-white mb-4 relative z-10">{step.title}</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed relative z-10 flex-1">{step.desc}</p>
+              </motion.div>
+            </SwiperSlide>
           ))}
-        </div>
+        </Swiper>
       </div>
     </section>
   );
