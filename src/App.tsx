@@ -307,24 +307,38 @@ const FAQS = [
   }
 ];
 
+const CDN_URL = import.meta.env.VITE_CDN_URL?.replace(/\/$/, '') || '';
+
+export const getImageUrl = (path: string) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  if (path.startsWith('/images/') && CDN_URL) {
+    return `${CDN_URL}${path}`;
+  }
+  return path;
+};
+
 // --- Components ---
 
 interface SectionTitleProps {
   title: string;
   subtitle?: string | null;
   centered?: boolean;
+  as?: 'h1' | 'h2';
 }
 
-const SectionTitle = ({ title, subtitle = null, centered = true }: SectionTitleProps) => (
+const SectionTitle = ({ title, subtitle = null, centered = true, as = 'h2' }: SectionTitleProps) => {
+  const Tag = as === 'h1' ? motion.h1 : motion.h2;
+  return (
   <div className={`mb-12 ${centered ? 'text-center' : 'text-left'}`}>
-    <motion.h2 
+    <Tag 
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="text-3xl md:text-4xl font-bold text-white mb-4"
+      className={`${as === 'h1' ? 'text-4xl md:text-5xl lg:text-6xl font-black' : 'text-3xl md:text-4xl font-bold'} text-white mb-4`}
     >
       {title}
-    </motion.h2>
+    </Tag>
     {subtitle && (
       <motion.p 
         initial={{ opacity: 0, y: 20 }}
@@ -338,7 +352,7 @@ const SectionTitle = ({ title, subtitle = null, centered = true }: SectionTitleP
     )}
     <div className={`h-1 w-20 bg-gradient-to-r from-red-600 to-amber-500 mt-6 ${centered ? 'mx-auto' : ''}`} />
   </div>
-);
+)};
 
 interface FAQItemProps {
   faq: { question: string; answer: string };
@@ -617,6 +631,70 @@ const PromotionModal = ({
 
 import AdminDashboard from './components/AdminDashboard';
 
+const ArticlesPagination = ({ items, dynamicCategoryMap, itemsPerPage = 9 }: { items: Article[], dynamicCategoryMap: Record<string, string>, itemsPerPage?: number }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(items.length / itemsPerPage);
+  
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = items.slice(startIndex, startIndex + itemsPerPage);
+  
+  return (
+    <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        {currentItems.map((article, index) => (
+          <ArticleCard key={article.id || index} article={article} index={index} dynamicCategoryMap={dynamicCategoryMap} />
+        ))}
+      </div>
+      
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2">
+          <button 
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-zinc-900 border border-zinc-800 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-800 transition-colors"
+          >
+            ←
+          </button>
+          
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-colors ${
+                currentPage === i + 1 
+                  ? 'bg-red-600 text-white border border-red-500' 
+                  : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white'
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          
+          <button 
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-zinc-900 border border-zinc-800 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-800 transition-colors"
+          >
+            →
+          </button>
+        </div>
+      )}
+      
+      {items.length === 0 && (
+        <div className="text-center py-20 bg-zinc-900/40 border border-zinc-800/50 rounded-3xl">
+          <h2 className="text-2xl font-bold text-white mb-4">ยังไม่มีบทความ</h2>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const getArticleExcerpt = (text: string) => {
+  if (!text) return '';
+  const stripped = text.replace(/<[^>]+>/g, '').trim(); 
+  return stripped.length > 200 ? stripped.substring(0, 200) + '...' : stripped;
+};
+
 const ArticleCard = ({ article, index, dynamicCategoryMap }: { article: Article, index: number, dynamicCategoryMap: Record<string, string>, key?: any }) => {
   const postSlug = article.slug || article.title.replace(/\s+/g, '-').toLowerCase();
   const categorySlug = dynamicCategoryMap[article.category] || article.category;
@@ -676,8 +754,8 @@ const ArticleCard = ({ article, index, dynamicCategoryMap }: { article: Article,
             {article.title}
           </h3>
           
-          <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
-            {article.excerpt || (article as any).description}
+          <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3 text-justify flex-grow">
+            {article.excerpt || getArticleExcerpt((article as any).description || article.content)}
           </p>
           
           <div className="flex items-center gap-2 text-red-500 font-bold text-sm group/btn mt-auto w-fit">
@@ -959,13 +1037,28 @@ function Bocker168Landing() {
   };
 
   const getPageDescription = () => {
+    if (isHome) return 'Bocker168 เว็บบาคาร่าออนไลน์ อันดับ 1 เว็บตรงไม่ผ่านเอเย่นต์ มั่นคง ปลอดภัย 100% เล่นบาคาร่าคาสิโนสด ฝากถอนไม่มีขั้นต่ำ รองรับทุกระบบมือถือ';
+    if (isBaccarat) return 'เล่นบาคาร่าออนไลน์ที่ Bocker168 คาสิโนสดส่งตรงจากค่ายดัง สัมผัสประสบการณ์บาคาร่าเว็บตรงของแท้ ได้เงินจริง พร้อมระบบฝากถอนออโต้รวดเร็ว';
+    if (isPromotions) return 'รวมโปรโมชั่นบาคาร่าสุดคุ้มจาก Bocker168 เว็บตรง แจกโบนัสเครดิตฟรีและสิทธิพิเศษสำหรับสมาชิกใหม่และปัจจุบัน เพิ่มโอกาสทำกำไรคาสิโนออนไลน์';
+    if (isArticles) return 'อ่านบทความและเทคนิคการเล่นบาคาร่าให้ได้เงินทุกวัน อัปเดตสูตรบาคาร่า เคล็ดลับคาสิโนออนไลน์จากผู้เชี่ยวชาญ Bocker168 เว็บตรงอันดับ 1';
+    if (isFaq) return 'คำถามที่พบบ่อยเกี่ยวกับการเล่นบาคาร่าออนไลน์และคาสิโนเว็บตรง Bocker168 ข้อสงสัยเรื่องการฝากถอน สมัครสมาชิก หรือปัญหาการเดิมพัน';
+    if (isContact) return 'ติดต่อ Bocker168 เว็บบาคาร่าออนไลน์ ทีมงานแอดมินมืออาชีพพร้อมให้บริการและดูแลคุณตลอด 24 ชั่วโมง ผ่านช่องทาง Line และอื่นๆ';
     if (isPostDetail && currentPost) {
-      return currentPost.metaDescription || currentPost.excerpt || (currentPost as any).description || 'อ่านบทความเกี่ยวกับบาคาร่าและคาสิโนออนไลน์ได้ที่ Bocker168';
+      if (currentPost.metaDescription) {
+        return currentPost.metaDescription;
+      }
+      
+      const contentExcerpt = getArticleExcerpt(currentPost.excerpt || (currentPost as any).description || currentPost.content || '');
+      if (contentExcerpt) {
+        return `${currentPost.title} - Bocker168 สรุปเนื้อหาเบื้องต้น: ${contentExcerpt} ... อ่านเคล็ดลับและเทคนิคบาคาร่าเพิ่มเติมได้ที่เว็บตรงของเราเลย!`;
+      }
+      
+      return `บทความ ${currentPost.title} - ศูนย์รวมเทคนิคบาคาร่าและคาสิโนออนไลน์ที่อัพเดทใหม่ล่าสุด ส่งตรงจากทีมงาน Bocker168 เว็บบาคาร่าอันดับ 1 มั่นคง ปลอดภัย ฝากถอนไว`;
     }
     if (isPageDetail && currentPage) {
-      return currentPage.metaDescription || currentPage.excerpt || 'Bocker168 บาคาร่าออนไลน์ อันดับ 1';
+      return currentPage.metaDescription || currentPage.excerpt || `${currentPage.title} - Bocker168 บาคาร่าออนไลน์ เว็บตรงไม่ผ่านเอเย่นต์ อันดับ 1`;
     }
-    return 'เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม';
+    return 'เล่นบาคาร่ากับ Bocker168 เว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ';
   };
 
   const getPageKeywords = () => {
@@ -1004,13 +1097,12 @@ function Bocker168Landing() {
         numStr = `${mainCounter}.${h3Counter}.${h4Counter}`;
       }
       
-      const finalTitle = `${numStr} ${cleanText}`;
-      const id = `heading-${index++}`;
+      const slug = cleanText.toLowerCase().replace(/[^a-zA-Z0-9ก-๙]+/g, '-').replace(/(^-|-$)/g, '');
+      const id = slug ? `heading-${index++}-${slug}` : `heading-${index++}`;
       
+      const finalTitle = `${numStr} ${cleanText}`;
       toc.push({ id, text: finalTitle, level });
       
-      // Remove any manual numbers prefixed in the editor from the article body.
-      // This ensures the articles print cleanly without numbers, while the TOC holds auto-numbers.
       let articleTitleHtml = textRaw.replace(/^(\s*(?:<[^>]+>\s*)*)(?:(?:\d+\.)+\s*|\d+\s+)/i, '$1');
       return `<h${levelStr} id="${id}"${attrs}>${articleTitleHtml}</h${levelStr}>`;
     });
@@ -1021,37 +1113,41 @@ function Bocker168Landing() {
   const getTableOfContents = (content: string) => processHeadingLogic(content, 'toc') as any[];
   const addIdsToHeadings = (content: string) => processHeadingLogic(content, 'html') as string;
 
-  const lazyLoadImages = (content: string) => {
+const lazyLoadImages = (content: string, defaultAlt: string = 'Image related to the article') => {
     if (!content) return '';
     return content.replace(/<img([^>]*)>/gis, (match, attrs) => {
-      // Avoid duplicate loading attributes
-      if (attrs.includes('loading=')) return match;
-      return `<img${attrs} loading="lazy">`;
+      let newAttrs = attrs;
+      if (!newAttrs.includes('alt=')) {
+        newAttrs += ` alt="${defaultAlt}"`;
+      }
+      if (!newAttrs.includes('loading=')) {
+        newAttrs += ' loading="lazy"';
+      }
+      return `<img${newAttrs}>`;
     });
   };
 
   const splitArticleContent = (content: string) => {
     if (!content) return ['', ''];
     
-    // 1. Prioritize splitting after the first H2 or H3 tag followed by its first paragraph.
-    // This handles headings and paragraphs with attributes and any whitespace between them.
+    // 1. Look for a paragraph immediately following an H2 or H3.
     const headingWithParagraph = content.match(/<(h2|h3)[^>]*>.*?<\/\1>\s*<p[^>]*>.*?<\/p>/is);
     if (headingWithParagraph && headingWithParagraph.index !== undefined) {
       const splitIndex = headingWithParagraph.index + headingWithParagraph[0].length;
       return [content.slice(0, splitIndex), content.slice(splitIndex)];
     }
 
-    // 2. Fallback: split after the first paragraph that does not contain an image.
-    // We use a non-greedy match for paragraph content and check for <img> tags.
-    const pMatches = Array.from(content.matchAll(/<p[^>]*>.*?<\/p>/gis));
+    // 2. Find a substantial paragraph suitable for splitting after.
+    const pMatches = Array.from(content.matchAll(/<p[^>]*>(.*?)<\/p>/gis));
     for (const match of pMatches) {
-      if (!match[0].toLowerCase().includes('<img')) {
+      const innerText = match[1].replace(/<[^>]*>/g, '').trim();
+      if (innerText.length > 80 && !match[0].toLowerCase().includes('<img')) {
         const splitIndex = match.index! + match[0].length;
         return [content.slice(0, splitIndex), content.slice(splitIndex)];
       }
     }
 
-    // 3. Ultimate fallback: split after the first paragraph found, or return whole content if none.
+    // 3. Fallback to first block element
     if (pMatches.length > 0) {
       const splitIndex = pMatches[0].index! + pMatches[0][0].length;
       return [content.slice(0, splitIndex), content.slice(splitIndex)];
@@ -1096,48 +1192,50 @@ function Bocker168Landing() {
               "description": "เว็บไซต์บาคาร่าออนไลน์อันดับ 1 เว็บตรงไม่ผ่านเอเย่นต์ ปลอดภัย 100% ฝากถอนออโต้ ไม่มีขั้นต่ำ",
               "inLanguage": "th-TH"
             },
-            {
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "@id": "https://hongkonglex.com/#organization",
-              "name": "Bocker168",
-              "url": "https://hongkonglex.com/",
-              "logo": {
-                "@type": "ImageObject",
-                "url": "https://img2.pic.in.th/A2-Logo-Bocker-168.png"
-              },
-              "sameAs": [
-                "https://www.facebook.com/bocker168",
-                "https://line.me/R/ti/p/@bocker168"
-              ]
-            },
-            {
-              "@context": "https://schema.org",
-              "@type": "OnlineCasino",
-              "name": "Bocker168",
-              "url": "https://hongkonglex.com",
-              "logo": "https://img2.pic.in.th/A2-Logo-Bocker-168.png",
-              "description": "เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม",
-              "currenciesAccepted": "THB",
-              "paymentAccepted": "Bank Transfer, TrueMoney Wallet",
-              "openingHours": "Mo-Su 00:00-24:00",
-              "address": {
-                "@type": "PostalAddress",
-                "addressCountry": "TH"
-              }
-            },
-            {
-              "@context": "https://schema.org",
-              "@type": "CasinoGame",
-              "name": "บาคาร่าออนไลน์",
-              "description": "เกมบาคาร่าสดจากค่ายดัง SA Gaming, Sexy Baccarat, Dream Gaming พร้อมสูตรและเทคนิคการอ่านเค้าไพ่",
-              "gameCategory": "Card Game",
-              "publisher": {
+            ...(isHome ? [
+              {
+                "@context": "https://schema.org",
                 "@type": "Organization",
-                "name": "Bocker168"
+                "@id": "https://hongkonglex.com/#organization",
+                "name": "Bocker168",
+                "url": "https://hongkonglex.com/",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://img2.pic.in.th/A2-Logo-Bocker-168.png"
+                },
+                "sameAs": [
+                  "https://www.facebook.com/bocker168",
+                  "https://line.me/R/ti/p/@bocker168"
+                ]
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "OnlineCasino",
+                "name": "Bocker168",
+                "url": "https://hongkonglex.com",
+                "logo": "https://img2.pic.in.th/A2-Logo-Bocker-168.png",
+                "description": "เล่นบาคาร่ากับเว็บตรงอันดับ 1 มั่นคง ปลอดภัย ได้เงินจริง สัมผัสประสบการณ์คาสิโนสดระดับพรีเมียม รองรับทุกระบบมือถือ พร้อมโปรโมชั่นสมาชิกใหม่จัดเต็ม",
+                "currenciesAccepted": "THB",
+                "paymentAccepted": "Bank Transfer, TrueMoney Wallet",
+                "openingHours": "Mo-Su 00:00-24:00",
+                "address": {
+                  "@type": "PostalAddress",
+                  "addressCountry": "TH"
+                }
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "CasinoGame",
+                "name": "บาคาร่าออนไลน์",
+                "description": "เกมบาคาร่าสดจากค่ายดัง SA Gaming, Sexy Baccarat, Dream Gaming พร้อมสูตรและเทคนิคการอ่านเค้าไพ่",
+                "gameCategory": "Card Game",
+                "publisher": {
+                  "@type": "Organization",
+                  "name": "Bocker168"
+                }
               }
-            },
-            {
+            ] : []),
+            ...((isFaq || isHome) ? [{
               "@context": "https://schema.org",
               "@type": "FAQPage",
               "mainEntity": FAQS.map(faq => ({
@@ -1148,7 +1246,7 @@ function Bocker168Landing() {
                   "text": faq.answer
                 }
               }))
-            }
+            }] : [])
           ])}
         </script>
 
@@ -1160,6 +1258,7 @@ function Bocker168Landing() {
               "headline": currentPost.metaTitle || currentPost.title,
               "description": currentPost.metaDescription || currentPost.excerpt || (currentPost as any).description,
               "abstract": currentPost.excerpt || currentPost.metaDescription,
+              "articleBody": currentPost.content?.replace(/<[^>]*>?/gm, ''),
               "articleSection": currentPost.category,
               "image": currentPost.image || "https://img2.pic.in.th/A2-Logo-Bocker-168.png",
               "author": {
@@ -1288,12 +1387,23 @@ function Bocker168Landing() {
         <section className="py-24 relative bg-[#050505] min-h-screen">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <Link to="/articles" className="inline-flex items-center gap-2 text-zinc-400 hover:text-amber-500 transition-colors mb-8 font-medium">
-                <ArrowRight className="w-4 h-4 rotate-180" />
-                กลับไปหน้าบทความ
-              </Link>
-              
-              {currentPost ? (
+          <div className="flex items-center gap-2 text-zinc-400 mb-8 font-medium text-sm flex-wrap">
+            <Link to="/" className="hover:text-amber-500 transition-colors">หน้าแรก</Link>
+            <span>/</span>
+            {currentPost ? (
+              <>
+                <Link to={`/category/${encodeURIComponent(dynamicCategoryMap[currentPost.category] || currentPost.category)}`} className="hover:text-amber-500 transition-colors">
+                  {currentPost.category}
+                </Link>
+                <span>/</span>
+                <span className="text-zinc-500 line-clamp-1">{currentPost.title}</span>
+              </>
+            ) : (
+                <span className="text-zinc-500 line-clamp-1">กำลังโหลด...</span>
+            )}
+          </div>
+          
+          {currentPost ? (
                 <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden">
                   <div className="p-8 md:p-12">
                     <div className="flex items-center gap-4 mb-6 flex-wrap">
@@ -1366,7 +1476,7 @@ function Bocker168Landing() {
                     {(() => {
                       let content = currentPost.content || (currentPost as any).description || '';
                       content = addIdsToHeadings(content);
-                      content = lazyLoadImages(content);
+                      content = lazyLoadImages(content, currentPost.title);
                       const [part1, part2] = splitArticleContent(content);
                       
                       return (
@@ -1433,17 +1543,19 @@ function Bocker168Landing() {
                           <div className="mt-16 p-6 sm:p-8 bg-black/40 border border-zinc-800 rounded-3xl relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 blur-[50px] -translate-y-1/2 translate-x-1/2 group-hover:bg-red-600/10 transition-all duration-700" />
                             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
-                              <div className="shrink-0">
+                              <Link to={`/author/${encodeURIComponent(currentPost.author || 'Admin Bocker168')}`} className="shrink-0 hover:opacity-90 transition-opacity">
                                 <img 
                                   src={currentPost.authorImage || 'https://img2.pic.in.th/A2-Logo-Bocker-168.png'} 
-                                  alt={currentPost.author} 
+                                  alt={currentPost.author || 'Admin Bocker168'} 
                                   className="w-24 h-24 rounded-full object-cover border-2 border-zinc-800 shadow-xl"
                                   referrerPolicy="no-referrer"
                                 />
-                              </div>
+                              </Link>
                               <div className="text-center sm:text-left">
                                 <div className="text-red-500 font-bold mb-1 uppercase tracking-widest text-[10px]">Article Author</div>
-                                <h3 className="text-2xl font-black text-white mb-1">{currentPost.author || 'Admin Bocker168'}</h3>
+                                <Link to={`/author/${encodeURIComponent(currentPost.author || 'Admin Bocker168')}`} className="hover:text-amber-500 transition-colors">
+                                  <h3 className="text-2xl font-black text-white mb-1">{currentPost.author || 'Admin Bocker168'}</h3>
+                                </Link>
                                 {currentPost.authorPosition && (
                                   <div className="text-amber-500 text-sm font-bold mb-3">{currentPost.authorPosition}</div>
                                 )}
@@ -1457,6 +1569,9 @@ function Bocker168Landing() {
                                   <div className="text-zinc-500 text-[11px] font-mono flex items-center gap-1.5 border-l border-zinc-800 pl-4">
                                     <Sparkles className="w-3 h-3 text-amber-500" /> Expert Insight
                                   </div>
+                                  <Link to={`/author/${encodeURIComponent(currentPost.author || 'Admin Bocker168')}`} className="text-red-500 hover:text-red-400 text-[11px] font-mono flex items-center gap-1 border-l border-zinc-800 pl-4 transition-colors">
+                                    อ่านบทความทั้งหมด <ArrowRight className="w-3 h-3" />
+                                  </Link>
                                 </div>
                               </div>
                             </div>
@@ -1501,7 +1616,7 @@ function Bocker168Landing() {
                           {/* Related Articles */}
                           {(() => {
                             const related = articles
-                              .filter(a => a.id !== currentPost.id && a.category === currentPost.category)
+                              .filter(a => a.id !== currentPost.id && a.category === currentPost.category && a.status !== 'draft')
                               .slice(0, 3);
                             
                             if (related.length === 0) return null;
@@ -1516,13 +1631,19 @@ function Bocker168Landing() {
                                   {related.map(item => (
                                     <Link key={item.id} to={`/${item.slug || item.title.replace(/\s+/g, '-').toLowerCase()}`} className="group block group">
                                       <div className="aspect-video rounded-xl overflow-hidden mb-4 border border-zinc-800">
+                                        {item.image ? (
                                         <img 
-                                          src={item.image || null} 
+                                          src={item.image} 
                                           alt={item.title} 
                                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                           referrerPolicy="no-referrer"
                                           loading="lazy"
                                         />
+                                        ) : (
+                                          <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                                            <BookOpen className="w-8 h-8 text-zinc-700" />
+                                          </div>
+                                        )}
                                       </div>
                                       <h4 className="text-zinc-300 font-bold text-sm line-clamp-2 group-hover:text-red-500 transition-colors">
                                         {item.title}
@@ -1594,16 +1715,12 @@ function Bocker168Landing() {
             <h1 className="text-3xl md:text-5xl font-black text-white mb-12 text-center">
               หมวดหมู่: <span className="text-red-500">{currentCategory}</span>
             </h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {articles
-                .filter(a => a.category === currentCategory && a.status !== 'draft')
-                .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} dynamicCategoryMap={dynamicCategoryMap} />)}
+            <div className="max-w-6xl mx-auto">
+              <ArticlesPagination 
+                items={articles.filter(a => a.category === currentCategory && a.status !== 'draft')} 
+                dynamicCategoryMap={dynamicCategoryMap} 
+              />
             </div>
-            {articles.filter(a => a.category === currentCategory && a.status !== 'draft').length === 0 && (
-              <div className="text-center py-20 bg-zinc-900/40 border border-zinc-800/50 rounded-3xl">
-                <h2 className="text-2xl font-bold text-white mb-4">ยังไม่มีบทความในหมวดหมู่นี้</h2>
-              </div>
-            )}
           </div>
         </section>
       )}
@@ -1612,20 +1729,54 @@ function Bocker168Landing() {
       {isAuthorPage && (
         <section className="py-24 relative bg-[#050505] min-h-screen">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-3xl md:text-5xl font-black text-white mb-12">
-                ผู้เขียน: <span className="text-red-500">{currentAuthorSlug}</span>
-              </h1>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {articles
-                  .filter(a => (a.author === currentAuthorSlug || a.author === dynamicReverseCategoryMap[currentAuthorSlug!]) && a.status !== 'draft')
-                  .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} dynamicCategoryMap={dynamicCategoryMap} />)}
-              </div>
-              {articles.filter(a => (a.author === currentAuthorSlug || a.author === dynamicReverseCategoryMap[currentAuthorSlug!]) && a.status !== 'draft').length === 0 && (
-                <div className="text-center py-20 bg-zinc-900/40 border border-zinc-800/50 rounded-3xl">
-                  <h2 className="text-2xl font-bold text-white mb-4">ยังไม่มีบทความจากผู้เขียนท่านนี้</h2>
+            <div className="max-w-4xl mx-auto mb-16">
+              {articles.filter(a => (a.author === currentAuthorSlug || a.author === dynamicReverseCategoryMap[currentAuthorSlug!]) && a.status !== 'draft').length > 0 ? (() => {
+                const authorArticles = articles.filter(a => (a.author === currentAuthorSlug || a.author === dynamicReverseCategoryMap[currentAuthorSlug!]) && a.status !== 'draft');
+                const authorDetails = authorArticles[0];
+                return (
+                  <div className="p-8 md:p-12 bg-black/40 border border-zinc-800 rounded-3xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/5 blur-[80px] -translate-y-1/2 translate-x-1/2" />
+                    <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
+                      <img 
+                        src={authorDetails.authorImage || 'https://img2.pic.in.th/A2-Logo-Bocker-168.png'} 
+                        alt={authorDetails.author || 'Admin Bocker168'} 
+                        className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-zinc-800 shadow-2xl"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="text-center md:text-left flex-1">
+                        <div className="text-red-500 font-bold mb-2 uppercase tracking-widest text-xs">Author Profile</div>
+                        <h1 className="text-4xl md:text-5xl font-black text-white mb-2">{authorDetails.author || 'Admin Bocker168'}</h1>
+                        {authorDetails.authorPosition && (
+                          <div className="text-amber-500 font-bold mb-4">{authorDetails.authorPosition}</div>
+                        )}
+                        <p className="text-zinc-400 leading-relaxed mb-6 max-w-2xl text-lg italic">
+                          "{authorDetails.authorDescription || 'ผู้เชี่ยวชาญด้านคาสิโนออนไลน์และบาคาร่า พร้อมแบ่งปันเทคนิคและประสบการณ์'}"
+                        </p>
+                        <div className="flex items-center justify-center md:justify-start gap-6 pt-6 border-t border-zinc-800/50">
+                          <div className="text-center">
+                            <div className="text-3xl font-black text-white mb-1">{authorArticles.length}</div>
+                            <div className="text-xs text-zinc-500 uppercase tracking-wider font-bold">Articles</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })() : (
+                <div className="text-center">
+                  <h1 className="text-3xl md:text-5xl font-black text-white mb-4">
+                    ผู้เขียน: <span className="text-red-500">{currentAuthorSlug}</span>
+                  </h1>
                 </div>
               )}
+            </div>
+            
+            <div className="max-w-6xl mx-auto">
+              <h2 className="text-2xl font-bold text-white mb-8 border-l-4 border-red-600 pl-4">บทความทั้งหมดโดยผู้เขียนนี้</h2>
+              <ArticlesPagination 
+                items={articles.filter(a => (a.author === currentAuthorSlug || a.author === dynamicReverseCategoryMap[currentAuthorSlug!]) && a.status !== 'draft')} 
+                dynamicCategoryMap={dynamicCategoryMap} 
+              />
             </div>
           </div>
         </section>
@@ -1635,7 +1786,7 @@ function Bocker168Landing() {
         <section className="py-24 bg-zinc-950 min-h-[60vh]">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <SectionTitle title="วิธีสมัครสมาชิก Bocker168" centered={false} />
+              <SectionTitle title="วิธีสมัครสมาชิก Bocker168" centered={false} as="h1" />
               <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-300 leading-relaxed space-y-8">
                 <div className="flex gap-6 items-start">
                   <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-black text-xl shrink-0">1</div>
@@ -1669,7 +1820,7 @@ function Bocker168Landing() {
         <section className="py-24 bg-zinc-950 min-h-[60vh]">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <SectionTitle title="วิธีฝาก-ถอนเงิน ระบบออโต้" centered={false} />
+              <SectionTitle title="วิธีฝาก-ถอนเงิน ระบบออโต้" centered={false} as="h1" />
               <div className="mt-12 grid md:grid-cols-2 gap-8">
                 <div className="bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8">
                   <h3 className="text-red-500 text-2xl font-bold mb-6 flex items-center gap-3">
@@ -1705,7 +1856,7 @@ function Bocker168Landing() {
         <section className="py-24 bg-zinc-950 min-h-[60vh]">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <SectionTitle title="ข้อตกลงและเงื่อนไข" centered={false} />
+              <SectionTitle title="ข้อตกลงและเงื่อนไข" centered={false} as="h1" />
               <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
                 <p>ยินดีต้อนรับสู่ Bocker168 ในการใช้บริการเว็บไซต์ของเรา คุณตกลงที่จะปฏิบัติตามข้อกำหนดและเงื่อนไขดังต่อไปนี้:</p>
                 <h3 className="text-white text-xl font-bold mt-8 mb-4">1. การสมัครสมาชิก</h3>
@@ -1725,7 +1876,7 @@ function Bocker168Landing() {
         <section className="py-24 bg-zinc-950 min-h-[60vh]">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <SectionTitle title="นโยบายความเป็นส่วนตัว" centered={false} />
+              <SectionTitle title="นโยบายความเป็นส่วนตัว" centered={false} as="h1" />
               <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
                 <p>Bocker168 ให้ความสำคัญกับความเป็นส่วนตัวของสมาชิกทุกท่าน ข้อมูลของคุณจะถูกเก็บรักษาเป็นความลับสูงสุด:</p>
                 <h3 className="text-red-500 text-xl font-bold mt-8 mb-4">1. การเก็บรวบรวมข้อมูล</h3>
@@ -1745,7 +1896,7 @@ function Bocker168Landing() {
         <section className="py-24 bg-zinc-950 min-h-[60vh]">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <SectionTitle title="นโยบายคุกกี้" centered={false} />
+              <SectionTitle title="นโยบายคุกกี้" centered={false} as="h1" />
               <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
                 <p>เว็บไซต์ของเรามีการใช้งานคุกกี้ (Cookies) เพื่อเพิ่มประสิทธิภาพในการใช้งานและมอบประสบการณ์ที่ดีที่สุดให้กับคุณ:</p>
                 <h3 className="text-red-500 text-xl font-bold mt-8 mb-4">คุกกี้คืออะไร?</h3>
@@ -1767,7 +1918,7 @@ function Bocker168Landing() {
         <section className="py-24 bg-zinc-950 min-h-[60vh]">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <SectionTitle title="ความรับผิดชอบต่อสังคม" centered={false} />
+              <SectionTitle title="ความรับผิดชอบต่อสังคม" centered={false} as="h1" />
               <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 md:p-12 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
                 <p>Bocker168 สนับสนุนการเล่นพนันอย่างมีความรับผิดชอบ เพื่อให้การเดิมพันเป็นเพียงกิจกรรมสันทนาการที่สนุกสนาน:</p>
                 <h3 className="text-red-500 text-xl font-bold mt-8 mb-4">คำแนะนำในการเล่นอย่างมีความรับผิดชอบ</h3>
@@ -1889,6 +2040,7 @@ function Bocker168Landing() {
             <SectionTitle 
               title="ทำไมต้องเลือกเล่นบาคาร่ากับ Bocker168"
               subtitle="เว็บตรง มั่นคง ปลอดภัย พร้อมให้บริการระดับพรีเมียม ตอบโจทย์ทุกการเดิมพัน"
+              as={isHome ? 'h2' : 'h1'}
             />
           </div>
 
@@ -2056,6 +2208,7 @@ function Bocker168Landing() {
           <SectionTitle 
             title="รวมค่ายบาคาร่าออนไลน์ชั้นนำระดับโลก"
             subtitle="เลือกเล่นคาสิโนสดจากค่ายดัง ภาพคมชัดระดับ Full HD ส่งตรงจากคาสิโนจริง"
+            as={isHome ? 'h2' : 'h1'}
           />
 
           <Swiper
@@ -2178,6 +2331,7 @@ function Bocker168Landing() {
           <SectionTitle 
             title="โปรโมชั่นบาคาร่าสุดคุ้ม"
             subtitle="ข้อเสนอพิเศษสำหรับสมาชิก Bocker168 เท่านั้น รับโบนัสจัดเต็มทุกวัน"
+            as={isHome ? 'h2' : 'h1'}
           />
 
           <div className="grid lg:grid-cols-3 gap-8">
@@ -2313,6 +2467,7 @@ function Bocker168Landing() {
             <SectionTitle 
               title="คำถามที่พบบ่อยเกี่ยวกับ Bocker168 บาคาร่าออนไลน์"
               centered={false}
+              as={isHome ? 'h2' : 'h1'}
             />
             <div className="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-4 md:p-8">
               {FAQS.map((faq, i) => (
@@ -2345,9 +2500,11 @@ function Bocker168Landing() {
             </div>
 
             <div className="relative z-10">
-              <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-8 leading-tight">
-                พร้อมที่จะทำกำไรจาก <br className="hidden md:block" /> บาคาร่าออนไลน์ หรือยัง?
-              </h2>
+              {React.createElement(
+                isHome ? 'h2' : 'h1',
+                { className: "text-3xl md:text-5xl lg:text-6xl font-black text-white mb-8 leading-tight" },
+                <>พร้อมที่จะทำกำไรจาก <br className="hidden md:block" /> บาคาร่าออนไลน์ หรือยัง?</>
+              )}
               <p className="text-red-100 text-lg md:text-xl mb-12 max-w-3xl mx-auto leading-relaxed">
                 สมัครสมาชิกวันนี้ รับโบนัสฟรี 100% ฝากถอนไม่มีขั้นต่ำด้วยระบบออโต้ 10 วินาที เล่นง่าย จ่ายจริง มั่นคง 100%
               </p>
