@@ -395,12 +395,46 @@ export default {
       }
 
       // Route to handle sitemap.xml
+      // Sitemap Index
       if (url.pathname === '/sitemap.xml') {
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${url.origin}/post-sitemap.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>${url.origin}/page-sitemap.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>${url.origin}/category-sitemap.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>${url.origin}/author-sitemap.xml</loc>
+  </sitemap>
+</sitemapindex>`.trim();
+        return new Response(xml, { headers: { 'Content-Type': 'application/xml', 'Cache-Control': 'public, max-age=3600' } });
+      }
+
+      // Individual Sitemaps
+      if (url.pathname === '/post-sitemap.xml') {
         const allArticles = await db.select().from(articles).where(eq(articles.status, 'published')).all();
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${allArticles.map(article => `
+  <url>
+    <loc>${url.origin}/${article.slug}</loc>
+    <lastmod>${article.updatedAt ? article.updatedAt.split(' ')[0] : (article.date ? new Date(article.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0])}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('')}
+</urlset>`.trim();
+        return new Response(xml, { headers: { 'Content-Type': 'application/xml', 'Cache-Control': 'public, max-age=3600' } });
+      }
+
+      if (url.pathname === '/page-sitemap.xml') {
         const allPages = await db.select().from(pages).where(eq(pages.status, 'published')).all();
         const today = new Date().toISOString().split('T')[0];
         
-        // Static routes
         const staticRoutes = [
           { loc: '/', priority: '1.0', changefreq: 'daily' },
           { loc: '/articles', priority: '0.9', changefreq: 'daily' },
@@ -408,9 +442,6 @@ export default {
           { loc: '/faq', priority: '0.7', changefreq: 'weekly' },
           { loc: '/contact', priority: '0.7', changefreq: 'monthly' },
         ];
-
-        // Extract unique categories from articles
-        const categories = Array.from(new Set(allArticles.map(a => a.category).filter(Boolean)));
 
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -421,13 +452,6 @@ export default {
     <changefreq>${route.changefreq}</changefreq>
     <priority>${route.priority}</priority>
   </url>`).join('')}
-  ${allArticles.map(article => `
-  <url>
-    <loc>${url.origin}/${article.slug}</loc>
-    <lastmod>${article.updatedAt ? article.updatedAt.split(' ')[0] : (article.date ? new Date(article.date).toISOString().split('T')[0] : today).split('T')[0]}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`).join('')}
   ${allPages.map(page => `
   <url>
     <loc>${url.origin}/${page.slug}</loc>
@@ -435,6 +459,16 @@ export default {
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>`).join('')}
+</urlset>`.trim();
+        return new Response(xml, { headers: { 'Content-Type': 'application/xml', 'Cache-Control': 'public, max-age=3600' } });
+      }
+      
+      if (url.pathname === '/category-sitemap.xml') {
+        const allArticles = await db.select().from(articles).where(eq(articles.status, 'published')).all();
+        const categories = Array.from(new Set(allArticles.map(a => a.category).filter(Boolean)));
+        const today = new Date().toISOString().split('T')[0];
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   ${categories.map(cat => `
   <url>
     <loc>${url.origin}/category/${encodeURIComponent(cat as string)}</loc>
@@ -442,14 +476,25 @@ export default {
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`).join('')}
-</urlset>`.trim().replace(/>\s+</g, '><'); // Minify
+</urlset>`.trim();
+        return new Response(xml, { headers: { 'Content-Type': 'application/xml', 'Cache-Control': 'public, max-age=3600' } });
+      }
 
-        return new Response(xml, {
-          headers: {
-            'Content-Type': 'application/xml',
-            'Cache-Control': 'public, max-age=3600'
-          },
-        });
+      if (url.pathname === '/author-sitemap.xml') {
+        const result = await env.DB.prepare(`SELECT DISTINCT author FROM articles WHERE status = 'published'`).all();
+        const authors = (result.results || []).map((r: any) => r.author).filter(Boolean);
+        const today = new Date().toISOString().split('T')[0];
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${authors.map(author => `
+  <url>
+    <loc>${url.origin}/author/${encodeURIComponent(author as string)}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('')}
+</urlset>`.trim();
+        return new Response(xml, { headers: { 'Content-Type': 'application/xml', 'Cache-Control': 'public, max-age=3600' } });
       }
 
       // SPA Fallback: If asset not found (404) and it's likely a navigation request

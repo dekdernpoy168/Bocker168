@@ -936,7 +936,7 @@ function Bocker168Landing() {
   const currentCategory = urlCategorySlug ? (dynamicReverseCategoryMap[urlCategorySlug] || decodeURIComponent(urlCategorySlug)) : null;
 
   const getPageTitle = () => {
-    if (isHome) return 'Bocker168 - บาคาร่าออนไลน์ เว็บตรงไม่ผ่านเอเย่นต์ ฝากถอนไม่มีขั้นต่ำ';
+    if (isHome) return 'บาคาร่า Bocker168 - เว็บบาคาร่าออนไลน์ อันดับ 1 เว็บตรง ฝากถอนไม่มีขั้นต่ำ';
     if (isFeatures) return 'จุดเด่นของเรา - Bocker168 บาคาร่าเว็บตรง';
     if (isBaccarat) return 'บาคาร่าออนไลน์ คาสิโนสด - Bocker168';
     if (isPromotions) return 'โปรโมชั่นบาคาร่า - Bocker168';
@@ -1803,7 +1803,7 @@ function Bocker168Landing() {
                 บาคาร่าเว็บตรงอันดับ 1
               </div>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6">
-                บาคาร่าออนไลน์ Bocker168 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-500 to-red-600">เว็บตรงไม่ผ่านเอเย่นต์</span> ฝากถอนไม่มีขั้นต่ำ
+                บาคาร่า เว็บตรงอันดับ 1 Bocker168 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-500 to-red-600">ฝากถอนไม่มีขั้นต่ำ</span>
               </h1>
               
               <div className="mb-8 rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl shadow-red-900/20 max-w-xl relative group mx-auto">
