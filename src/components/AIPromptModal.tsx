@@ -125,6 +125,27 @@ export default function AIPromptModal({ isOpen, onClose, onExecute, initialTopic
     if (anchorText && linkUrl) {
       prompt += `Include an internal link with the anchor text "${anchorText}" pointing to ${linkUrl}. `;
     }
+
+    let keywordDataString = '';
+    if (primaryKeyword && keData[primaryKeyword]) {
+        keywordDataString += `\nPrimary Keyword: ${primaryKeyword} (Volume: ${keData[primaryKeyword].vol}, CPC: $${keData[primaryKeyword].cpc || '0'}, Competition: ${keData[primaryKeyword].comp || '0'})`;
+    }
+    if (secondaryKeywords) {
+        const secondary = secondaryKeywords.split(',').map(k => k.trim()).filter(Boolean);
+        const secondaryDataStrings = secondary.map(kw => {
+            if (keData[kw]) {
+                return `${kw} (Volume: ${keData[kw].vol}, CPC: $${keData[kw].cpc || '0'}, Competition: ${keData[kw].comp || '0'})`;
+            }
+            return kw;
+        });
+        if (secondaryDataStrings.length > 0) {
+            keywordDataString += `\nSecondary Keywords: ${secondaryDataStrings.join(', ')}`;
+        }
+    }
+
+    if (keywordDataString) {
+        prompt += `\n\nKeyword Data (Please prioritize keywords based on volume & competition where applicable):${keywordDataString}`;
+    }
     
     return prompt;
   };
@@ -181,6 +202,10 @@ export default function AIPromptModal({ isOpen, onClose, onExecute, initialTopic
               <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Templates:</label>
               <select value={template} onChange={e => setTemplate(e.target.value)} className="w-full bg-[#333333] border border-zinc-600 rounded p-2.5 text-white text-sm focus:border-zinc-400 outline-none">
                 <option>Generate Paragraph Of Text</option>
+                <option>Listicle Article</option>
+                <option>How-to Guide</option>
+                <option>Product Review</option>
+                <option>Opinion Piece</option>
               </select>
             </div>
           </div>

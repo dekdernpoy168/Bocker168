@@ -77,6 +77,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [r2TargetField, setR2TargetField] = useState<'cover' | 'editor'>('cover');
   const [selectedR2Image, setSelectedR2Image] = useState<any>(null);
   const [r2AltText, setR2AltText] = useState('');
+  const [r2ImageWidth, setR2ImageWidth] = useState('');
+  const [r2ImageHeight, setR2ImageHeight] = useState('');
+  const [r2ImageClass, setR2ImageClass] = useState('');
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -270,8 +273,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert('ขนาดไฟล์เกิน 10MB');
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('รูปแบบไฟล์ไม่รองรับ (อนุญาตเฉพาะ PNG, JPG, JPEG, GIF, WEBP, SVG)');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('ขนาดไฟล์เกิน 5MB');
       return;
     }
 
@@ -329,13 +338,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
         setCurrentArticle({ ...currentArticle, image: imageUrl });
       }
     } else {
+      let imgAttrs = `src="${imageUrl}" alt="${altText}"`;
+      if (r2ImageWidth) imgAttrs += ` width="${r2ImageWidth}"`;
+      if (r2ImageHeight) imgAttrs += ` height="${r2ImageHeight}"`;
+      if (r2ImageClass) imgAttrs += ` class="${r2ImageClass}"`;
+      const imgHtml = `<img ${imgAttrs} />`;
+
       // For editor, we insert into content
       if (editorMode === 'visual') {
         const quill = quillRef.current?.getEditor();
         if (quill) {
           const range = quill.getSelection(true) || { index: quill.getLength() };
-          // Set selection explicitly and paste HTML to include alt attributes cleanly
-          const imgHtml = `<img src="${imageUrl}" alt="${altText}" />`;
           quill.clipboard.dangerouslyPasteHTML(range.index, imgHtml);
         }
       } else {
@@ -345,7 +358,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
           const start = textarea.selectionStart;
           const end = textarea.selectionEnd;
           const text = textarea.value;
-          const imgHtml = `<img src="${imageUrl}" alt="${altText}" />`;
           const newText = text.substring(0, start) + imgHtml + text.substring(end);
           if (activeTab === 'pages') {
             setCurrentWebPage({ ...currentWebPage, content: newText });
@@ -358,6 +370,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     setIsR2ModalOpen(false);
     setSelectedR2Image(null);
     setR2AltText('');
+    setR2ImageWidth('');
+    setR2ImageHeight('');
+    setR2ImageClass('');
   };
 
   const fetchConfigStatus = async () => {
@@ -715,22 +730,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     
     setIsGeneratingSEO(true);
     try {
-      const prompt = `Generate SEO tags for an article. 
+      const prompt = `Generate SEO tags and FAQs for an article. 
       Title: "${currentArticle.title || seoTopic}"
       Primary Keyword: "${seoPrimaryKeyword || ''}"
       Existing Keywords: "${currentArticle.metaKeywords || ''}"
       Article Content: "${currentArticle.content?.substring(0, 2000) || ''}"
       
-      Return ONLY a valid JSON object with three keys: 
-      1. "metaTitle" (Engaging, includes keyword, Thai language)
-      2. "metaDescription" (Call to action, includes keyword, Thai language)
+      Return ONLY a valid JSON object with four keys: 
+      1. "metaTitle" (Engaging, includes keyword, Thai language, max 60 chars)
+      2. "metaDescription" (Call to action, includes keyword, Thai language, max 160 chars)
       3. "metaKeywords" (comma-separated list of 5-10 relevant keywords)
+      4. "faqs" (strictly an array of exactly 3 objects, each with "q" for Question and "a" for Answer in Thai)
       
       STRICT RULES:
       - Do not include any extra text, explanations, or markdown formatting.
       - Return ONLY the JSON object.
       
-      Example: {"metaTitle": "Title here", "metaDescription": "Description here", "metaKeywords": "keyword1, keyword2"}`;
+      Example: {"metaTitle": "Title here", "metaDescription": "Description here", "metaKeywords": "keyword1, keyword2", "faqs": [{"q": "Question 1?", "a": "Answer 1"}, {"q": "Question 2?", "a": "Answer 2"}]}`;
       
       const text = await generateAIContent(prompt);
       
@@ -739,8 +755,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       if (jsonMatch) {
         try {
           const seoData = JSON.parse(jsonMatch[0]);
+          let newContent = currentArticle.content || '';
+          
+          if (seoData.faqs && Array.isArray(seoData.faqs) && seoData.faqs.length > 0) {
+            newContent += '\n\n<h2>คำถามที่พบบ่อย (FAQs)</h2>\n<ul>\n';
+            seoData.faqs.forEach((faq: any) => {
+              newContent += `  <li><strong>${faq.q}</strong><br/>${faq.a}</li>\n`;
+            });
+            newContent += '</ul>';
+          }
+
           setCurrentArticle(prev => ({
             ...prev,
+            content: newContent,
             metaTitle: seoData.metaTitle || prev.metaTitle,
             metaDescription: seoData.metaDescription || prev.metaDescription,
             metaKeywords: seoData.metaKeywords || prev.metaKeywords
@@ -2611,10 +2638,35 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                       className="w-full bg-black border border-zinc-700/50 rounded-lg px-4 py-2.5 text-white focus:border-red-500 outline-none text-sm transition-all"
                       placeholder="อธิบายรูปภาพสำหรับ SEO..."
                     />
+                    {r2TargetField === 'editor' && (
+                      <div className="flex gap-2 mt-2">
+                        <input
+                          type="text"
+                          placeholder="Width (e.g. 100% or 500)"
+                          className="w-1/3 bg-black border border-zinc-700/50 rounded-lg px-3 py-2 text-white focus:border-red-500 outline-none text-xs transition-all"
+                          value={r2ImageWidth}
+                          onChange={e => setR2ImageWidth(e.target.value)}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Height (e.g. auto or 300)"
+                          className="w-1/3 bg-black border border-zinc-700/50 rounded-lg px-3 py-2 text-white focus:border-red-500 outline-none text-xs transition-all"
+                          value={r2ImageHeight}
+                          onChange={e => setR2ImageHeight(e.target.value)}
+                        />
+                        <input
+                          type="text"
+                          placeholder="CSS Class"
+                          className="w-1/3 bg-black border border-zinc-700/50 rounded-lg px-3 py-2 text-white focus:border-red-500 outline-none text-xs transition-all"
+                          value={r2ImageClass}
+                          onChange={e => setR2ImageClass(e.target.value)}
+                        />
+                      </div>
+                    )}
                   </div>
                   <div className="flex shrink-0 gap-3 w-full sm:w-auto">
                     <button 
-                      onClick={() => { setSelectedR2Image(null); setR2AltText(''); }}
+                      onClick={() => { setSelectedR2Image(null); setR2AltText(''); setR2ImageWidth(''); setR2ImageHeight(''); setR2ImageClass(''); }}
                       className="flex-1 sm:flex-none px-4 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors border border-transparent"
                     >
                       ยกเลิก
