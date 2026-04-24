@@ -42,6 +42,7 @@ export interface WebPage {
   status: 'published' | 'draft' | 'scheduled';
   metaTitle?: string;
   metaDescription?: string;
+  metaKeywords?: string;
   createdAt?: string | Date | any;
   updatedAt?: string | Date | any;
 }

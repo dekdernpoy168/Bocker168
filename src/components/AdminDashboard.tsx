@@ -24,6 +24,10 @@ const PROMPT_TEMPLATES = [
   { name: 'Keywords Everywhere: Blog Post Ideas', prompt: 'Give me 10 unique, high-value blog post ideas related to the keyword: {topic} that are currently trending in the niche.' },
   { name: 'Keywords Everywhere: LSI Keywords', prompt: 'Identify 20 LSI keywords (Latent Semantic Indexing) and related long-tail keywords for: {topic} that will help improve SEO rankings.' },
   { name: 'Keywords Everywhere: Content Cluster Plan', prompt: 'Create a content cluster strategy for the topic: {topic}. Identify a pillar page and at least 5 supporting article topics to build topical authority.' },
+  { name: 'Keywords Everywhere: YouTube Script Outline', prompt: 'Create an engaging YouTube video script outline for: {topic}. Include a hook, intro, 3-5 main points, and a CTA.' },
+  { name: 'Keywords Everywhere: Social Media Post', prompt: 'Write 3 different social media post options (Instagram, Twitter, Facebook) for the topic: {topic}. Include relevant hashtags.' },
+  { name: 'Keywords Everywhere: Product Description', prompt: 'Write a persuasive product description for: {topic}. Include features, benefits, and a clear call to action.' },
+  { name: 'Keywords Everywhere: Competitor Gap Analysis', prompt: 'Analyze the topic: {topic} and identify 5 potential content gaps that competitors are missing which we can capitalize on.' },
 ];
 
 interface AdminDashboardProps {
@@ -488,6 +492,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       status: status,
       metaTitle: currentWebPage.metaTitle || '',
       metaDescription: currentWebPage.metaDescription || '',
+      metaKeywords: currentWebPage.metaKeywords || '',
     };
     try {
       const response = await fetch('/api/pages', {
@@ -650,10 +655,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       // Remove markdown code blocks if AI still adds them
       newText = newText.replace(/^```html\s*/i, '').replace(/\s*```$/i, '');
       
-      setCurrentArticle(prev => ({
-        ...prev,
-        content: (prev.content || '') + '\n\n' + newText
-      }));
+      if (activeTab === 'pages') {
+        setCurrentWebPage(prev => ({
+          ...prev,
+          content: (prev.content || '') + '\n\n' + newText
+        }));
+      } else {
+        setCurrentArticle(prev => ({
+          ...prev,
+          content: (prev.content || '') + '\n\n' + newText
+        }));
+      }
     } catch (error) {
       console.error('Error generating content:', error);
       alert('เกิดข้อผิดพลาดในการสร้างเนื้อหา กรุณาตรวจสอบการตั้งค่า API');
@@ -668,12 +680,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const text = currentArticle.content || '';
     
-    const selectedText = text.substring(start, end);
-    const newText = text.substring(0, start) + prefix + selectedText + suffix + text.substring(end);
-    
-    setCurrentArticle({ ...currentArticle, content: newText });
+    if (activeTab === 'pages') {
+      const text = currentWebPage.content || '';
+      const selectedText = text.substring(start, end);
+      const newText = text.substring(0, start) + prefix + selectedText + suffix + text.substring(end);
+      setCurrentWebPage({ ...currentWebPage, content: newText });
+    } else {
+      const text = currentArticle.content || '';
+      const selectedText = text.substring(start, end);
+      const newText = text.substring(0, start) + prefix + selectedText + suffix + text.substring(end);
+      setCurrentArticle({ ...currentArticle, content: newText });
+    }
     
     setTimeout(() => {
       textarea.focus();
@@ -750,18 +768,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   };
 
   const handleGenerateSEO = async () => {
-    if (!seoTopic.trim()) {
-      alert('กรุณาใส่หัวข้อบทความ');
+    const title = activeTab === 'pages' ? currentWebPage.title : currentArticle.title;
+    const content = activeTab === 'pages' ? currentWebPage.content : currentArticle.content;
+    const metaKeywords = activeTab === 'pages' ? '' : currentArticle.metaKeywords;
+
+    if (!title?.trim()) {
+      alert(activeTab === 'pages' ? 'กรุณาใส่หัวข้อหน้า' : 'กรุณาใส่หัวข้อบทความ');
       return;
     }
     
     setIsGeneratingSEO(true);
     try {
-      const prompt = `Generate SEO tags and FAQs for an article. 
-      Title: "${currentArticle.title || seoTopic}"
+      const prompt = `Generate SEO tags and FAQs for a ${activeTab === 'pages' ? 'web page' : 'article'}. 
+      Title: "${title || seoTopic}"
       Primary Keyword: "${seoPrimaryKeyword || ''}"
-      Existing Keywords: "${currentArticle.metaKeywords || ''}"
-      Article Content: "${currentArticle.content?.substring(0, 2000) || ''}"
+      Existing Keywords: "${metaKeywords || ''}"
+      Content: "${content?.substring(0, 2000) || ''}"
       
       Return ONLY a valid JSON object with four keys: 
       1. "metaTitle" (Engaging, includes keyword, Thai language, max 60 chars)
@@ -782,7 +804,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       if (jsonMatch) {
         try {
           const seoData = JSON.parse(jsonMatch[0]);
-          let newContent = currentArticle.content || '';
+          let newContent = (activeTab === 'pages' ? currentWebPage.content : currentArticle.content) || '';
           
           if (seoData.faqs && Array.isArray(seoData.faqs) && seoData.faqs.length > 0) {
             newContent += '\n\n<h2>คำถามที่พบบ่อย (FAQs)</h2>\n<ul>\n';
@@ -792,13 +814,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
             newContent += '</ul>';
           }
 
-          setCurrentArticle(prev => ({
-            ...prev,
-            content: newContent,
-            metaTitle: seoData.metaTitle || prev.metaTitle,
-            metaDescription: seoData.metaDescription || prev.metaDescription,
-            metaKeywords: seoData.metaKeywords || prev.metaKeywords
-          }));
+          if (activeTab === 'pages') {
+            setCurrentWebPage(prev => ({
+              ...prev,
+              content: newContent,
+              metaTitle: seoData.metaTitle || prev.metaTitle,
+              metaDescription: seoData.metaDescription || prev.metaDescription
+            }));
+          } else {
+            setCurrentArticle(prev => ({
+              ...prev,
+              content: newContent,
+              metaTitle: seoData.metaTitle || prev.metaTitle,
+              metaDescription: seoData.metaDescription || prev.metaDescription,
+              metaKeywords: seoData.metaKeywords || prev.metaKeywords
+            }));
+          }
           setIsSEOModalOpen(false);
         } catch (e) {
           console.error("Failed to parse JSON", e);
@@ -816,16 +847,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   };
 
   const handleGenerateExcerpt = async () => {
-    if (!currentArticle.title) {
-      alert('กรุณากรอกหัวข้อบทความ (Title) ก่อนสร้างคำโปรย');
+    const title = activeTab === 'pages' ? currentWebPage.title : currentArticle.title;
+    const content = activeTab === 'pages' ? currentWebPage.content : currentArticle.content;
+
+    if (!title) {
+      alert(`กรุณากรอกหัวข้อ${activeTab === 'pages' ? 'หน้า' : 'บทความ'} (Title) ก่อนสร้างคำโปรย`);
       return;
     }
     
     setIsGeneratingExcerpt(true);
     try {
-      const prompt = `Generate 3 short, engaging excerpts (คำโปรย) in Thai for the following article.
-      Title: "${currentArticle.title}"
-      Content: "${currentArticle.content?.substring(0, 1500) || ''}"
+      const prompt = `Generate 3 short, engaging excerpts (คำโปรย) in Thai for the following ${activeTab === 'pages' ? 'page' : 'article'}.
+      Title: "${title}"
+      Content: "${content?.substring(0, 1500) || ''}"
       
       Each excerpt should be 1-2 sentences long.
       Return ONLY a JSON array of strings.
@@ -860,16 +894,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   };
 
   const handleGenerateKeywords = async () => {
-    if (!currentArticle.title) {
-      alert('กรุณากรอกหัวข้อบทความ (Title) ก่อนสร้าง Keywords');
+    const title = activeTab === 'pages' ? currentWebPage.title : currentArticle.title;
+    const content = activeTab === 'pages' ? currentWebPage.content : currentArticle.content;
+
+    if (!title) {
+      alert(`กรุณากรอกหัวข้อ${activeTab === 'pages' ? 'หน้า' : 'บทความ'} (Title) ก่อนสร้าง Keywords`);
       return;
     }
     
     setIsGeneratingKeywords(true);
     try {
-      const prompt = `Generate 5-10 SEO keywords in Thai for the following article.
-      Title: "${currentArticle.title}"
-      Content: "${currentArticle.content?.substring(0, 2000) || ''}"
+      const prompt = `Generate 5-10 SEO keywords in Thai for the following ${activeTab === 'pages' ? 'page' : 'article'}.
+      Title: "${title}"
+      Content: "${content?.substring(0, 2000) || ''}"
       
       Return ONLY a comma-separated list of relevant keywords.
       Example: คีย์เวิร์ด1, คีย์เวิร์ด2, คีย์เวิร์ด3`;
@@ -879,7 +916,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       const keywords = text.replace(/^[-\d.\s*"'\[\]]+/, '').replace(/["',\]]+$/, '').trim();
       
       if (keywords) {
-        setCurrentArticle(prev => ({ ...prev, metaKeywords: keywords }));
+        if (activeTab === 'pages') {
+          setCurrentWebPage(prev => ({ ...prev, metaKeywords: keywords }));
+        } else {
+          setCurrentArticle(prev => ({ ...prev, metaKeywords: keywords }));
+        }
       } else {
         alert('ไม่สามารถสร้าง Keywords ได้ กรุณาลองใหม่อีกครั้ง');
       }
@@ -1485,7 +1526,11 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                 <button
                   key={index}
                   onClick={() => {
-                    setCurrentArticle({ ...currentArticle, excerpt });
+                    if (activeTab === 'pages') {
+                      setCurrentWebPage({ ...currentWebPage, excerpt });
+                    } else {
+                      setCurrentArticle({ ...currentArticle, excerpt });
+                    }
                     setIsExcerptModalOpen(false);
                   }}
                   className="w-full text-left px-4 py-3 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-red-500 rounded-lg text-zinc-300 hover:text-white transition-all text-sm"
@@ -1534,6 +1579,21 @@ ${article.content?.replace(/<[^>]*>/g, '')}
           {activeTab === 'pages' ? (
             /* PAGE EDITOR */
             <form className="space-y-6">
+              {/* Section 0: Upload Content */}
+              <div className="border border-zinc-800 rounded-xl p-4 flex flex-col md:flex-row justify-between items-center bg-zinc-900/30">
+                <div className="flex items-start gap-3 mb-4 md:mb-0">
+                  <Upload className="text-red-500 mt-1" size={20} />
+                  <div>
+                    <h3 className="text-red-500 font-medium text-sm">นำเข้าเนื้อหาจากไฟล์</h3>
+                    <p className="text-xs text-zinc-500 mt-1">รองรับ .docx, .pdf, .txt, .md, .html, .rtf</p>
+                  </div>
+                </div>
+                <button type="button" className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold transition-colors">
+                  <Plus size={16} /> เลือกไฟล์
+                </button>
+              </div>
+
+              {/* Section 1: Title & Slug */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
@@ -1572,6 +1632,105 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                 </div>
               </div>
 
+              {/* Section 2: SEO Settings */}
+              <div className="border border-zinc-800 rounded-xl p-5 bg-zinc-900/20 space-y-4">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="flex items-center gap-2 text-red-500 font-medium text-sm">
+                    <Search size={16} /> SEO Settings
+                  </h3>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setSeoTopic(currentWebPage.title || '');
+                      setIsSEOModalOpen(true);
+                    }}
+                    className="flex items-center gap-2 px-3 py-1.5 border border-red-500 text-red-500 hover:bg-red-600/10 rounded-lg text-xs font-medium transition-colors"
+                  >
+                    <Wand2 size={14} /> Generate SEO Tags
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <label className="text-zinc-400 font-medium uppercase">Meta Title</label>
+                      <span className="text-zinc-500">
+                        {currentWebPage.metaTitle?.length || 0} ตัวอักษร
+                      </span>
+                    </div>
+                    <input 
+                      type="text" 
+                      value={currentWebPage.metaTitle || ''}
+                      onChange={e => setCurrentWebPage({...currentWebPage, metaTitle: e.target.value})}
+                      className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all"
+                      placeholder="Meta Title สำหรับ SEO"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <label className="text-zinc-400 font-medium uppercase">Meta Description</label>
+                      <span className="text-zinc-500">
+                        {currentWebPage.metaDescription?.length || 0} ตัวอักษร
+                      </span>
+                    </div>
+                    <textarea 
+                      value={currentWebPage.metaDescription || ''}
+                      onChange={e => setCurrentWebPage({...currentWebPage, metaDescription: e.target.value})}
+                      className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm resize-none h-[42px] transition-all"
+                      placeholder="Meta Description สำหรับ SEO"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 3: Excerpt & Keywords */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
+                      <FileText size={16} /> คำโปรย (Excerpt)
+                    </label>
+                    <button 
+                      type="button" 
+                      onClick={handleGenerateExcerpt}
+                      disabled={isGeneratingExcerpt}
+                      className="text-xs text-zinc-400 hover:text-red-500 flex items-center gap-1 border border-zinc-800 rounded px-2 py-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isGeneratingExcerpt ? <div className="w-3 h-3 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" /> : <Wand2 size={12} />}
+                      {isGeneratingExcerpt ? 'กำลังสร้าง...' : 'Generate Excerpt'}
+                    </button>
+                  </div>
+                  <textarea 
+                    value={currentWebPage.excerpt || ''}
+                    onChange={e => setCurrentWebPage({...currentWebPage, excerpt: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-3 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm min-h-[80px] resize-y transition-all"
+                    placeholder="รายละเอียดสั้นๆ สำหรับแสดงในผลการค้นหา..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
+                      <Tag size={16} /> Keywords Meta Tag
+                    </label>
+                    <button 
+                      type="button" 
+                      onClick={handleGenerateKeywords}
+                      disabled={isGeneratingKeywords}
+                      className="text-xs text-zinc-400 hover:text-red-500 flex items-center gap-1 border border-zinc-800 rounded px-2 py-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isGeneratingKeywords ? <div className="w-3 h-3 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" /> : <Wand2 size={12} />}
+                      {isGeneratingKeywords ? 'กำลังสร้าง...' : 'Generate'}
+                    </button>
+                  </div>
+                  <textarea 
+                    value={currentWebPage.metaKeywords || ''}
+                    onChange={e => setCurrentWebPage({...currentWebPage, metaKeywords: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-3 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm min-h-[80px] resize-y transition-all"
+                    placeholder="เช่น เกี่ยวกับเรา, ข้อมูลบริษัท (คั่นด้วยลูกน้ำ)"
+                  />
+                </div>
+              </div>
+
+              {/* Section 4: Featured Image */}
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
                   <ImageIcon size={16} /> URL รูปภาพหน้าปก (Featured Image)
@@ -1598,73 +1757,107 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                 </div>
               </div>
 
+              {/* Section 5: Content */}
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
-                  <FileText size={16} /> คำโปรยย่อ (Excerpt)
-                </label>
-                <textarea 
-                  value={currentWebPage.excerpt || ''}
-                  onChange={e => setCurrentWebPage({...currentWebPage, excerpt: e.target.value})}
-                  className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-sm transition-all h-20"
-                  placeholder="รายละเอียดสั้นๆ สำหรับแสดงในผลการค้นหา..."
-                />
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                   <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
-                    <Code size={16} /> เนื้อหา (Content)
+                    <Edit3 size={16} /> เนื้อหาหน้า (Content)
                   </label>
-                  <button 
-                    type="button" 
-                    onClick={() => {
-                      setR2TargetField('editor');
-                      setIsR2ModalOpen(true);
-                      fetchR2Images();
-                    }}
-                    className="flex items-center gap-1 px-3 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-medium transition-colors border border-zinc-800"
-                  >
-                    <ImageIcon size={14} /> เลือกรูป/อัปโหลด
-                  </button>
-                </div>
-                <div className="border border-zinc-800 rounded-xl overflow-hidden bg-black">
-                  <div className="bg-white text-black quill-wrapper">
-                    <QuillEditor 
-                      ref={quillRef}
-                      theme="snow"
-                      value={currentWebPage.content || ''}
-                      onChange={(val: any) => setCurrentWebPage({...currentWebPage, content: val})}
-                      modules={quillModules}
-                      className="text-white"
-                    />
+                  <div className="flex items-center gap-2 w-full md:w-auto flex-wrap">
+                    <div className="flex bg-zinc-900 rounded-lg p-1 border border-zinc-800">
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setR2TargetField('editor');
+                          setIsR2ModalOpen(true);
+                          fetchR2Images();
+                        }}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-medium transition-colors border border-zinc-800"
+                      >
+                        <ImageIcon size={14} /> อัปโหลดรูปลงเนื้อหา
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditorMode('visual')}
+                        className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${editorMode === 'visual' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-zinc-200'}`}
+                      >
+                        <Eye size={14} className="inline mr-1" /> Visual
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditorMode('text')}
+                        className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${editorMode === 'text' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-zinc-200'}`}
+                      >
+                        <Code size={14} className="inline mr-1" /> Text
+                      </button>
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setAiPromptInitialTopic('');
+                        setIsAIPromptOpen(true);
+                      }}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-medium transition-colors border border-zinc-800"
+                    >
+                      <LayoutTemplate size={14} /> Templates
+                    </button>
+                    <div className="flex-1 md:w-64 relative">
+                      <input 
+                        type="text"
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                        placeholder="บอก AI ว่าอยากให้เขียนอะไร..."
+                        className="w-full bg-black border border-zinc-800 rounded-lg pl-3 pr-24 py-1.5 text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-xs transition-all"
+                      />
+                      <button 
+                        type="button" 
+                        onClick={handleGenerateContent}
+                        disabled={isGenerating || !aiPrompt.trim()}
+                        className="absolute right-1 top-1 bottom-1 px-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded text-[10px] font-medium transition-colors flex items-center gap-1 border border-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isGenerating ? <div className="w-3 h-3 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" /> : <Wand2 size={10} />}
+                        {isGenerating ? 'กำลังเขียน...' : 'AI ช่วยเขียน'}
+                      </button>
+                    </div>
                   </div>
                 </div>
+                
+                <div className="border border-zinc-800 rounded-lg overflow-hidden bg-black">
+                  {editorMode === 'visual' ? (
+                    <div className="bg-white text-black quill-wrapper">
+                      <QuillEditor 
+                        ref={quillRef}
+                        theme="snow"
+                        value={currentWebPage.content || ''}
+                        onChange={(val: any) => setCurrentWebPage({...currentWebPage, content: val})}
+                        modules={quillModules}
+                        className="h-[300px] mb-12"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="bg-zinc-900/50 border-b border-zinc-800 p-2 flex gap-1 text-zinc-400 overflow-x-auto">
+                        <button type="button" onClick={() => insertFormatting('\n\n')} className="p-1.5 hover:bg-zinc-800 rounded text-sm transition-colors">Normal</button>
+                        <div className="w-px h-5 bg-zinc-800 mx-1 self-center"></div>
+                        <button type="button" onClick={() => insertFormatting('**', '**')} className="p-1.5 hover:bg-zinc-800 rounded font-bold transition-colors">B</button>
+                        <button type="button" onClick={() => insertFormatting('*', '*')} className="p-1.5 hover:bg-zinc-800 rounded italic transition-colors">I</button>
+                        <button type="button" onClick={() => insertFormatting('<u>', '</u>')} className="p-1.5 hover:bg-zinc-800 rounded underline transition-colors">U</button>
+                      </div>
+                      <textarea 
+                        ref={contentTextareaRef}
+                        value={currentWebPage.content || ''}
+                        onChange={e => setCurrentWebPage({...currentWebPage, content: e.target.value})}
+                        className="w-full bg-transparent p-4 text-zinc-200 outline-none text-sm min-h-[300px] resize-y font-mono"
+                        placeholder="พิมพ์เนื้อหาที่นี่..."
+                      />
+                    </>
+                  )}
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-zinc-900/20 border border-zinc-800 rounded-2xl mt-8">
-                <div className="space-y-2">
-                  <label className="text-red-500 text-sm font-medium">Meta Title</label>
-                  <input 
-                    type="text" 
-                    value={currentWebPage.metaTitle || ''}
-                    onChange={e => setCurrentWebPage({...currentWebPage, metaTitle: e.target.value})}
-                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 outline-none text-sm transition-all"
-                    placeholder="Meta Title สำหรับ SEO"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-red-500 text-sm font-medium">Meta Description</label>
-                  <textarea 
-                    value={currentWebPage.metaDescription || ''}
-                    onChange={e => setCurrentWebPage({...currentWebPage, metaDescription: e.target.value})}
-                    className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:border-red-500 outline-none text-sm transition-all h-20"
-                    placeholder="Meta Description สำหรับ SEO"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-4 mt-8">
-                <button type="button" onClick={() => setIsEditing(false)} className="px-6 py-2.5 text-zinc-400 hover:text-white transition-colors">
+              {/* Footer */}
+              <div className="flex flex-col md:flex-row justify-end items-center gap-4 pt-6 border-t border-zinc-800 mt-8">
+                <button type="button" onClick={() => setIsEditing(false)} className="text-zinc-400 hover:text-white text-sm font-medium transition-colors px-4">
                   ยกเลิก
                 </button>
                 <button 
