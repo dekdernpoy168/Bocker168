@@ -1360,45 +1360,47 @@ ${article.content?.replace(/<[^>]*>/g, '')}
             <Database size={20} className="mr-2" /> Init DB
           </button>
           
-          <div className="relative group">
-            <button 
-              className="bg-zinc-900 text-zinc-400 px-4 py-3 rounded-full font-bold hover:bg-zinc-800 transition-colors flex items-center border border-zinc-800"
-              title="Export ข้อมูลทั้งหมด"
-            >
-              <Download size={20} className="mr-2" /> Export Report
-            </button>
-            <div className="absolute right-0 top-full mt-2 w-48 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[70] overflow-hidden">
+          {(activeTab === 'pages' || activeTab === 'articles') && (
+            <div className="flex gap-2">
+              <div className="relative group">
+                <button 
+                  className="bg-zinc-900 text-zinc-400 px-4 py-3 rounded-full font-bold hover:bg-zinc-800 transition-colors flex items-center border border-zinc-800"
+                  title="Export ข้อมูลทั้งหมด"
+                >
+                  <Download size={20} className="mr-2" /> Export
+                </button>
+                <div className="absolute right-0 top-full mt-2 w-48 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[70] overflow-hidden">
+                  <button 
+                    onClick={() => exportToExcel(activeTab === 'pages' ? pages : articles)}
+                    className="w-full text-left px-4 py-3 hover:bg-zinc-900 text-zinc-300 text-sm flex items-center gap-2 transition-colors"
+                  >
+                    <FileSpreadsheet size={16} className="text-green-500" /> Excel (.xlsx)
+                  </button>
+                  <button 
+                    onClick={() => exportToJSON(activeTab === 'pages' ? pages : articles)}
+                    className="w-full text-left px-4 py-3 hover:bg-zinc-900 text-zinc-300 text-sm flex items-center gap-2 transition-colors"
+                  >
+                    <FileJson size={16} className="text-amber-500" /> JSON (.json)
+                  </button>
+                </div>
+              </div>
+
               <button 
-                onClick={() => exportToExcel(filteredArticles)}
-                className="w-full text-left px-4 py-3 hover:bg-zinc-900 text-zinc-300 text-sm flex items-center gap-2 transition-colors"
+                onClick={() => { 
+                  if (activeTab === 'pages') {
+                    setIsEditing(true);
+                    setCurrentWebPage({});
+                  } else {
+                    setIsEditing(true); 
+                    setCurrentArticle({}); 
+                  }
+                }}
+                className="bg-red-600 text-white px-8 py-3 rounded-full font-black hover:bg-red-700 transition-colors flex items-center shadow-lg shadow-red-600/20"
               >
-                <FileSpreadsheet size={16} className="text-green-500" /> Excel (.xlsx)
-              </button>
-              <button 
-                onClick={() => exportToJSON(filteredArticles)}
-                className="w-full text-left px-4 py-3 hover:bg-zinc-900 text-zinc-300 text-sm flex items-center gap-2 transition-colors"
-              >
-                <FileJson size={16} className="text-amber-500" /> JSON (.json)
+                <Plus size={20} className="mr-2" /> {activeTab === 'pages' ? 'เพิ่มหน้าใหม่' : 'เพิ่มบทความใหม่'}
               </button>
             </div>
-          </div>
-
-          <div className="flex gap-2">
-            <button 
-              onClick={() => { 
-                if (activeTab === 'pages') {
-                  setIsEditing(true);
-                  setCurrentWebPage({});
-                } else {
-                  setIsEditing(true); 
-                  setCurrentArticle({}); 
-                }
-              }}
-              className="bg-red-600 text-white px-8 py-3 rounded-full font-black hover:bg-red-700 transition-colors flex items-center shadow-lg shadow-red-600/20"
-            >
-              <Plus size={20} className="mr-2" /> {activeTab === 'pages' ? 'เพิ่มหน้าใหม่' : 'เพิ่มบทความใหม่'}
-            </button>
-          </div>
+          )}
         </div>
       </div>
 

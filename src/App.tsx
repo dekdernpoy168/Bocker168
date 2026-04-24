@@ -897,35 +897,12 @@ const ContactForm = () => {
 };
 
 const BaccaratGuide = () => {
-  const steps = [
-    {
-      icon: <User className="w-8 h-8 text-red-500" />,
-      title: "1. สมัครสมาชิก",
-      desc: "กรอกข้อมูลพื้นฐานในระบบออโต้ ใช้เวลาเพียง 30 วินาที เพื่อรับยูสเซอร์เข้าเล่นทันที"
-    },
-    {
-      icon: <MapPin className="w-8 h-8 text-red-500" />,
-      title: "2. ฝากเงินเข้าบัญชีเล่น",
-      desc: "รองรับทุกธนาคารชั้นนำและ true wallet ฝากปุ๊บ เงินเข้าปั๊บ โดยไม่ต้องแจ้งสลิป"
-    },
-    {
-      icon: <Gem className="w-8 h-8 text-red-500" />,
-      title: "3. เลือกค่ายคาสิโนสด",
-      desc: "เลือกค่ายที่คุณชื่นชอบ เช่น SA Gaming, Sexy Baccarat ที่มีดีลเลอร์สาวสวยรอให้บริการ"
-    },
-    {
-      icon: <Trophy className="w-8 h-8 text-red-500" />,
-      title: "4. วางเดิมพันและรับเงิน",
-      desc: "ลงเดิมพันฝั่ง Player, Banker หรือ Tie เมื่อชนะสามารถแจ้งถอนเงินได้ทันที ทุกเวลา"
-    }
-  ];
-
   return (
-    <section className="py-24 relative overflow-hidden bg-zinc-950">
+    <section className="py-16 bg-zinc-950">
       <div className="container mx-auto px-4">
         <SectionTitle 
-          title="วิธีการเล่นบาคาร่ากับ Bocker168"
-          subtitle="เริ่มต้นทำกำไรกับเว็บบาคาร่าอันดับ 1 ใน 4 ขั้นตอนง่ายๆ"
+          title="เริ่มต้นเล่นบาคาร่าง่ายๆ ใน 3 ขั้นตอน"
+          subtitle="สมัคร ฝาก เล่น ทำกำไรได้ทันที ไม่ต้องรอนานด้วยระบบออโต้"
           centered={true}
           as="h2"
         />
@@ -935,28 +912,45 @@ const BaccaratGuide = () => {
           spaceBetween={24}
           breakpoints={{
             320: { slidesPerView: 1 },
-            640: { slidesPerView: 2 },
-            1024: { slidesPerView: 4 },
+            768: { slidesPerView: 3 },
           }}
           autoplay={{ delay: 3000, disableOnInteraction: false }}
           pagination={{ clickable: true, dynamicBullets: true }}
           className="mt-16 pb-16 relative z-10"
         >
-          {steps.map((step, index) => (
-            <SwiperSlide key={index} className="h-auto">
-              <motion.div
+          {STEPS.map((step, i) => (
+            <SwiperSlide key={i} className="h-auto">
+              <motion.div 
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-zinc-900 border border-zinc-800 p-8 rounded-[2rem] hover:border-red-600/50 transition-all relative group overflow-hidden h-full flex flex-col"
+                transition={{ delay: i * 0.2 }}
+                className="relative z-10 flex flex-col items-center text-center group h-full"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 rounded-full blur-3xl group-hover:bg-red-600/10 transition-colors" />
-                <div className="w-16 h-16 bg-black/50 border border-zinc-800 rounded-2xl flex items-center justify-center mb-6 shadow-xl relative z-10 shrink-0">
-                  {step.icon}
+                <div className="flex flex-col items-center min-h-[200px] justify-end mb-8">
+                  {step.image ? (
+                    <div className="mb-6 rounded-2xl overflow-hidden border border-zinc-800 shadow-lg max-w-[280px] group-hover:border-red-500/50 transition-colors">
+                      <img 
+                        src={step.image || null} 
+                        alt={step.title} 
+                        className="w-full h-auto object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  ) : (
+                    <div className="mb-6 h-[120px] flex items-center justify-center">
+                    </div>
+                  )}
+                  <div className="w-20 h-20 bg-zinc-900 border-4 border-zinc-800 rounded-full flex items-center justify-center shadow-xl group-hover:border-red-600 transition-all">
+                    <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-red-500 to-amber-500">
+                      {step.number}
+                    </span>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-4 relative z-10">{step.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed relative z-10 flex-1">{step.desc}</p>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-amber-500 transition-colors">{step.title}</h3>
+                <p className="text-zinc-500 max-w-xs mb-8">
+                  {step.description}
+                </p>
               </motion.div>
             </SwiperSlide>
           ))}
@@ -968,7 +962,7 @@ const BaccaratGuide = () => {
 
 const SeoContentBlock = () => {
   return (
-    <section className="py-24 bg-black border-t border-zinc-900/50 border-b relative">
+    <section className="py-16 bg-black border-t border-zinc-900/50 border-b relative">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="prose prose-invert prose-lg prose-red mx-auto text-zinc-300">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-black mb-8 text-white">บาคาร่า เว็บตรงอันดับ 1 Bocker168 เว็บบาคาร่าออนไลน์ยอดนิยม</h2>
@@ -2650,7 +2644,7 @@ function Bocker168Landing() {
       {/* --- Hero Section --- */}
       {isHome && (
         <>
-          <section id="home" className="relative pt-40 pb-20 md:pt-48 md:pb-32 lg:pt-48 overflow-hidden">
+          <section id="home" className="relative pt-40 pb-12 md:pt-48 md:pb-16 lg:pt-48 overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto items-center">
             <motion.div
@@ -2717,14 +2711,14 @@ function Bocker168Landing() {
       </section>
 
       {/* --- SEO Content Block (Home & Baccarat) --- */}
-      {(isHome || isBaccarat) && <SeoContentBlock />}
-
+      {(isHome || isBaccarat) && <div className={isHome ? "mt-[-20px] md:mt-[-40px]" : ""}><SeoContentBlock /></div>}
+    
       {/* --- Baccarat Guide Section --- */}
-      {isHome && <BaccaratGuide />}
-
+      {isHome && <div className="mt-[-80px] md:mt-[-100px]"><BaccaratGuide /></div>}
+    
       {/* --- Baccarat Page - Top Guide --- */}
       {isBaccarat && (
-        <div className="pt-24 md:pt-32 bg-zinc-950">
+        <div className="pt-16 md:pt-20 bg-zinc-950">
           <BaccaratGuide />
         </div>
       )}
@@ -2941,7 +2935,7 @@ function Bocker168Landing() {
       )}
 
       {/* --- Why Choose Section --- */}
-      {(isHome || isFeatures) && (
+      {isFeatures && (
       <section id="features" className="py-32 relative overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="mb-20">
@@ -3003,7 +2997,7 @@ function Bocker168Landing() {
       {(isHome || isArticles) && renderArticlesSection()}
 
       {/* --- How To Start --- */}
-      {isHome && (
+      {false && isHome && (
       <section className="py-24 bg-black">
         <div className="container mx-auto px-4">
           <SectionTitle 
@@ -3065,7 +3059,7 @@ function Bocker168Landing() {
       )}
 
       {/* --- Promotions Section --- */}
-      {(isHome || isPromotions) && (
+      {isPromotions && (
       <>
       <section id="promotions" className="py-24 relative">
         <div className="container mx-auto px-4">
