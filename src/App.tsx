@@ -987,8 +987,7 @@ function Bocker168Landing() {
   // Reserved routes (static pages that should not be matched as dynamic post slugs)
   const reservedRoutes = [
     'articles', 'faq', 'contact', 'baccarat', 'features', 'promotions', 
-    'register-guide', 'deposit-withdraw-guide', 'terms', 'privacy', 'cookies', 
-    'responsible-gambling', 'category', 'author', 'admin', 'dashboard', 'api'
+    'category', 'author', 'admin', 'dashboard', 'api'
   ];
   
   const isPotentialFlatRoute = potentialSlug && !reservedRoutes.includes(potentialSlug);
@@ -1000,12 +999,12 @@ function Bocker168Landing() {
   const isPageDetail = !!currentPage;
   const isPostDetail = !!currentPost; 
   
-  const isRegisterGuide = location.pathname.replace(/\/$/, '') === '/register-guide';
-  const isDepositWithdrawGuide = location.pathname.replace(/\/$/, '') === '/deposit-withdraw-guide';
-  const isTerms = location.pathname.replace(/\/$/, '') === '/terms';
-  const isPrivacy = location.pathname.replace(/\/$/, '') === '/privacy';
-  const isCookies = location.pathname.replace(/\/$/, '') === '/cookies';
-  const isResponsibleGambling = location.pathname.replace(/\/$/, '') === '/responsible-gambling';
+  const isRegisterGuide = location.pathname.replace(/\/$/, '') === '/register-guide' && !currentPage;
+  const isDepositWithdrawGuide = location.pathname.replace(/\/$/, '') === '/deposit-withdraw-guide' && !currentPage;
+  const isTerms = location.pathname.replace(/\/$/, '') === '/terms' && !currentPage;
+  const isPrivacy = location.pathname.replace(/\/$/, '') === '/privacy' && !currentPage;
+  const isCookies = location.pathname.replace(/\/$/, '') === '/cookies' && !currentPage;
+  const isResponsibleGambling = location.pathname.replace(/\/$/, '') === '/responsible-gambling' && !currentPage;
 
   const authorMatch = location.pathname.match(/^\/author\/([^/]+)$/);
   const isAuthorPage = !!authorMatch;
@@ -1014,6 +1013,12 @@ function Bocker168Landing() {
   const currentCategory = urlCategorySlug ? (dynamicReverseCategoryMap[urlCategorySlug] || decodeURIComponent(urlCategorySlug)) : null;
 
   const getPageTitle = () => {
+    const pathAlias = potentialSlug || location.pathname.substring(1);
+    const dbPageSearch = pages.find(p => p.slug === pathAlias || p.id === pathAlias);
+    if (dbPageSearch && dbPageSearch.metaTitle) {
+      return dbPageSearch.metaTitle;
+    }
+
     if (isHome) return 'บาคาร่า Bocker168 - เว็บบาคาร่าออนไลน์ อันดับ 1 เว็บตรง ฝากถอนไม่มีขั้นต่ำ';
     if (isFeatures) return 'จุดเด่นของเรา - Bocker168 บาคาร่าเว็บตรง';
     if (isBaccarat) return 'บาคาร่าออนไลน์ คาสิโนสด - Bocker168';
@@ -1051,6 +1056,12 @@ function Bocker168Landing() {
   };
 
   const getPageDescription = () => {
+    const pathAlias = potentialSlug || location.pathname.substring(1);
+    const dbPageSearch = pages.find(p => p.slug === pathAlias || p.id === pathAlias);
+    if (dbPageSearch && dbPageSearch.metaDescription) {
+      return dbPageSearch.metaDescription;
+    }
+
     if (isHome) return 'Bocker168 เว็บบาคาร่าออนไลน์ อันดับ 1 เว็บตรงไม่ผ่านเอเย่นต์ มั่นคง ปลอดภัย 100% เล่นบาคาร่าคาสิโนสด ฝากถอนไม่มีขั้นต่ำ รองรับทุกระบบมือถือ';
     if (isBaccarat) return 'เล่นบาคาร่าออนไลน์ที่ Bocker168 คาสิโนสดส่งตรงจากค่ายดัง สัมผัสประสบการณ์บาคาร่าเว็บตรงของแท้ ได้เงินจริง พร้อมระบบฝากถอนออโต้รวดเร็ว';
     if (isPromotions) return 'รวมโปรโมชั่นบาคาร่าสุดคุ้มจาก Bocker168 เว็บตรง แจกโบนัสเครดิตฟรีและสิทธิพิเศษสำหรับสมาชิกใหม่และปัจจุบัน เพิ่มโอกาสทำกำไรคาสิโนออนไลน์';
