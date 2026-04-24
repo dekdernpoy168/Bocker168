@@ -73,6 +73,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [isR2ModalOpen, setIsR2ModalOpen] = useState(false);
   const [r2Images, setR2Images] = useState<any[]>([]);
   const [isLoadingR2, setIsLoadingR2] = useState(false);
+  const [isUploadingR2, setIsUploadingR2] = useState(false);
   const [r2TargetField, setR2TargetField] = useState<'cover' | 'editor'>('cover');
 
   useEffect(() => {
@@ -260,6 +261,45 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       alert('Failed to connect to R2 API');
     } finally {
       setIsLoadingR2(false);
+    }
+  };
+
+  const handleR2Upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('ขนาดไฟล์เกิน 10MB');
+      return;
+    }
+
+    setIsUploadingR2(true);
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        const response = await fetch('/api/upload-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename: file.name,
+            base64
+          })
+        });
+
+        if (response.ok) {
+          await fetchR2Images();
+        } else {
+          const errorData = await response.json() as any;
+          alert('Error uploading to R2: ' + (errorData.error || 'Unknown error'));
+        }
+        setIsUploadingR2(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Upload Error:', error);
+      alert('Failed to upload image.');
+      setIsUploadingR2(false);
     }
   };
 
@@ -2468,9 +2508,22 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                   เลือกรูปภาพจาก Cloudflare R2 เพื่อใช้งานในบทความ
                 </p>
               </div>
-              <button onClick={() => setIsR2ModalOpen(false)} className="text-zinc-400 hover:text-white transition-colors bg-zinc-900 p-2 rounded-full">
-                <X size={20} />
-              </button>
+              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+                <label className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer transition-colors relative overflow-hidden">
+                  <div className="flex items-center gap-2">
+                    {isUploadingR2 ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <Upload size={16} />
+                    )}
+                    <span>{isUploadingR2 ? 'กำลังอัปโหลด...' : 'อัปโหลดรูปลง R2'}</span>
+                  </div>
+                  <input type="file" className="hidden" accept="image/*" onChange={handleR2Upload} disabled={isUploadingR2} />
+                </label>
+                <button onClick={() => setIsR2ModalOpen(false)} className="text-zinc-400 hover:text-white transition-colors bg-zinc-900 p-2 rounded-full">
+                  <X size={20} />
+                </button>
+              </div>
             </div>
             
             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar min-h-[300px]">

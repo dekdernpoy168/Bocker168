@@ -206,6 +206,56 @@ export default {
           }
         }
 
+        // Route to upload image to R2
+        if (url.pathname === '/api/upload-image' && request.method === 'POST') {
+          try {
+            if (!env.R2_IMAGES) {
+               return new Response(JSON.stringify({ error: 'R2 bucket not bound' }), { status: 500, headers: { 'Content-Type': 'application/json' }});
+            }
+
+            const body = await request.json() as any;
+            const { filename, base64 } = body;
+            
+            if (!filename || !base64) {
+              return new Response(JSON.stringify({ error: 'Missing filename or base64' }), { status: 400, headers: { 'Content-Type': 'application/json' }});
+            }
+
+            const base64Data = base64.replace(/^data:image\/\w+;base64,/, "");
+            const binaryString = atob(base64Data);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            const ext = filename.split('.').pop()?.toLowerCase();
+            const mimeType = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : ext === 'svg' ? 'image/svg+xml' : ext === 'gif' ? 'image/gif' : 'image/jpeg';
+            const uniqueFilename = `${Date.now()}-${filename.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+
+            await env.R2_IMAGES.put(uniqueFilename, bytes.buffer, {
+               httpMetadata: { contentType: mimeType }
+            });
+
+            const publicUrl = env.R2_PUBLIC_URL || '';
+            let formattedPublicUrl = publicUrl.trim();
+            if (formattedPublicUrl && !/^https?:\/\//i.test(formattedPublicUrl)) {
+              formattedPublicUrl = `https://${formattedPublicUrl}`;
+            }
+
+            const fileUrl = formattedPublicUrl ? `${formattedPublicUrl.replace(/\/$/, '')}/${uniqueFilename}` : `/${uniqueFilename}`;
+
+            return new Response(JSON.stringify({ success: true, url: fileUrl }), {
+               status: 200,
+               headers: { 'Content-Type': 'application/json' }
+            });
+          } catch(error: any) {
+             return new Response(JSON.stringify({ error: error.message }), { 
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+             });
+          }
+        }
+
         // Route to check config status
         if (url.pathname === '/api/config-status') {
           return Response.json({ d1Configured: true, fallbackMode: false });

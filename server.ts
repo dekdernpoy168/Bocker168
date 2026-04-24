@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
-import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { S3Client, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
 
 dotenv.config();
 
@@ -524,6 +524,62 @@ async function startServer() {
       res.json(images);
     } catch (error: any) {
       console.error('R2 List Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/upload-image', express.json({ limit: '10mb' }), async (req, res) => {
+    try {
+      const { filename, base64 } = req.body;
+      if (!filename || !base64) {
+        return res.status(400).json({ error: 'Missing filename or base64 data' });
+      }
+
+      const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+      const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+      const bucketName = process.env.R2_BUCKET_NAME;
+      const accountId = process.env.R2_ACCOUNT_ID;
+      const publicUrl = process.env.R2_PUBLIC_URL || '';
+
+      if (!accessKeyId || !secretAccessKey || !bucketName || !accountId) {
+        return res.status(400).json({ error: 'R2 configuration is incomplete' });
+      }
+
+      const base64Data = base64.replace(/^data:image\/\w+;base64,/, "");
+      const buffer = Buffer.from(base64Data, 'base64');
+      const ext = filename.split('.').pop()?.toLowerCase();
+      const mimeType = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : ext === 'svg' ? 'image/svg+xml' : ext === 'gif' ? 'image/gif' : 'image/jpeg';
+      
+      const uniqueFilename = `${Date.now()}-${filename.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+
+      const s3Client = new S3Client({
+        region: 'auto',
+        endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+        credentials: {
+          accessKeyId,
+          secretAccessKey,
+        },
+      });
+
+      const command = new PutObjectCommand({
+        Bucket: bucketName,
+        Key: uniqueFilename,
+        Body: buffer,
+        ContentType: mimeType,
+      });
+
+      await s3Client.send(command);
+
+      let formattedPublicUrl = publicUrl.trim();
+      if (formattedPublicUrl && !/^https?:\/\//i.test(formattedPublicUrl)) {
+        formattedPublicUrl = `https://${formattedPublicUrl}`;
+      }
+
+      const fileUrl = formattedPublicUrl ? `${formattedPublicUrl.replace(/\/$/, '')}/${uniqueFilename}` : `/${uniqueFilename}`;
+
+      res.json({ success: true, url: fileUrl });
+    } catch (error: any) {
+      console.error('Error uploading image to R2:', error);
       res.status(500).json({ error: error.message });
     }
   });
