@@ -75,6 +75,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   const [isLoadingR2, setIsLoadingR2] = useState(false);
   const [isUploadingR2, setIsUploadingR2] = useState(false);
   const [r2TargetField, setR2TargetField] = useState<'cover' | 'editor'>('cover');
+  const [selectedR2Image, setSelectedR2Image] = useState<any>(null);
+  const [r2AltText, setR2AltText] = useState('');
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -288,7 +290,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
         });
 
         if (response.ok) {
+          const resData = await response.json() as any;
           await fetchR2Images();
+          // Auto-select the uploaded image
+          if (resData.url) {
+            setSelectedR2Image({ url: resData.url, key: file.name });
+            setR2AltText(file.name.split('.')[0] || '');
+          }
         } else {
           const errorData = await response.json() as any;
           alert('Error uploading to R2: ' + (errorData.error || 'Unknown error'));
@@ -304,13 +312,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
   };
 
   const handleSelectR2Image = (imageUrl: string, defaultAlt: string = '') => {
-    let altText = defaultAlt;
+    setSelectedR2Image({ url: imageUrl, key: defaultAlt });
+    setR2AltText(defaultAlt.split('.')[0] || '');
+  };
 
-    if (r2TargetField !== 'cover') {
-      const result = window.prompt("กำหนดคำอธิบายรูปภาพ (Alt Text) หรือเว้นว่างไว้:", defaultAlt.split('.')[0] || "");
-      if (result === null) return; // User Cancelled
-      altText = result;
-    }
+  const confirmUseR2Image = () => {
+    if (!selectedR2Image) return;
+    
+    const imageUrl = selectedR2Image.url;
+    const altText = r2AltText;
 
     if (r2TargetField === 'cover') {
       if (activeTab === 'pages') {
@@ -323,7 +333,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       if (editorMode === 'visual') {
         const quill = quillRef.current?.getEditor();
         if (quill) {
-          const range = quill.getSelection(true);
+          const range = quill.getSelection(true) || { index: quill.getLength() };
           // Set selection explicitly and paste HTML to include alt attributes cleanly
           const imgHtml = `<img src="${imageUrl}" alt="${altText}" />`;
           quill.clipboard.dangerouslyPasteHTML(range.index, imgHtml);
@@ -346,6 +356,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       }
     }
     setIsR2ModalOpen(false);
+    setSelectedR2Image(null);
+    setR2AltText('');
   };
 
   const fetchConfigStatus = async () => {
@@ -626,17 +638,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     }, 0);
   };
 
-  const quillModules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'align': [] }],
-      ['link', 'image', 'video'],
-      ['clean']
-    ],
-  };
+  const quillModules = React.useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        ['link', 'image', 'video'],
+        ['clean']
+      ],
+      handlers: {
+        image: function() {
+          setR2TargetField('editor');
+          setIsR2ModalOpen(true);
+          fetchR2Images();
+        }
+      }
+    }
+  }), []);
 
   const handleGenerateSlug = async () => {
     if (!currentArticle.title?.trim()) {
@@ -2546,13 +2567,13 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                     <button
                       key={idx}
                       onClick={() => handleSelectR2Image(img.url || '', img.key || '')}
-                      className="group relative aspect-square bg-black rounded-xl border border-zinc-800 overflow-hidden hover:border-red-500 transition-all focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                      className={`group relative aspect-square bg-black rounded-xl border overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-red-500/50 ${selectedR2Image?.url === img.url ? 'border-red-500 ring-2 ring-red-500/30' : 'border-zinc-800 hover:border-red-500/50'}`}
                     >
                       {img.url ? (
                         <img 
                           src={img.url} 
                           alt={img.key} 
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                          className={`w-full h-full object-cover transition-transform duration-500 ${selectedR2Image?.url === img.url ? 'scale-110 opacity-70' : 'group-hover:scale-110'}`} 
                           referrerPolicy="no-referrer"
                           loading="lazy"
                           onError={(e) => {
@@ -2564,8 +2585,13 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                           {img.key}
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
-                        <p className="text-[10px] text-white truncate w-full">{img.key}</p>
+                      {selectedR2Image?.url === img.url && (
+                        <div className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg z-10 animate-in zoom-in duration-200">
+                           <Check size={14} />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                        <p className="text-[10px] text-white truncate w-full drop-shadow-md">{img.key}</p>
                       </div>
                     </button>
                   ))}
@@ -2573,17 +2599,49 @@ ${article.content?.replace(/<[^>]*>/g, '')}
               )}
             </div>
             
-            <div className="p-5 border-t border-zinc-800 bg-zinc-900/30 flex justify-between items-center">
-              <p className="text-xs text-zinc-500">
-                พบ {r2Images.length} รูปภาพใน Bucket
-              </p>
-              <button 
-                onClick={fetchR2Images}
-                className="text-xs font-medium text-red-500 hover:text-red-400 flex items-center gap-1.5 transition-colors"
-                disabled={isLoadingR2}
-              >
-                <Sparkles size={14} /> Refresh Library
-              </button>
+            <div className="p-5 border-t border-zinc-800 bg-zinc-900/50 flex flex-col justify-center min-h-[80px]">
+              {selectedR2Image ? (
+                <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-4 animate-in slide-in-from-bottom-2 fade-in duration-300">
+                  <div className="flex-1 w-full space-y-2">
+                    <label className="text-xs font-bold text-red-400 flex items-center gap-1"><Sparkles size={12}/> Alt Text (คำอธิบายรูปภาพสำหรับ SEO)</label>
+                    <input 
+                      type="text" 
+                      value={r2AltText} 
+                      onChange={e => setR2AltText(e.target.value)}
+                      className="w-full bg-black border border-zinc-700/50 rounded-lg px-4 py-2.5 text-white focus:border-red-500 outline-none text-sm transition-all"
+                      placeholder="อธิบายรูปภาพสำหรับ SEO..."
+                    />
+                  </div>
+                  <div className="flex shrink-0 gap-3 w-full sm:w-auto">
+                    <button 
+                      onClick={() => { setSelectedR2Image(null); setR2AltText(''); }}
+                      className="flex-1 sm:flex-none px-4 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors border border-transparent"
+                    >
+                      ยกเลิก
+                    </button>
+                    <button 
+                      onClick={confirmUseR2Image}
+                      className="flex-1 sm:flex-none px-6 py-2.5 rounded-lg text-sm font-bold bg-red-600 hover:bg-red-700 text-white transition-colors flex items-center justify-center gap-2 shadow-lg shadow-red-900/20 border border-red-500"
+                    >
+                      <Check size={16} /> Use This Image
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-between items-center w-full">
+                  <p className="text-xs text-zinc-500">
+                    พบ {r2Images.length} รูปภาพใน Bucket
+                  </p>
+                  <button 
+                    onClick={fetchR2Images}
+                    className="text-xs font-medium text-zinc-400 hover:text-white flex items-center gap-1.5 transition-colors bg-zinc-800/50 hover:bg-zinc-700 px-3 py-1.5 rounded-md"
+                    disabled={isLoadingR2}
+                  >
+                    <RefreshCw size={14} className={isLoadingR2 ? 'animate-spin' : ''} />
+                    Refresh Library
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
