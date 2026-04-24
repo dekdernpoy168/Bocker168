@@ -2079,11 +2079,6 @@ function Bocker168Landing() {
                 <h1 className="text-3xl md:text-5xl font-black text-white mb-8 leading-tight">
                   {currentPage.title}
                 </h1>
-                {currentPage.image && (
-                  <div className="rounded-[2.5rem] overflow-hidden border border-zinc-800 shadow-2xl mb-12">
-                    <img src={currentPage.image} alt={currentPage.title} className="w-full h-auto object-cover" referrerPolicy="no-referrer" />
-                  </div>
-                )}
               </div>
               <div 
                 className="prose prose-invert prose-red max-w-none prose-lg prose-p:text-zinc-400 prose-p:leading-loose prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-red-500 hover:prose-a:text-red-400 prose-img:rounded-3xl [&>img]:rounded-3xl [&>img]:shadow-2xl [&>img]:my-10"

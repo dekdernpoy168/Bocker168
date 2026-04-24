@@ -15,6 +15,17 @@ import * as docx from 'docx';
 import * as xlsx from 'xlsx';
 import { saveAs } from 'file-saver';
 
+const PROMPT_TEMPLATES = [
+  { name: 'Blog Post Outline', prompt: 'Create a detailed blog post outline for the topic: {topic}. Include an introduction, 3-5 main sections with H2/H3 headings, and a conclusion.' },
+  { name: 'SEO Title & Description', prompt: 'Generate 5 catchy SEO-friendly title tags and 5 compelling meta descriptions for the topic: {topic} and keyword: {keyword}.' },
+  { name: 'Introduction Generator', prompt: 'Write a compelling introduction for a blog post about: {topic}.' },
+  { name: 'FAQ Generator', prompt: 'Generate 5 frequently asked questions and their answers for the topic: {topic}.' },
+  { name: 'Conclusion Generator', prompt: 'Write a punchy summary conclusion for a blog post about: {topic}.' },
+  { name: 'Keywords Everywhere: Blog Post Ideas', prompt: 'Give me 10 unique, high-value blog post ideas related to the keyword: {topic} that are currently trending in the niche.' },
+  { name: 'Keywords Everywhere: LSI Keywords', prompt: 'Identify 20 LSI keywords (Latent Semantic Indexing) and related long-tail keywords for: {topic} that will help improve SEO rankings.' },
+  { name: 'Keywords Everywhere: Content Cluster Plan', prompt: 'Create a content cluster strategy for the topic: {topic}. Identify a pillar page and at least 5 supporting article topics to build topical authority.' },
+];
+
 interface AdminDashboardProps {
   onClose?: () => void;
   onSaveSuccess?: () => void;
@@ -691,20 +702,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
     }
   }), []);
 
-  const handleGenerateSlug = async () => {
-    if (!currentArticle.title?.trim()) {
-      alert('กรุณาใส่หัวข้อบทความ (Title) ก่อนสร้าง Slug');
+  const handleGenerateSlugForPage = async () => {
+    if (!currentWebPage.title?.trim()) {
+      alert('กรุณาใส่หัวข้อหน้า (Title) ก่อนสร้าง Slug');
       return;
     }
     
     setIsGeneratingSlug(true);
     try {
-      const prompt = `Generate 3 short, SEO-friendly URL slugs for the following article.
-      Title: "${currentArticle.title}"
-      Content: "${currentArticle.content?.substring(0, 1000) || ''}"
+      const prompt = `Generate 3 short, SEO-friendly URL slugs for the following page.
+      Title: "${currentWebPage.title}"
       
       Return ONLY a valid JSON array of 3 strings. 
-      The slugs should be in English (translate if necessary), lowercase, and use hyphens for spaces. 
+      The slugs should be in English, lowercase, and use hyphens for spaces. 
       Example: ["slug-option-1", "slug-option-2", "slug-option-3"]`;
       
       const text = await generateAIContent(prompt);
@@ -721,12 +731,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onSaveSuccess 
       }
       
       if (!options.length) {
-        // Fallback parsing
         options = text.split('\n').map(line => line.replace(/^[-\d.\s*"'\[\]]+/, '').replace(/["',\]]+$/, '').trim()).filter(Boolean).slice(0, 3);
       }
       
       if (options.length > 0) {
         setSlugOptions(options);
+        // Reuse slug modal - need a way to distinguish, just set slugOptions and open it
         setIsSlugModalOpen(true);
       } else {
         alert('ไม่สามารถสร้าง Slug ได้ กรุณาลองใหม่อีกครั้ง');
@@ -1538,9 +1548,20 @@ ${article.content?.replace(/<[^>]*>/g, '')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
-                    <LinkIcon size={16} /> URL Slug (EN)
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label className="flex items-center gap-2 text-red-500 text-sm font-medium">
+                      <LinkIcon size={16} /> URL Slug (EN)
+                    </label>
+                    <button 
+                      type="button" 
+                      onClick={handleGenerateSlugForPage}
+                      disabled={isGeneratingSlug || !currentWebPage.title}
+                      className="text-xs text-zinc-400 hover:text-red-500 flex items-center gap-1 border border-zinc-800 rounded px-2 py-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isGeneratingSlug ? <div className="w-3 h-3 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" /> : <Wand2 size={12} />}
+                      {isGeneratingSlug ? 'Generating...' : 'Generate Slug'}
+                    </button>
+                  </div>
                   <input 
                     type="text" 
                     value={currentWebPage.slug || ''}
