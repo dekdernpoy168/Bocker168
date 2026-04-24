@@ -563,10 +563,29 @@ export default {
       }
       
       if (url.pathname === '/category-sitemap.xml') {
-        const allArticles = await db.select().from(articles).where(eq(articles.status, 'published')).all();
-        const categories = Array.from(new Set(allArticles.map(a => a.category).filter(Boolean)));
+        let xml = '';
         const today = new Date().toISOString().split('T')[0];
-        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+        try {
+          const result = await env.DB.prepare('SELECT name, slug FROM categories').all();
+          if (result.results && result.results.length > 0) {
+            const categoryData = result.results as { name: string, slug: string }[];
+            xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${categoryData.map(cat => `
+  <url>
+    <loc>${url.origin}/category/${encodeURIComponent(cat.slug || cat.name)}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('')}
+</urlset>`.trim();
+          }
+        } catch (e) {}
+
+        if (!xml) {
+          const allArticles = await db.select().from(articles).where(eq(articles.status, 'published')).all();
+          const categories = Array.from(new Set(allArticles.map(a => a.category).filter(Boolean)));
+          xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   ${categories.map(cat => `
   <url>
@@ -576,6 +595,7 @@ export default {
     <priority>0.7</priority>
   </url>`).join('')}
 </urlset>`.trim();
+        }
         return new Response(xml, { headers: { 'Content-Type': 'application/xml', 'Cache-Control': 'public, max-age=3600' } });
       }
 
