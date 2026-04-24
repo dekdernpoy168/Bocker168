@@ -375,19 +375,7 @@ const FAQItem = ({ faq, isOpen, onClick }: FAQItemProps) => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (isOpen && itemRef.current) {
-      // Allow animation to calculate height and open slightly before checking/scrolling
-      const timer = setTimeout(() => {
-        if (!itemRef.current) return;
-        const rect = itemRef.current.getBoundingClientRect();
-        // If bottom of the expanded item is pushed outside the viewport or top is above viewport
-        if (rect.bottom > window.innerHeight || rect.top < 80) {
-           const y = rect.top + window.scrollY - 100; // offset for better visibility
-           window.scrollTo({ top: y, behavior: 'smooth' });
-        }
-      }, 250);
-      return () => clearTimeout(timer);
-    }
+    // Scroll behavior removed as requested by user
   }, [isOpen]);
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -1027,7 +1015,96 @@ const SeoContentBlock = () => {
           <p className="leading-relaxed mb-6">
             การเดินเงินคือหัวใจสำคัญของการเล่นคาสิโนให้ยั่งยืน เราแนะนำสูตรเดินเงินมาติงเกล (Martingale) ทบไม้ หรือสูตร N+1 สำหรับผู้เริ่มต้นเพื่อกระจายความเสี่ยงและตามทุนคืนได้เมื่อมีความผิดพลาด ทั้งนี้ควรตั้งเป้าหมายการได้-เสียในแต่ละวันให้ชัดเจนและปฏิบัติตามอย่างเคร่งครัด
           </p>
-  
+
+          <div className="bg-gradient-to-r from-red-950/20 to-black border border-red-900/30 rounded-2xl p-8 my-12">
+            <h3 className="text-2xl font-bold text-white mb-4">กฎกติกาการนับแต้มบาคาร่า (เบื้องต้น)</h3>
+            <p className="text-zinc-400 mb-6">
+              การเล่นประกอบด้วย 2 ฝั่งคือ ฝั่งผู้เล่น (Player - สีน้ำเงิน) และฝั่งเจ้ามือ (Banker - สีแดง) โดยดีลเลอร์จะแจกไพ่ฝ่ายละ 2 ใบ และสามารถจั่วไพ่ใบที่ 3 ได้ตามกติกาที่กำหนด ฝ่ายไหนมีแต้มใกล้เคียง 9 มากที่สุดจะเป็นฝ่ายชนะ!
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center">
+                <div className="text-red-500 text-2xl font-black mb-1">A</div>
+                <div className="text-zinc-400 text-sm">นับเป็น 1 แต้ม</div>
+              </div>
+              <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center">
+                <div className="text-red-500 text-2xl font-black mb-1">2-9</div>
+                <div className="text-zinc-400 text-sm">นับแต้มตามหน้าไพ่</div>
+              </div>
+              <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center">
+                <div className="text-red-500 text-xl font-black mb-1 mt-1">10, J, Q, K</div>
+                <div className="text-zinc-400 text-sm">นับเป็น 0 แต้ม</div>
+              </div>
+              <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center flex flex-col justify-center">
+                <div className="text-red-500 text-lg font-black mb-1">ชนะทันที (ป๊อก)</div>
+                <div className="text-zinc-400 text-sm">ได้แต้ม 8 หรือ 9</div>
+              </div>
+            </div>
+            
+            <div className="pt-8 border-t border-zinc-800/50">
+              <h4 className="text-xl font-bold text-white mb-6">กฎการจั่วไพ่ใบที่ 3 (Third Card Rule)</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
+                  <div className="text-blue-400 font-bold mb-4 flex items-center gap-2 text-lg">
+                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    ฝั่งผู้เล่น (Player)
+                  </div>
+                  <ul className="text-zinc-300 space-y-3">
+                    <li><span className="text-red-500 mr-2">•</span>แต้ม 0-5 : <strong className="text-white">ต้องจั่วไพ่</strong> ใบที่ 3 เพิ่ม</li>
+                    <li><span className="text-red-500 mr-2">•</span>แต้ม 6-7 : <strong className="text-white">อยู่ (Stand)</strong> ไม่ต้องจั่วไพ่เพิ่ม</li>
+                    <li><span className="text-red-500 mr-2">•</span>แต้ม 8-9 : <strong className="text-white">ป๊อก (Natural)</strong> ชนะหรือเสมอทันที</li>
+                  </ul>
+                </div>
+                <div className="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
+                  <div className="text-red-400 font-bold mb-4 flex items-center gap-2 text-lg">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    ฝั่งเจ้ามือ (Banker)
+                  </div>
+                  <ul className="text-zinc-300 space-y-3">
+                    <li><span className="text-red-500 mr-2">•</span>แต้ม 0-2 : <strong className="text-white">ต้องจั่วไพ่</strong> เสมอ</li>
+                    <li><span className="text-red-500 mr-2">•</span>แต้ม 3-6 : การจั่วไพ่จะ <strong className="text-white">ขึ้นอยู่กับไพ่ใบที่ 3 ของ Player</strong></li>
+                    <li><span className="text-red-500 mr-2">•</span>แต้ม 7 : <strong className="text-white">อยู่ (Stand)</strong> ไม่ต้องจั่ว</li>
+                    <li><span className="text-red-500 mr-2">•</span>แต้ม 8-9 : <strong className="text-white">ป๊อก (Natural)</strong> ชนะหรือเสมอ</li>
+                  </ul>
+                </div>
+              </div>
+
+              <h4 className="text-xl font-bold text-white mb-6">รูปแบบการเดิมพันและอัตราจ่ายเงิน</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-zinc-300 border-collapse">
+                  <thead className="bg-zinc-900 text-white uppercase font-bold border-b-2 border-red-900">
+                    <tr>
+                      <th className="px-6 py-4">รูปแบบการเดิมพัน</th>
+                      <th className="px-6 py-4 hidden sm:table-cell">เงื่อนไขการชนะ</th>
+                      <th className="px-6 py-4">อัตราจ่าย</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800">
+                    <tr className="hover:bg-zinc-900/30 transition-colors">
+                      <td className="px-6 py-4 text-blue-400 font-bold">Player (ผู้เล่น)</td>
+                      <td className="px-6 py-4 hidden sm:table-cell">ผู้เล่นมีแต้มสูงกว่า</td>
+                      <td className="px-6 py-4 text-white font-bold text-lg">1 : 1</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-900/30 transition-colors">
+                      <td className="px-6 py-4 text-red-400 font-bold">Banker (เจ้ามือ)</td>
+                      <td className="px-6 py-4 hidden sm:table-cell">เจ้ามือมีแต้มสูงกว่า</td>
+                      <td className="px-6 py-4 text-white font-bold text-lg">1 : 0.95 <span className="block text-xs text-zinc-500 font-normal">หักต๋ง 5%</span></td>
+                    </tr>
+                    <tr className="hover:bg-zinc-900/30 transition-colors">
+                      <td className="px-6 py-4 text-green-400 font-bold">Tie (เสมอ)</td>
+                      <td className="px-6 py-4 hidden sm:table-cell">แต้มออกมาเท่ากัน</td>
+                      <td className="px-6 py-4 text-white font-bold text-lg">1 : 8</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-900/30 transition-colors">
+                      <td className="px-6 py-4 text-purple-400 font-bold">Player/Banker Pair</td>
+                      <td className="px-6 py-4 hidden sm:table-cell">ไพ่ 2 ใบแรกออกคู่</td>
+                      <td className="px-6 py-4 text-white font-bold text-lg">1 : 11</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-gradient-to-br from-red-950/40 to-zinc-900 border border-red-900/30 p-8 rounded-3xl mt-12 text-center shadow-lg">
             <h3 className="text-2xl md:text-3xl font-black mb-4 text-white">สมัครบาคาร่ากับ Bocker168 วันนี้</h3>
             <p className="mb-8 max-w-2xl mx-auto">
@@ -1157,7 +1234,7 @@ export default function App() {
 function Bocker168Landing() {
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [openFaqIndex, setOpenFaqIndex] = useState(0);
+  const [openFaqIndex, setOpenFaqIndex] = useState(-1);
   const [showCookieBanner, setShowCookieBanner] = useState(false);
   const [showCookieSettings, setShowCookieSettings] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
@@ -1633,6 +1710,94 @@ function Bocker168Landing() {
   if (showAdmin) {
     return <AdminDashboard onClose={() => setShowAdmin(false)} onSaveSuccess={fetchArticles} />;
   }
+
+  const renderArticlesSection = () => (
+      <section id="articles" className="py-24 relative bg-[#050505]">
+        <div className="container mx-auto px-4">
+          <SectionTitle 
+            title="บทความและเทคนิคบาคาร่า"
+            subtitle="อัปเดตความรู้ เทคนิค และสูตรบาคาร่าใหม่ๆ เพื่อเพิ่มโอกาสชนะของคุณ"
+            centered={true}
+          />
+
+          {isLoadingArticles ? (
+            <div className="flex flex-col items-center justify-center py-24 mt-16">
+              <div className="w-12 h-12 border-4 border-red-600/20 border-t-red-600 rounded-full animate-spin mb-4" />
+              <p className="text-zinc-400 animate-pulse">กำลังโหลดบทความ...</p>
+            </div>
+          ) : articleError ? (
+            <div className="text-center py-20 bg-zinc-900/20 border border-zinc-800/50 rounded-3xl mt-16">
+              <div className="w-16 h-16 bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="w-8 h-8 text-zinc-600" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">ขออภัย เกิดข้อผิดพลาด</h3>
+              <p className="text-zinc-400">{articleError}</p>
+              <button 
+                onClick={() => {
+                  setIsLoadingArticles(true);
+                  fetchArticles().finally(() => setIsLoadingArticles(false));
+                }}
+                className="mt-6 px-6 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-bold rounded-full transition-colors"
+              >
+                ลองใหม่อีกครั้ง
+              </button>
+            </div>
+          ) : articles.length === 0 ? (
+            <div className="text-center py-20 bg-zinc-900/20 border border-zinc-800/50 rounded-3xl mt-16">
+              <BookOpen className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">ยังไม่มีบทความในขณะนี้</h3>
+              <p className="text-zinc-400">บทความใหม่ๆ จะถูกอัปเดตและแสดงผลที่นี่เร็วๆ นี้</p>
+            </div>
+          ) : (isHome || isBaccarat) ? (
+            <div className="mt-16 relative">
+              <Swiper
+                modules={[Autoplay, Pagination, Navigation]}
+                spaceBetween={30}
+                slidesPerView={1}
+                breakpoints={{
+                  640: { slidesPerView: 2 },
+                  1024: { slidesPerView: 3 },
+                  1280: { slidesPerView: 4 }
+                }}
+                autoplay={{ delay: 3000, disableOnInteraction: false }}
+                pagination={{ clickable: true }}
+                navigation
+                className="py-10"
+              >
+                {articles.filter(a => a.status !== 'draft').slice(0, 12).map((article, index) => (
+                  <SwiperSlide key={article.id || index} className="h-auto">
+                    <ArticleCard article={article} index={index} dynamicCategoryMap={dynamicCategoryMap} />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+          ) : (
+           <div className="space-y-16 mt-16">
+             {Array.from(new Set(articles.filter(a => a.status !== 'draft').map(a => a.category))).map(category => (
+               <div key={category}>
+                 <h2 className="text-2xl font-bold text-white mb-8 border-l-4 border-red-600 pl-4">
+                   {category}
+                 </h2>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                   {articles
+                     .filter(a => a.status !== 'draft' && a.category === category)
+                     .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} dynamicCategoryMap={dynamicCategoryMap} />)}
+                 </div>
+               </div>
+             ))}
+           </div>
+          )}
+          
+          <div className="mt-16 text-center">
+            <Link to="/articles" className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-600/50 text-white font-bold rounded-2xl transition-all flex items-center gap-3 mx-auto group w-fit">
+              <BookOpen className="w-5 h-5 text-red-500" />
+              ดูบทความทั้งหมด
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </div>
+      </section>
+  );
 
   const renderCategoriesSection = (isHomeTitle: boolean) => (
       <section id="categories" className="py-24 bg-zinc-950 relative">
@@ -2510,7 +2675,7 @@ function Bocker168Landing() {
               <div className="mb-8 rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl shadow-red-900/20 max-w-xl relative group mx-auto">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none" />
                 <img 
-                  src="https://img1.pic.in.th/images/Online-Baccarat-Bocker168.jpg" 
+                  src="https://img.hongkonglex.com/Baccarat-2.png" 
                   alt="บาคาร่าออนไลน์ Bocker168" 
                   className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
                   referrerPolicy="no-referrer"
@@ -2554,6 +2719,180 @@ function Bocker168Landing() {
           </div>
         </div>
       </section>
+
+      {/* --- SEO Content Block (Home only) --- */}
+      {isHome && <SeoContentBlock />}
+
+      {/* --- Baccarat SEO Article Section --- */}
+      {isBaccarat && (
+        <section className="py-24 bg-[#050505] border-t border-zinc-900">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="markdown-body prose prose-invert prose-red max-w-none prose-headings:font-black prose-a:text-red-500 hover:prose-a:text-red-400">
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-8 border-l-4 border-red-600 pl-4 py-1">
+                บาคาร่าออนไลน์ (Baccarat Online) เกมคาสิโนสดอันดับ 1 ของโลก
+              </h2>
+              
+              <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 md:p-8 mb-10">
+                <p className="text-zinc-300 text-lg leading-relaxed mb-6">
+                  <strong>บาคาร่าออนไลน์</strong> คือเกมไพ่คาสิโนสดที่ได้รับความนิยมสูงสุดในประเทศไทยและทั่วเอเชีย ด้วยรูปแบบการเล่นที่เรียบง่าย คล้ายกับไพ่ป๊อกเด้งที่คนไทยคุ้นเคย ทำให้นักพนันหน้าใหม่สามารถทำความเข้าใจกติกาได้ภายในเวลาไม่ถึง 1 นาที ที่ Bocker168 เราได้รวบรวมค่ายเกมแบรนด์ดังระดับโลกมาไว้ในที่เดียว ไม่ว่าจะเป็น SA Gaming, Sexy Baccarat, หรือ Dream Gaming ให้คุณได้สัมผัสประสบการณ์เสมือนนั่งอยู่ในคาสิโนจริง
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                  <div className="flex items-center gap-3 text-sm text-zinc-400">
+                    <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+                      <Check className="w-5 h-5" />
+                    </div>
+                    <span>เล่นง่าย รู้ผลไว ใน 30 วินาที</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-zinc-400">
+                    <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+                      <Check className="w-5 h-5" />
+                    </div>
+                    <span>อัตราจ่ายเงินรางวัลสูงถึง 11 เท่า (ทายผลไพ่คู่)</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-zinc-400">
+                    <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+                      <Check className="w-5 h-5" />
+                    </div>
+                    <span>เปิดไพ่ลุ้นเองได้ (บางห้องที่รองรับ)</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-zinc-400">
+                    <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+                      <Check className="w-5 h-5" />
+                    </div>
+                    <span>สถิติเค้าไพ่ชัดเจน วางแผนเดิมพันง่าย</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-red-950/20 to-black border border-red-900/30 rounded-2xl p-8 my-12">
+                <h3 className="text-xl font-bold text-white mb-4">กฎกติกาการนับแต้มบาคาร่า (เบื้องต้น)</h3>
+                <p className="text-zinc-400 text-sm mb-6">
+                  การเล่นประกอบด้วย 2 ฝั่งคือ ฝั่งผู้เล่น (Player - สีน้ำเงิน) และฝั่งเจ้ามือ (Banker - สีแดง) โดยดีลเลอร์จะแจกไพ่ฝ่ายละ 2 ใบ และสามารถจั่วไพ่ใบที่ 3 ได้ตามกติกาที่กำหนด ฝ่ายไหนมีแต้มใกล้เคียง 9 มากที่สุดจะเป็นฝ่ายชนะ!
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center">
+                    <div className="text-red-500 font-black mb-1">A</div>
+                    <div className="text-zinc-500 text-xs">นับเป็น 1 แต้ม</div>
+                  </div>
+                  <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center">
+                    <div className="text-red-500 font-black mb-1">2-9</div>
+                    <div className="text-zinc-500 text-xs">นับแต้มตามหน้าไพ่</div>
+                  </div>
+                  <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center">
+                    <div className="text-red-500 font-black mb-1">10, J, Q, K</div>
+                    <div className="text-zinc-500 text-xs">นับเป็น 0 แต้ม</div>
+                  </div>
+                  <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center flex flex-col justify-center">
+                    <div className="text-red-500 font-black mb-1">ชนะทันที (ป๊อก)</div>
+                    <div className="text-zinc-500 text-xs">ได้แต้ม 8 หรือ 9</div>
+                  </div>
+                </div>
+                
+                {/* --- เพิ่มเติมกติกาการจั่วไพ่และอัตราจ่าย --- */}
+                <div className="mt-8 pt-8 border-t border-zinc-800">
+                  <h4 className="text-lg font-bold text-white mb-4">กฎการจั่วไพ่ใบที่ 3 (Third Card Rule)</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div className="bg-zinc-900/50 p-5 rounded-xl border border-zinc-800">
+                      <div className="text-blue-400 font-bold mb-3 flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        ฝั่งผู้เล่น (Player)
+                      </div>
+                      <ul className="text-zinc-400 text-sm space-y-2">
+                        <li>• แต้ม 0-5 : <strong className="text-white">ต้องจั่วไพ่</strong> ใบที่ 3 เพิ่ม</li>
+                        <li>• แต้ม 6-7 : <strong className="text-white">อยู่ (Stand)</strong> ไม่ต้องจั่วไพ่เพิ่ม</li>
+                        <li>• แต้ม 8-9 : <strong className="text-white">ป๊อก (Natural)</strong> ชนะหรือเสมอทันที ไม่มีการจั่วไพ่เพิ่มทั้งสองฝั่ง</li>
+                      </ul>
+                    </div>
+                    <div className="bg-zinc-900/50 p-5 rounded-xl border border-zinc-800">
+                      <div className="text-red-400 font-bold mb-3 flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                        ฝั่งเจ้ามือ (Banker)
+                      </div>
+                      <ul className="text-zinc-400 text-sm space-y-2">
+                        <li>• แต้ม 0-2 : <strong className="text-white">ต้องจั่วไพ่</strong> เสมอ</li>
+                        <li>• แต้ม 3-6 : การจั่วไพ่จะ <strong className="text-white">ขึ้นอยู่กับไพ่ใบที่ 3 ของฝั่ง Player</strong> (ตามตารางกติกาบาคาร่ามาตรฐานสากล)</li>
+                        <li>• แต้ม 7 : <strong className="text-white">อยู่ (Stand)</strong> ไม่ต้องจั่วไพ่เพิ่ม</li>
+                        <li>• แต้ม 8-9 : <strong className="text-white">ป๊อก (Natural)</strong> ชนะหรือเสมอทันที</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <h4 className="text-lg font-bold text-white mb-4">รูปแบบการวางเดิมพันและอัตราการจ่ายเงิน</h4>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-zinc-400 border-collapse">
+                      <thead className="bg-zinc-900/80 text-zinc-300 text-xs uppercase border-b border-zinc-700">
+                        <tr>
+                          <th className="px-4 py-3 font-semibold">รูปแบบการเดิมพัน</th>
+                          <th className="px-4 py-3 font-semibold">เงื่อนไขการชนะ</th>
+                          <th className="px-4 py-3 font-semibold">อัตราจ่าย</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-800/50">
+                        <tr className="hover:bg-zinc-900/30">
+                          <td className="px-4 py-3 text-blue-400 font-medium">Player (ผู้เล่น)</td>
+                          <td className="px-4 py-3">ฝั่งผู้เล่นมีแต้มสูงกว่าเจ้ามือ</td>
+                          <td className="px-4 py-3 text-white">1 : 1</td>
+                        </tr>
+                        <tr className="hover:bg-zinc-900/30">
+                          <td className="px-4 py-3 text-red-400 font-medium">Banker (เจ้ามือ)</td>
+                          <td className="px-4 py-3">ฝั่งเจ้ามือมีแต้มสูงกว่าผู้เล่น</td>
+                          <td className="px-4 py-3 text-white">1 : 0.95 <span className="text-xs text-zinc-500">(หักค่าต๋ง 5%)</span></td>
+                        </tr>
+                        <tr className="hover:bg-zinc-900/30">
+                          <td className="px-4 py-3 text-green-400 font-medium">Tie (เสมอ)</td>
+                          <td className="px-4 py-3">ทั้งสองฝั่งมีแต้มรวมเท่ากัน <span className="text-xs text-zinc-500">(คืนทุนแทง Player/Banker)</span></td>
+                          <td className="px-4 py-3 text-white">1 : 8</td>
+                        </tr>
+                        <tr className="hover:bg-zinc-900/30">
+                          <td className="px-4 py-3 text-purple-400 font-medium">Player Pair / Banker Pair</td>
+                          <td className="px-4 py-3">วงไพ่ 2 ใบแรกของฝั่งที่แทง ออกมาเป็นไพ่คู่ (เช่น 7-7, K-K)</td>
+                          <td className="px-4 py-3 text-white">1 : 11</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="text-2xl font-bold text-white mt-12 mb-6 line-clamp-1">
+                เคล็ดลับทำกำไรจาก บาคาร่า (Baccarat Strategy)
+              </h3>
+              <p className="text-zinc-400 mb-6 leading-relaxed">
+                แม้ว่าบาคาร่าจะเป็นเกมที่อาศัยดวง แต่การมี <strong>สูตรบาคาร่า หรือเทคนิคการเดินเงิน</strong> จะช่วยเพิ่มอัตราการชนะ (Win Rate) ให้กับคุณได้อย่างมหาศาล:
+              </p>
+              <div className="space-y-6 mb-10 text-zinc-400 text-sm">
+                <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl flex gap-4">
+                  <div className="text-2xl pt-1">📊</div>
+                  <div>
+                    <h4 className="text-white font-bold text-base mb-2">การอ่านเค้าไพ่ (Roadmap Reading)</h4>
+                    <p>ฝึกสังเกตเค้าไพ่ยอดฮิต เช่น เค้าไพ่มังกร (ออกฝั่งเดิมซ้ำๆ ยาวๆ) หรือ เค้าไพ่ปิงปอง (ออกสลับฝั่งกัน) หากจับจังหวะได้ คุณสามารถแทงตามน้ำรับทรัพย์ได้อย่างต่อเนื่อง</p>
+                  </div>
+                </div>
+                <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl flex gap-4">
+                  <div className="text-2xl pt-1">💰</div>
+                  <div>
+                    <h4 className="text-white font-bold text-base mb-2">เทคนิคการแทงทบ (Martingale Method)</h4>
+                    <p>กำหนดทุนให้ชัดเจน หากตานี้เสีย ตาหน้าให้แทงทบเพิ่มอีก 1 เท่า เพื่อเรียกทุนคืนพร้อมกำไร (ต้องตั้งเป้าการทบให้ชัดเจน เช่น ไม่เกิน 3-4 ไม้เพื่อลดความเสี่ยง)</p>
+                  </div>
+                </div>
+                <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl flex gap-4">
+                  <div className="text-2xl pt-1">🧘‍♂️</div>
+                  <div>
+                    <h4 className="text-white font-bold text-base mb-2">เล่นอย่างมีสติ ตั้งเป้าหมายกำไร-ขาดทุน</h4>
+                    <p>สิ่งสำคัญที่สุดของการเดิมพันคือ "วินัย" ได้ตามเป้าต้องถอน เสียถึงลิมิตต้องพัก การควบคุมอารมณ์คือหัวใจสำคัญในการเอาชนะบาคาร่าในระยะยาว</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-12 text-center pb-2">
+              <Link to="/register" className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-red-600 to-amber-500 hover:opacity-90 text-white font-black rounded-2xl shadow-[0_0_20px_rgba(220,38,38,0.2)] hover:shadow-[0_0_30px_rgba(220,38,38,0.4)] transition-all">
+                ทดลองเล่นบาคาร่าฟรี <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* --- Highlight Bar --- */}
       <section className="py-12 bg-zinc-900/30 border-y border-zinc-800 overflow-hidden">
@@ -2653,6 +2992,9 @@ function Bocker168Landing() {
 
       {/* --- Baccarat Categories --- */}
       {isHome && renderCategoriesSection(true)}
+
+      {/* --- Articles Section (Home & Articles) --- */}
+      {(isHome || isArticles) && renderArticlesSection()}
 
       {/* --- How To Start --- */}
       {isHome && (
@@ -2798,227 +3140,14 @@ function Bocker168Landing() {
       </>
       )}
 
-      {/* --- Articles Section --- */}
-      {(isHome || isArticles || isBaccarat) && (
-      <section id="articles" className="py-24 relative bg-[#050505]">
-        <div className="container mx-auto px-4">
-          <SectionTitle 
-            title="บทความและเทคนิคบาคาร่า"
-            subtitle="อัปเดตความรู้ เทคนิค และสูตรบาคาร่าใหม่ๆ เพื่อเพิ่มโอกาสชนะของคุณ"
-            centered={true}
-          />
-
-          {isLoadingArticles ? (
-            <div className="flex flex-col items-center justify-center py-24 mt-16">
-              <div className="w-12 h-12 border-4 border-red-600/20 border-t-red-600 rounded-full animate-spin mb-4" />
-              <p className="text-zinc-400 animate-pulse">กำลังโหลดบทความ...</p>
-            </div>
-          ) : articleError ? (
-            <div className="text-center py-20 bg-zinc-900/20 border border-zinc-800/50 rounded-3xl mt-16">
-              <div className="w-16 h-16 bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="w-8 h-8 text-zinc-600" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">ขออภัย เกิดข้อผิดพลาด</h3>
-              <p className="text-zinc-400">{articleError}</p>
-              <button 
-                onClick={() => {
-                  setIsLoadingArticles(true);
-                  fetchArticles().finally(() => setIsLoadingArticles(false));
-                }}
-                className="mt-6 px-6 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-bold rounded-full transition-colors"
-              >
-                ลองใหม่อีกครั้ง
-              </button>
-            </div>
-          ) : articles.length === 0 ? (
-            <div className="text-center py-20 bg-zinc-900/20 border border-zinc-800/50 rounded-3xl mt-16">
-              <BookOpen className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">ยังไม่มีบทความในขณะนี้</h3>
-              <p className="text-zinc-400">บทความใหม่ๆ จะถูกอัปเดตและแสดงผลที่นี่เร็วๆ นี้</p>
-            </div>
-          ) : (isHome || isBaccarat) ? (
-            <div className="mt-16 relative">
-              <Swiper
-                modules={[Autoplay, Pagination, Navigation]}
-                spaceBetween={30}
-                slidesPerView={1}
-                breakpoints={{
-                  640: { slidesPerView: 2 },
-                  1024: { slidesPerView: 3 },
-                  1280: { slidesPerView: 4 }
-                }}
-                autoplay={{ delay: 3000, disableOnInteraction: false }}
-                pagination={{ clickable: true }}
-                navigation
-                className="py-10"
-              >
-                {articles.filter(a => a.status !== 'draft').slice(0, 12).map((article, index) => (
-                  <SwiperSlide key={article.id || index} className="h-auto">
-                    <ArticleCard article={article} index={index} dynamicCategoryMap={dynamicCategoryMap} />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
-          ) : (
-           <div className="space-y-16 mt-16">
-             {Array.from(new Set(articles.filter(a => a.status !== 'draft').map(a => a.category))).map(category => (
-               <div key={category}>
-                 <h2 className="text-2xl font-bold text-white mb-8 border-l-4 border-red-600 pl-4">
-                   {category}
-                 </h2>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                   {articles
-                     .filter(a => a.status !== 'draft' && a.category === category)
-                     .map((article, index) => <ArticleCard key={article.id || index} article={article} index={index} dynamicCategoryMap={dynamicCategoryMap} />)}
-                 </div>
-               </div>
-             ))}
-           </div>
-          )}
-          
-          <div className="mt-16 text-center">
-            <Link to="/articles" className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-600/50 text-white font-bold rounded-2xl transition-all flex items-center gap-3 mx-auto group w-fit">
-              <BookOpen className="w-5 h-5 text-red-500" />
-              ดูบทความทั้งหมด
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-        </div>
-      </section>
-      )}
-
       {/* --- Baccarat Guide Section --- */}
       {isHome && <BaccaratGuide />}
 
-      {/* --- Baccarat SEO Article Section --- */}
-      {isBaccarat && (
-        <section className="py-24 bg-[#050505] border-t border-zinc-900">
-          <div className="container mx-auto px-4 max-w-4xl">
-            <div className="markdown-body prose prose-invert prose-red max-w-none prose-headings:font-black prose-a:text-red-500 hover:prose-a:text-red-400">
-              <h2 className="text-3xl md:text-4xl font-black text-white mb-8 border-l-4 border-red-600 pl-4 py-1">
-                บาคาร่าออนไลน์ (Baccarat Online) เกมคาสิโนสดอันดับ 1 ของโลก
-              </h2>
-              
-              <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 md:p-8 mb-10">
-                <p className="text-zinc-300 text-lg leading-relaxed mb-6">
-                  <strong>บาคาร่าออนไลน์</strong> คือเกมไพ่คาสิโนสดที่ได้รับความนิยมสูงสุดในประเทศไทยและทั่วเอเชีย ด้วยรูปแบบการเล่นที่เรียบง่าย คล้ายกับไพ่ป๊อกเด้งที่คนไทยคุ้นเคย ทำให้นักพนันหน้าใหม่สามารถทำความเข้าใจกติกาได้ภายในเวลาไม่ถึง 1 นาที ที่ Bocker168 เราได้รวบรวมค่ายเกมแบรนด์ดังระดับโลกมาไว้ในที่เดียว ไม่ว่าจะเป็น SA Gaming, Sexy Baccarat, หรือ Dream Gaming ให้คุณได้สัมผัสประสบการณ์เสมือนนั่งอยู่ในคาสิโนจริง
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                  <div className="flex items-center gap-3 text-sm text-zinc-400">
-                    <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
-                      <Check className="w-5 h-5" />
-                    </div>
-                    <span>เล่นง่าย รู้ผลไว ใน 30 วินาที</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-zinc-400">
-                    <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
-                      <Check className="w-5 h-5" />
-                    </div>
-                    <span>รองรับทุกอุปกรณ์ มือถือ/แท็บเล็ต/คอมพ์</span>
-                  </div>
-                </div>
-              </div>
-
-              <h3 className="text-2xl font-bold text-white mt-12 mb-6 flex items-center gap-3">
-                <Flame className="w-6 h-6 text-red-500" />
-                ทำไมต้องเล่น บาคาร่าเว็บตรง กับ Bocker168?
-              </h3>
-              <p className="text-zinc-400 leading-relaxed mb-6">
-                การเลือกเว็บบาคาร่าที่ได้มาตรฐานคือหัวใจสำคัญของการเล่นคาสิโนออนไลน์ Bocker168 คือ <strong>เว็บบาคาร่าอันดับ 1</strong> ที่ให้บริการแบบ "เว็บตรง ไม่ผ่านเอเย่นต์" ซึ่งส่งผลดีต่อผู้เล่นโดยตรงดังนี้:
-              </p>
-              <ul className="space-y-4 mb-8">
-                <li className="flex gap-4">
-                  <div className="min-w-[24px] mt-1"><CheckCircle2 className="w-6 h-6 text-red-500" /></div>
-                  <div>
-                    <strong className="text-white block">ระบบการเงินมั่นคง ถอนได้ไม่อั้น</strong>
-                    <span className="text-zinc-400 text-sm">ไร้ปัญหาโกง หรือปิดเว็บหนี เพราะเรามีทุนจดทะเบียนหนา รองรับการถอนเงินหลักแสนถึงหลักล้านต่อวัน</span>
-                  </div>
-                </li>
-                <li className="flex gap-4">
-                  <div className="min-w-[24px] mt-1"><CheckCircle2 className="w-6 h-6 text-red-500" /></div>
-                  <div>
-                    <strong className="text-white block">ฝาก-ถอน ออโต้ 100% ไม่มีขั้นต่ำ</strong>
-                    <span className="text-zinc-400 text-sm">ทำรายการไวสุดใน 5 วินาที ทุนน้อยก็สามารถฝากเข้ามาเล่นได้ เริ่มต้นเดิมพันคาสิโนสดเพียง 10 บาท</span>
-                  </div>
-                </li>
-                <li className="flex gap-4">
-                  <div className="min-w-[24px] mt-1"><CheckCircle2 className="w-6 h-6 text-red-500" /></div>
-                  <div>
-                    <strong className="text-white block">รวมครบทุกค่ายแบรนด์ดัง</strong>
-                    <span className="text-zinc-400 text-sm">ยูสเซอร์เดียวเล่นได้ครบทุกอย่าง ไม่ต้องโยกเงินให้เสียเวลา ภาพคมชัดระดับ 4K ส่งตรงจากคาสิโนแบบไม่มีดีเลย์</span>
-                  </div>
-                </li>
-              </ul>
-
-              <div className="bg-gradient-to-r from-red-950/20 to-black border border-red-900/30 rounded-2xl p-8 my-12">
-                <h3 className="text-xl font-bold text-white mb-4">กฎกติกาการนับแต้มบาคาร่า (เบื้องต้น)</h3>
-                <p className="text-zinc-400 text-sm mb-6">
-                  การเล่นประกอบด้วย 2 ฝั่งคือ ฝั่งผู้เล่น (Player - สีน้ำเงิน) และฝั่งเจ้ามือ (Banker - สีแดง) โดยดีลเลอร์จะแจกไพ่ฝ่ายละ 2 ใบ และสามารถจั่วไพ่ใบที่ 3 ได้ตามกติกาที่กำหนด ฝ่ายไหนมีแต้มใกล้เคียง 9 มากที่สุดจะเป็นฝ่ายชนะ!
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center">
-                    <div className="text-red-500 font-black mb-1">A</div>
-                    <div className="text-zinc-500 text-xs">นับเป็น 1 แต้ม</div>
-                  </div>
-                  <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center">
-                    <div className="text-red-500 font-black mb-1">2-9</div>
-                    <div className="text-zinc-500 text-xs">นับแต้มตามหน้าไพ่</div>
-                  </div>
-                  <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center">
-                    <div className="text-red-500 font-black mb-1">10, J, Q, K</div>
-                    <div className="text-zinc-500 text-xs">นับเป็น 0 แต้ม</div>
-                  </div>
-                  <div className="bg-black/50 p-4 border border-zinc-800 rounded-xl text-center flex flex-col justify-center">
-                    <div className="text-red-500 font-black mb-1">ชนะทันที (ป๊อก)</div>
-                    <div className="text-zinc-500 text-xs">ได้แต้ม 8 หรือ 9</div>
-                  </div>
-                </div>
-              </div>
-
-              <h3 className="text-2xl font-bold text-white mt-12 mb-6 line-clamp-1">
-                เคล็ดลับทำกำไรจาก บาคาร่า (Baccarat Strategy)
-              </h3>
-              <p className="text-zinc-400 mb-6 leading-relaxed">
-                แม้ว่าบาคาร่าจะเป็นเกมที่อาศัยดวง แต่การมี <strong>สูตรบาคาร่า หรือเทคนิคการเดินเงิน</strong> จะช่วยเพิ่มอัตราการชนะ (Win Rate) ให้กับคุณได้อย่างมหาศาล:
-              </p>
-              <div className="space-y-6 mb-10 text-zinc-400 text-sm">
-                <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl flex gap-4">
-                  <div className="text-2xl pt-1">📊</div>
-                  <div>
-                    <h4 className="text-white font-bold text-base mb-2">การอ่านเค้าไพ่ (Roadmap Reading)</h4>
-                    <p>ฝึกสังเกตเค้าไพ่ยอดฮิต เช่น เค้าไพ่มังกร (ออกฝั่งเดิมซ้ำๆ ยาวๆ) หรือ เค้าไพ่ปิงปอง (ออกสลับฝั่งกัน) หากจับจังหวะได้ คุณสามารถแทงตามน้ำรับทรัพย์ได้อย่างต่อเนื่อง</p>
-                  </div>
-                </div>
-                <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl flex gap-4">
-                  <div className="text-2xl pt-1">💰</div>
-                  <div>
-                    <h4 className="text-white font-bold text-base mb-2">เทคนิคการแทงทบ (Martingale Method)</h4>
-                    <p>สูตรการเดินเงินยอดนิยม หากเสียในตานี้ ให้ทบเงินเดิมพันในตาถัดไปเป็น 2 เท่าเสมอ เมื่อคุณชนะ คุณจะได้ทุนคืนพร้อมกำไรของตาแรกทันที (ควรตั้งงบประมาณไว้ล่วงหน้าให้เพียงพอ)</p>
-                  </div>
-                </div>
-                <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl flex gap-4">
-                  <div className="text-2xl pt-1">🧊</div>
-                  <div>
-                    <h4 className="text-white font-bold text-base mb-2">หยุดพักเมื่อได้กำไรตามเป้า</h4>
-                    <p>การพนันที่ฉลาดที่สุดคือการรู้จักควบคุมอารมณ์ เมื่อคุณตั้งเป้าหมายกำไรในแต่ละวันและทำได้ถึงเป้าแล้ว ให้เลิกเล่นและถอนเงินทันที</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t border-zinc-800 pt-8 mt-12 text-center">
-                <h3 className="text-xl font-bold text-white mb-4">พร้อมที่จะลุยและคว้าเงินรางวัลแล้วหรือยัง?</h3>
-                <p className="text-zinc-500 mb-8">สมัครสมาชิกใหม่วันนี้รับเครดิตฟรีทันทีไม่ต้องแชร์ สมัครง่ายผ่านระบบออโต้</p>
-                <a href="https://inlnk.co/registerbocker168" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-xl shadow-lg transition-all hover:-translate-y-1">
-                  สมัครสมาชิก เล่นบาคาร่าเลย <ChevronRight className="w-5 h-5" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* --- Baccarat Categories (At Bottom of Baccarat Page) --- */}
       {isBaccarat && renderCategoriesSection(false)}
+
+      {/* --- Articles Section (At Bottom of Baccarat Page) --- */}
+      {isBaccarat && renderArticlesSection()}
 
       {/* --- FAQ Section --- */}
       {(isHome || isFaq) && (
@@ -3044,8 +3173,6 @@ function Bocker168Landing() {
         </div>
       </section>
       )}
-
-      {isHome && <SeoContentBlock />}
 
       {isContact && <ContactForm />}
 
