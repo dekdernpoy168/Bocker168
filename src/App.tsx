@@ -1013,7 +1013,9 @@ function Bocker168Landing() {
   const currentCategory = urlCategorySlug ? (dynamicReverseCategoryMap[urlCategorySlug] || decodeURIComponent(urlCategorySlug)) : null;
 
   const getPageTitle = () => {
-    const pathAlias = potentialSlug || location.pathname.substring(1);
+    let pathAlias = potentialSlug || location.pathname.substring(1);
+    if (!pathAlias) pathAlias = 'home';
+
     const dbPageSearch = pages.find(p => p.slug === pathAlias || p.id === pathAlias);
     if (dbPageSearch && dbPageSearch.metaTitle) {
       return dbPageSearch.metaTitle;
@@ -1056,7 +1058,9 @@ function Bocker168Landing() {
   };
 
   const getPageDescription = () => {
-    const pathAlias = potentialSlug || location.pathname.substring(1);
+    let pathAlias = potentialSlug || location.pathname.substring(1);
+    if (!pathAlias) pathAlias = 'home';
+
     const dbPageSearch = pages.find(p => p.slug === pathAlias || p.id === pathAlias);
     if (dbPageSearch && dbPageSearch.metaDescription) {
       return dbPageSearch.metaDescription;

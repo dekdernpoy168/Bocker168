@@ -319,6 +319,7 @@ async function startServer() {
   const injectSEO = async (template: string, url: string) => {
     const DOMAIN = 'https://hongkonglex.com';
     const pathParts = url.split('?')[0].split('/').filter(Boolean);
+    let statusCode = 200;
     
     // Dynamic Category Map
     let dynamicReverseMap = REVERSE_CATEGORY_MAP;
@@ -344,6 +345,8 @@ async function startServer() {
     let ogImage = "https://img2.pic.in.th/A2-Logo-Bocker-168.png";
     let bodyContent = "";
 
+    const reservedRoutes = ['category', 'author', 'admin', 'dashboard', 'api', 'assets'];
+
     // 1. Check for Category Page /category/:slug
     if (pathParts[0] === 'category' && pathParts[1]) {
       const catSlug = decodeURIComponent(pathParts[1]);
@@ -352,17 +355,17 @@ async function startServer() {
       description = `อ่านบทความทั้งหมดเกี่ยวกับ ${catName} เทคนิคการเล่นบาคาร่าและข่าวสารคาสิโนออนไลน์ที่ Bocker168`;
     } 
     // 2. Check for Single Slug (Page or Post)
-    else if (pathParts.length === 1) {
-      const slug = decodeURIComponent(pathParts[0]);
+    else if ((pathParts.length === 1 && !reservedRoutes.includes(pathParts[0])) || pathParts.length === 0) {
+      const slug = pathParts.length === 0 ? 'home' : decodeURIComponent(pathParts[0]);
       
       // Try find Page first
       const page = await getPageBySlug(slug);
       if (page) {
-        title = page.metaTitle || `${page.title} - Bocker168`;
-        description = page.metaDescription || page.excerpt || description;
+        title = page.metaTitle || (slug === 'home' ? title : `${page.title} - Bocker168`);
+        description = page.metaDescription || (slug === 'home' ? description : (page.excerpt || description));
         ogImage = page.image || ogImage;
-      } else {
-        // Try find Post
+      } else if (pathParts.length !== 0) {
+        // Try find Post (only if not home page)
         const article = await getArticleBySlug(slug);
         if (article) {
           title = article.metaTitle || article.title;
@@ -398,11 +401,26 @@ async function startServer() {
           };
 
           template = template.replace('</head>', `<script type="application/ld+json">${JSON.stringify(jsonLdArticle).replace(/</g, '\\u003c')}</script>\n</head>`);
+        } else {
+           statusCode = 404;
+           title = "ไม่พบหน้าที่ต้องการ - Bocker168";
         }
       }
+    } else if (pathParts.length > 1 && !reservedRoutes.includes(pathParts[0])) {
+        statusCode = 404;
+        title = "ไม่พบหน้าที่ต้องการ - Bocker168";
     }
 
-    return template
+    console.log(`[SEO INJECT] URL: ${url}, pathParts: ${JSON.stringify(pathParts)}, statusCode: ${statusCode}`);
+
+    let robotsContent = "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
+    const privateRoutes = ['admin', 'dashboard', 'api'];
+
+    if (statusCode === 404 || (pathParts[0] && privateRoutes.includes(pathParts[0]))) {
+      robotsContent = "noindex, nofollow";
+    }
+
+    const html = template
       .replace('<div id="root"></div>', `<div id="root">${bodyContent}</div>`)
       .replace(/<title>.*?<\/title>/i, `<title>${title.replace(/&/g, '&amp;')}</title>`)
       .replace(/<meta\s+name=["']description["']\s+content=["'].*?["']\s*\/?>/i, `<meta name="description" content="${description.replace(/"/g, '&quot;')}" />`)
@@ -413,7 +431,7 @@ async function startServer() {
       .replace(/<meta\s+property=["']og:url["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:url" content="${canonical}" />`)
       .replace(/<meta\s+property=["']og:image["']\s+content=["'].*?["']\s*\/?>/i, `<meta property="og:image" content="${ogImage}" />`)
       .replace(/<link\s+rel=["']canonical["']\s+href=["'].*?["']\s*\/?>/i, `<link rel="canonical" href="${canonical}" />`)
-      .replace('</head>', `<script type="application/ld+json">${JSON.stringify({
+      .replace('</head>', `<meta name="robots" content="${robotsContent}" />\n<script type="application/ld+json">${JSON.stringify({
         "@context": "https://schema.org",
         "@type": "WebSite",
         "url": DOMAIN + "/",
@@ -422,6 +440,8 @@ async function startServer() {
         "description": "เว็บไซต์บาคาร่าออนไลน์อันดับ 1 เว็บตรงไม่ผ่านเอเย่นต์",
         "inLanguage": "th-TH"
       }).replace(/</g, '\\u003c')}</script>\n</head>`);
+      
+      return { html, statusCode };
   };
 
   // API Routes
@@ -739,7 +759,8 @@ async function startServer() {
         { slug: 'baccarat', title: 'บาคาร่าออนไลน์', content: '<p>หน้านี้ใช้รูปแบบพิเศษ (Custom Layout) การแก้ไขเนื้อหาในกล่องนี้จะไม่มีผลต่อรูปแบบหน้า แต่คุณสามารถแก้ไข Title และ URL รูปภาพได้เพื่อตั้งค่า SEO</p>' },
         { slug: 'features', title: 'จุดเด่นของเรา', content: '<p>หน้านี้ใช้รูปแบบพิเศษ (Custom Layout) การแก้ไขเนื้อหาในกล่องนี้จะไม่มีผลต่อรูปแบบหน้า แต่คุณสามารถแก้ไข Title และ URL รูปภาพได้เพื่อตั้งค่า SEO</p>' },
         { slug: 'promotions', title: 'โปรโมชั่น', content: '<p>หน้านี้ใช้รูปแบบพิเศษ (Custom Layout) การแก้ไขเนื้อหาในกล่องนี้จะไม่มีผลต่อรูปแบบหน้า แต่คุณสามารถแก้ไข Title และ URL รูปภาพได้เพื่อตั้งค่า SEO</p>' },
-        { slug: 'articles', title: 'บทความ', content: '<p>หน้านี้ใช้รูปแบบพิเศษ (Custom Layout) การแก้ไขเนื้อหาในกล่องนี้จะไม่มีผลต่อรูปแบบหน้า แต่คุณสามารถแก้ไข Title และ URL รูปภาพได้เพื่อตั้งค่า SEO</p>' }
+        { slug: 'articles', title: 'บทความ', content: '<p>หน้านี้ใช้รูปแบบพิเศษ (Custom Layout) การแก้ไขเนื้อหาในกล่องนี้จะไม่มีผลต่อรูปแบบหน้า แต่คุณสามารถแก้ไข Title และ URL รูปภาพได้เพื่อตั้งค่า SEO</p>' },
+        { slug: 'home', title: 'หน้าแรก', content: '<p>หน้านี้ใช้รูปแบบพิเศษ (Custom Layout) การแก้ไขเนื้อหาในกล่องนี้จะไม่มีผลต่อรูปแบบหน้า แต่คุณสามารถแก้ไข Title และ URL รูปภาพได้เพื่อตั้งค่า SEO</p>' }
       ];
 
       let currentPages = result.results || [];
@@ -999,6 +1020,18 @@ async function startServer() {
     }
   });
 
+  // Robots.txt
+  app.get('/robots.txt', (req, res) => {
+    const robots = `User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api/
+Sitemap: https://hongkonglex.com/sitemap.xml`;
+    res.header('Content-Type', 'text/plain');
+    res.send(robots);
+  });
+
   // Sitemap Index
   app.get('/sitemap.xml', (req, res) => {
     const DOMAIN = 'https://hongkonglex.com';
@@ -1161,7 +1194,7 @@ ${authors.map(author => `  <url>
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
-      appType: 'spa',
+      appType: 'custom',
     });
     app.use(vite.middlewares);
     
@@ -1171,11 +1204,11 @@ ${authors.map(author => `  <url>
       try {
         let template = await fs.readFile(path.resolve(process.cwd(), 'index.html'), 'utf-8');
         template = await vite.transformIndexHtml(url, template);
-        template = await injectSEO(template, url);
+        const seoResult = await injectSEO(template, url);
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
-        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+        res.status(seoResult.statusCode).set({ 'Content-Type': 'text/html' }).end(seoResult.html);
       } catch (e) {
         vite.ssrFixStacktrace(e as Error);
         next(e);
@@ -1187,13 +1220,13 @@ ${authors.map(author => `  <url>
     app.get('*all', async (req, res) => {
       try {
         let template = await fs.readFile(path.join(distPath, 'index.html'), 'utf-8');
-        template = await injectSEO(template, req.originalUrl);
+        const seoResult = await injectSEO(template, req.originalUrl);
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
-        res.status(200).set({ 'Content-Type': 'text/html' }).send(template);
+        res.status(seoResult.statusCode).set({ 'Content-Type': 'text/html' }).send(seoResult.html);
       } catch (error) {
-        res.sendFile(path.join(distPath, 'index.html'));
+        res.status(404).sendFile(path.join(distPath, 'index.html'));
       }
     });
   }
