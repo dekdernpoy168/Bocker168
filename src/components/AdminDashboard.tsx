@@ -3141,13 +3141,21 @@ ${article.content?.replace(/<[^>]*>/g, '')}
             </div>
             <div className="p-8 overflow-y-auto custom-scrollbar flex-1 bg-white text-black">
               <div className="max-w-3xl mx-auto">
-                <h1 className="text-4xl font-bold mb-6">{currentArticle.title || 'ไม่มีหัวข้อ'}</h1>
-                {currentArticle.image ? (
-                  <img src={currentArticle.image} alt="Cover" className="w-full h-auto rounded-xl mb-8 object-cover max-h-[400px]" />
+                <h1 className="text-4xl font-bold mb-6">
+                  {activeTab === 'pages' ? (currentWebPage.title || 'ไม่มีหัวข้อ') : (currentArticle.title || 'ไม่มีหัวข้อ')}
+                </h1>
+                {(activeTab === 'pages' ? currentWebPage.image : currentArticle.image) ? (
+                  <img 
+                    src={activeTab === 'pages' ? currentWebPage.image : currentArticle.image} 
+                    alt="Cover" 
+                    className="w-full h-auto rounded-xl mb-8 object-cover max-h-[400px]" 
+                  />
                 ) : null}
                 <div 
-                  className="prose prose-lg max-w-none"
-                  dangerouslySetInnerHTML={{ __html: currentArticle.content || '<p className="text-gray-500 italic">ยังไม่มีเนื้อหา</p>' }}
+                  className="max-w-none [&>h1]:text-red-600 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-red-600 [&>h2]:mt-8 [&>p]:text-gray-800 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-red-600 [&>h3]:mt-6 [&>h4]:text-lg [&>h4]:font-bold [&>h4]:text-red-600 [&>h4]:mt-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-gray-800 [&>ul>li]:mb-2 [&>strong]:text-amber-600 [&>b]:text-amber-600 [&>a]:text-green-600 [&>a]:font-bold hover:[&>a]:text-green-500 [&>a]:underline transition-colors [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
+                  dangerouslySetInnerHTML={{ 
+                    __html: (activeTab === 'pages' ? currentWebPage.content : currentArticle.content) || '<p className="text-gray-500 italic">ยังไม่มีเนื้อหา</p>' 
+                  }}
                 />
               </div>
             </div>

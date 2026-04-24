@@ -2081,7 +2081,7 @@ function Bocker168Landing() {
                 </h1>
               </div>
               <div 
-                className="prose prose-invert prose-red max-w-none prose-lg prose-p:text-zinc-400 prose-p:leading-loose prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-red-500 hover:prose-a:text-red-400 prose-img:rounded-3xl [&>img]:rounded-3xl [&>img]:shadow-2xl [&>img]:my-10"
+                className="max-w-none [&>h1]:text-red-500 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-red-500 [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-red-500 [&>h3]:mt-6 [&>h4]:text-lg [&>h4]:font-bold [&>h4]:text-red-500 [&>h4]:mt-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-amber-500 [&>b]:text-amber-500 [&>a]:text-green-500 [&>a]:font-bold hover:[&>a]:text-green-400 [&>a]:underline transition-colors [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
                 dangerouslySetInnerHTML={{ __html: currentPage.content }}
               />
             </div>
@@ -2189,7 +2189,7 @@ function Bocker168Landing() {
                       return (
                         <>
                           <div 
-                            className="max-w-none [&>h1]:text-red-500 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-red-500 [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-red-500 [&>h3]:mt-6 [&>h4]:text-lg [&>h4]:font-bold [&>h4]:text-red-500 [&>h4]:mt-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-amber-500 [&>b]:text-amber-500 [&>a]:text-sky-400 hover:[&>a]:text-sky-300 [&>a]:underline transition-colors [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
+                            className="max-w-none [&>h1]:text-red-500 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-red-500 [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-red-500 [&>h3]:mt-6 [&>h4]:text-lg [&>h4]:font-bold [&>h4]:text-red-500 [&>h4]:mt-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-amber-500 [&>b]:text-amber-500 [&>a]:text-green-500 [&>a]:font-bold hover:[&>a]:text-green-400 [&>a]:underline transition-colors [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
                             dangerouslySetInnerHTML={{ __html: part1 }}
                           />
                           
@@ -2242,7 +2242,7 @@ function Bocker168Landing() {
                           )}
 
                           <div 
-                            className="max-w-none [&>h1]:text-red-500 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-red-500 [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-red-500 [&>h3]:mt-6 [&>h4]:text-lg [&>h4]:font-bold [&>h4]:text-red-500 [&>h4]:mt-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-amber-500 [&>b]:text-amber-500 [&>a]:text-sky-400 hover:[&>a]:text-sky-300 [&>a]:underline transition-colors [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
+                            className="max-w-none [&>h1]:text-red-500 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:text-red-500 [&>h2]:mt-8 [&>p]:text-zinc-300 [&>p]:mb-6 [&>p]:leading-relaxed [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:text-red-500 [&>h3]:mt-6 [&>h4]:text-lg [&>h4]:font-bold [&>h4]:text-red-500 [&>h4]:mt-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:text-zinc-300 [&>ul>li]:mb-2 [&>strong]:text-amber-500 [&>b]:text-amber-500 [&>a]:text-green-500 [&>a]:font-bold hover:[&>a]:text-green-400 [&>a]:underline transition-colors [&>p>img]:rounded-2xl [&>p>img]:mb-8 [&>p>img]:w-full"
                             dangerouslySetInnerHTML={{ __html: part2 }}
                           />
 
